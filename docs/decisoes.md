@@ -75,7 +75,22 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
       só como mapa (Figura 4-4), sem valores legíveis por tipo e UF.
     Conclusão: **o PDE não publica uma trajetória de data centers para o NE**. Os
     data centers do cenário de referência estão embutidos na carga do NE e não são
-    separáveis. — pendente do usuário: como construir L_DC (opções no STATUS).
+    separáveis.
+    **Decisão do usuário (2026-11-11): opção A + C.** Caso-base = PDE de
+    referência puro (L_DC incremental = 0; os DC do PDE ficam embutidos na carga
+    do NE). Cenários de DC (conservador/central/alto) = inventário documentado de
+    projetos no NE (#11), somado ao caso-base, com o pipeline do MME como teto. A
+    diferença PDE superior − referência (opção B) fica apenas como estresse. —
+    adotada.
+16b. **Projeção oficial de DC usada nos cenários**: a previsão de carga do PLAN
+    2026-2030 (ONS/EPE/CCEE) publica a carga de DC de Rede Básica por subsistema.
+    NE, 2ª Revisão Quadrimestral (acessos de 22/07/2026): 112 / 333 / 628 / 813 /
+    2.098 MWmed (2026–2030), dos quais 1.886 MWmed de contratos assinados em 2030.
+    Valores lidos dos rótulos dos gráficos (slides do workshop; a nota técnica da
+    2ª RQ não foi localizada) e conferidos com o texto (incremento de 807 MWmed
+    sobre a 1ª RQ). Cenários: conservador = contratos; central = 2ª RQ; alto =
+    contratos + 100% pareceres + inventário M3 (proposta, pendente). Os valores já
+    são MWmed de carga: sem PUE nem utilização. — adotada (alto pendente).
 19. **ERA5 1995–2021** nos mesmos 34 pontos, em blocos de 9 anos
     (`data/raw/openmeteo/hist/`), autorizado pelo usuário em 2026-11-11. Mesma
     grade e modelo (`models=era5`) do período de calibração. — adotada.

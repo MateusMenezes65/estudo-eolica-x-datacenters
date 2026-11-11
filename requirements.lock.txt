@@ -23,6 +23,8 @@ pluggy==1.7.0
 pyarrow==26.0.1
 Pygments==2.21.0
 pyparsing==3.3.3
+pypdf==7.0.1
+pypdfium2==5.15.2
 pytest==9.2.0
 python-dateutil==2.9.0.post0
 python-docx==1.2.0

@@ -79,6 +79,14 @@ Valores do PDE 2035 usados nos cenários (gera `config/pde2035_extraido.csv`):
 .venv/Scripts/python.exe -m src.collect.pde_extract
 ```
 
+Notas técnicas de previsão de carga do PLAN 2026-2030 (carga de data centers por
+subsistema). Os slides da 2ª Revisão Quadrimestral (CCEE) recusam download
+automatizado (HTTP 403) e foram obtidos manualmente; ver o manifesto:
+
+```bash
+.venv/Scripts/python.exe -m src.collect.ons_plan
+```
+
 Conferência do manifesto, integração horária, auditoria e testes:
 
 ```bash

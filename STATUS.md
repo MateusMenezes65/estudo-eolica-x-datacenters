@@ -5,7 +5,7 @@
 ## 1. Executado
 
 - **Ambiente**: Windows 11; Git 2.56; Python 3.14.1 real (alias da Microsoft Store também existe em `WindowsApps`, não usado); `.venv` criado no projeto; dependências fixadas em `requirements.txt` / `requirements.lock.txt`; 125 GB livres.
-- **Git**: repositório local; identidade configurada só neste repositório (MateusMenezes65). Commits: `9278ea9` (Dia 1) e o commit desta atualização.
+- **Git**: repositório local; identidade configurada só neste repositório (MateusMenezes65). Histórico em `git log`.
 - **Estrutura**: `config/ src/ tests/ docs/ reports/ data/{raw,interim,processed}`, `.gitignore`, README, `docs/decisoes.md`.
 - **Arquivos originais**: `AGENTS.md` e `docs/Plano_Orientador_...docx` preservados. Onde divergem, vale o AGENTS.md (horizonte 2030; o plano fala em 2035).
 - **Coleta** (346 registros no manifesto `docs/manifest/manifest.csv`, com URL, tamanho, SHA-256, data de coleta; checagem `python -m src.collect.manifest` sem pendências):
@@ -54,7 +54,11 @@ Correções feitas no código: leitura de `val_*` gravados como texto em alguns 
 
 ## 4. Lacunas
 
-- **#11 Inventário de data centers**: não iniciado (pesquisa documental: MME, EPE, pareceres de acesso do ONS, governos estaduais, anúncios). É P1 e necessário para L_DC.
+- **#11 Inventário de data centers — feito (v0.2, 2026-11-11)**:
+  - Projeção oficial (PLAN 2026-2030, ONS/EPE/CCEE), carga de DC na Rede Básica do NE em MWmed: 2ª Revisão Quadrimestral 112 → 333 → 628 → 813 → **2.098** (2026→2030), dos quais 1.886 de contratos assinados; 1ª RQ 1.291 e PLAN 716 em 2030 (`config/dc_trajetoria_oficial_ne.csv`).
+  - Inventário de 17 itens com fonte, data, definição da potência, maturidade M0–M3 e grupo de deduplicação (`config/data_centers_ne.csv`). Principal: Pecém fase 1 (Omnia/ByteDance), 200 MW de TI e cerca de 300 MW de consumo, operação a partir do 3T2027; Renova Satoshi (BA) já consome cerca de 80 MW médios em 2026, junto a eólica.
+  - Nenhum documento oficial público traz MW por projeto (planilha do MME sem MW; MUST tarjado na carta do ONS). 7 itens foram conferidos diretamente; os demais vêm do relatório dos agentes de pesquisa ou só da busca, e estão marcados assim.
+  - Lacunas: MW da ExportData (4 DCs), Tecto Pecém, DC Xingó; nota técnica completa da 2ª RQ; tipo de carga de vários pedidos na BA (Satoshi II–IV, SNRA).
 - **#10 PDE 2035**: carga extraída (`config/pde2035_extraido.csv`, `src/collect/pde_extract.py`): NE referência 13 684 → 16 340 → 19 610 MWmed (2025/2030/2035); inferior e superior só para 2025 e 2035 (NE 2035: 18,1 e 28,7 GWmed). **Não há trajetória de data centers por subsistema**: o PDE só publica "cargas especiais" no Brasil em 2035 (VE + DC + H2: 9,5 / 11,7 / 131,1 TWh) e os pedidos de conexão de DC no MME (Brasil: 17,4 GW até 2030). Ainda faltam a expansão da geração e os limites de intercâmbio.
 - **P2 não coletados**: ENSO/ONI (#12), hidrologia do São Francisco (#13; 74 MB disponíveis no ONS), IBC-Br (#14), limites de intercâmbio documentais (#15).
 - Feriados municipais não incluídos.
@@ -64,13 +68,9 @@ Correções feitas no código: leitura de `val_*` gravados como texto em alguns 
 
 1. ~~Identidade Git~~ — configurada em 2026-11-11.
 2. ~~Definição de L_base~~ — **decidido em 2026-11-11**: carga líquida de MMGD da API (`val_cargaglobalsmmgd`) como L_base; MMGD (`val_cargammgd`) como geração distribuída separada (decisão 13).
-3. **Data centers** — decidido: L_DC incremental ao PDE de referência, reproduzindo o PDE num primeiro momento. **Pendente**: como o PDE não separa data centers no NE, escolher como construir L_DC:
-   - (A) caso-base = PDE referência puro (L_DC incremental = 0; os DC do PDE estão embutidos na carga de 16,34 GWmed em 2030);
-   - (B) estresse pelo PDE superior: diferença superior − referência no NE (9,1 GWmed em 2035; 2030 só por interpolação pela forma do SIN, ≈ 2,7 GWmed), que mistura DC, H2 e economia;
-   - (C) inventário de projetos de DC no NE (#11: pedidos de conexão MME/ONS, portarias, anúncios) em classes de maturidade (conservador/central/alto), com o pipeline do MME como teto.
-   Recomendação: A como base, C para os cenários de DC e B só como teste de estresse.
+3. **Data centers** — decidido: A + C. Caso-base = PDE referência (L_DC = 0); cenários de DC: conservador = contratos assinados da 2ª RQ (1.886 MWmed em 2030); central = 2ª RQ completa (2.098 MWmed). **Pendente: definição do cenário alto** (proposta em `config/cenarios_dc.yaml`: contratos + 100% dos pareceres + projetos M3 com MW publicado, ≈ 2,3 GWmed + inventário). Possível dupla contagem com o PDE: sensibilidade de −258 MWmed.
 4. ~~ERA5 1995–2021~~ — autorizado e em download.
 
 ## 6. Próxima tarefa
 
-Dia 2: (a) extrair do PDE 2035 a expansão da geração e os limites de intercâmbio até 2030 (carga do NE já extraída); (b) montar o inventário de data centers; (c) definir alvos e features (A: carga líquida; B: CF potencial eólico; C: solar como perfil ou modelo), com baseline sazonal e backtesting temporal; (d) configurar os cenários em YAML; (e) construir o simulador determinístico.
+Dia 2: (a) extrair do PDE 2035 a expansão da geração e os limites de intercâmbio até 2030 (carga do NE já extraída); (b) fechar o cenário alto de DC; (c) definir alvos e features (A: carga líquida; B: CF potencial eólico; C: solar como perfil ou modelo), com baseline sazonal e backtesting temporal; (d) configurar os cenários em YAML; (e) construir o simulador determinístico.

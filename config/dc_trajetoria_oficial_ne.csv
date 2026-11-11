@@ -1,0 +1,25 @@
+estudo,data_base_acessos,ano,componente,mwmed,fonte,localizacao,metodo_extracao,nota
+PLAN 2026-2030,2025-11-17,2026,total,118,NT EPE-DEA-SEE-013/2026 / ONS DPL 0037/2026,p. 12 (texto) e Fig. 8 da NT 1a RQ,texto e rotulo do grafico,100% contratos assinados + 50% pareceres favoraveis; so Rede Basica
+PLAN 2026-2030,2025-11-17,2027,total,284,NT 1a RQ (EPE-DEA-SEE-017/2026),Fig. 8 p. 16,rotulo do grafico,
+PLAN 2026-2030,2025-11-17,2028,total,572,NT 1a RQ (EPE-DEA-SEE-017/2026),Fig. 8 p. 16,rotulo do grafico,
+PLAN 2026-2030,2025-11-17,2029,total,644,NT 1a RQ (EPE-DEA-SEE-017/2026),Fig. 8 p. 16,rotulo do grafico,
+PLAN 2026-2030,2025-11-17,2030,total,716,NT EPE-DEA-SEE-013/2026 / ONS DPL 0037/2026,p. 12 (texto),texto,
+1a RQ PLAN 2026-2030,2026-03-20,2026,total,101,NT EPE-DEA-SEE-017/2026 / ONS DPL 0054/2026 / CCEE 2/2026,p. 15 (texto) e Fig. 8 p. 16,texto e rotulo do grafico,
+1a RQ PLAN 2026-2030,2026-03-20,2027,total,259,NT EPE-DEA-SEE-017/2026,Fig. 8 p. 16,rotulo do grafico,
+1a RQ PLAN 2026-2030,2026-03-20,2028,total,547,NT EPE-DEA-SEE-017/2026,Fig. 8 p. 16,rotulo do grafico,
+1a RQ PLAN 2026-2030,2026-03-20,2029,total,670,NT EPE-DEA-SEE-017/2026,Fig. 8 p. 16,rotulo do grafico,
+1a RQ PLAN 2026-2030,2026-03-20,2030,total,1291,NT EPE-DEA-SEE-017/2026,p. 15 (texto),texto,texto diz +565 vs PLAN (716+565=1281): diferenca de 10 MWmed no proprio documento
+2a RQ PLAN 2026-2030,2026-07-22,2026,total,112,Workshop 2a RQC PLAN 2026-2030 (ONS/EPE/CCEE),slide 71,rotulo do grafico,nota tecnica da 2a RQ nao localizada em 2026-11-11
+2a RQ PLAN 2026-2030,2026-07-22,2027,total,333,Workshop 2a RQC,slide 71,rotulo do grafico,
+2a RQ PLAN 2026-2030,2026-07-22,2028,total,628,Workshop 2a RQC,slide 71,rotulo do grafico,
+2a RQ PLAN 2026-2030,2026-07-22,2029,total,813,Workshop 2a RQC,slide 71,rotulo do grafico,
+2a RQ PLAN 2026-2030,2026-07-22,2030,total,2098,Workshop 2a RQC,slide 71,rotulo do grafico,texto do slide: incremento de 807 MWmed em 2030 vs 1a RQ (1291+807=2098)
+2a RQ PLAN 2026-2030,2026-07-22,2026,contratos_assinados,98,Workshop 2a RQC,slide 71 (grafico da direita),rotulo do grafico parcialmente encoberto,parecer = 112-98 = 14 (rotulo ilegivel)
+2a RQ PLAN 2026-2030,2026-07-22,2027,contratos_assinados,254,Workshop 2a RQC,slide 71,rotulo do grafico,
+2a RQ PLAN 2026-2030,2026-07-22,2028,contratos_assinados,542,Workshop 2a RQC,slide 71,rotulo do grafico,
+2a RQ PLAN 2026-2030,2026-07-22,2029,contratos_assinados,716,Workshop 2a RQC,slide 71,rotulo do grafico,
+2a RQ PLAN 2026-2030,2026-07-22,2030,contratos_assinados,1886,Workshop 2a RQC,slide 71,rotulo do grafico,
+2a RQ PLAN 2026-2030,2026-07-22,2027,pareceres_favoraveis_50pct,79,Workshop 2a RQC,slide 71,rotulo do grafico,ja ponderado a 50%
+2a RQ PLAN 2026-2030,2026-07-22,2028,pareceres_favoraveis_50pct,86,Workshop 2a RQC,slide 71,rotulo do grafico,ja ponderado a 50%
+2a RQ PLAN 2026-2030,2026-07-22,2029,pareceres_favoraveis_50pct,98,Workshop 2a RQC,slide 71,rotulo do grafico,ja ponderado a 50%; 716+98=814 vs total 813 (arredondamento)
+2a RQ PLAN 2026-2030,2026-07-22,2030,pareceres_favoraveis_50pct,212,Workshop 2a RQC,slide 71,rotulo do grafico,ja ponderado a 50%

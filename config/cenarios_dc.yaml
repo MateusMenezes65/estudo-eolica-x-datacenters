@@ -1,0 +1,63 @@
+# Cenários de carga incremental de data centers no subsistema NE (L_DC)
+# Decisão do usuário (2026-11-11): caso-base = PDE 2035 referência puro (L_DC = 0);
+# cenários de DC reproduzem a projeção oficial e o inventário documentado.
+# Valores oficiais: config/dc_trajetoria_oficial_ne.csv; projetos: config/data_centers_ne.csv.
+# Parâmetros marcados `hipotese` são HIPÓTESES DE CENÁRIO (regra 1), não fatos observados.
+
+versao: 0.2
+horizonte: {ano_referencia: 2030, ano_intermediario: 2028}
+
+# Projeção oficial: previsão de carga do PLAN 2026-2030, 2ª Revisão Quadrimestral
+# (ONS/EPE/CCEE; base de acessos de 22/07/2026). Já está em MWmed de carga na Rede
+# Básica (inclui DC junto a eólicas): NÃO aplicar PUE nem utilização sobre ela.
+# Critério oficial: 100% da carga com contrato assinado + 50% com parecer favorável.
+referencia_oficial: {estudo: "2a RQ PLAN 2026-2030", unidade: MWmed}
+
+perfil_horario: flat   # o PDE e o PLAN tratam grandes cargas como flat (PDE, Box 2.1)
+
+cenarios:
+  sem_dc:
+    descricao: caso-base = PDE 2035 referência (DC já embutidos na carga do PDE; L_DC = 0)
+    componentes: []
+  conservador:
+    descricao: só contratos assinados da 2ª RQ (100%)
+    componentes: [{fonte: oficial, componente: contratos_assinados, peso: 1.0}]
+    # 2030: 1.886 MWmed
+  central:
+    descricao: reproduz a 2ª RQ do PLAN 2026-2030 (contratos 100% + pareceres 50%)
+    componentes: [{fonte: oficial, componente: total, peso: 1.0}]
+    # 2030: 2.098 MWmed
+  alto:
+    descricao: >-
+      PROPOSTA (pendente do usuário): contratos 100% + pareceres 100% + projetos M3
+      do inventário com MW publicado e sem processo de acesso conhecido.
+    componentes:
+      - {fonte: oficial, componente: contratos_assinados, peso: 1.0}
+      - {fonte: oficial, componente: pareceres_favoraveis_50pct, peso: 2.0}   # 50% -> 100%
+      - {fonte: inventario, maturidade: [M3], ids: [CDV_ACESSOS, QAIR2, ENEGIX]}
+    # 2030: 1.886 + 424 + inventário (645 + 415 + 100) x utilização x rampa
+
+parametros_inventario:   # só para itens do inventário (potência != MWmed de carga)
+  utilizacao_madura: {central: 0.75, faixa: [0.6, 0.9], tipo: hipotese}
+  rampa_meses: {central: 24, faixa: [12, 36], tipo: hipotese}
+  entrada_sem_data: {regra: "data da informação + 36 meses", tipo: hipotese}
+  pue_se_potencia_de_TI: {central: 1.35, faixa: [1.2, 1.5], tipo: hipotese}
+  potencia_sem_definicao: tratar_como_demanda_total   # sensibilidade: tratar_como_TI
+
+maturidade:
+  M0: em operação até 2025-12-31 (já na carga histórica; não é incremental)
+  M1: em operação desde 2026, obra iniciada ou contrato de conexão com cronograma
+  M2: contrato/viabilidade de conexão ou pedido com parecer, sem cronograma de operação
+  M3: anúncio, protocolo, memorando ou direito de acesso sem projeto definido
+
+conferencias:
+  teto_pipeline_mme_ne_2038_GW: 8.30   # PDE 2035, Caderno de Transmissão (mapa por UF; soma CE+BA+SE+PI+RN+PE)
+  teto_pipeline_mme_brasil_2030_MW: 17422
+  dupla_contagem_pde: >-
+    O PDE 2035 de referência (demanda fechada em set/2025) pode já conter parte da
+    carga de DC de Rede Básica do NE. A projeção vigente na época (2ª RQ do PLAN
+    2025-2029) tinha cerca de 258 MWmed no NE em 2029 (PLAN 26-30 = 644 menos o
+    acréscimo de 386). Sensibilidade: descontar 258 MWmed de L_DC em 2030.
+  ja_na_historia: >-
+    A carga histórica 2022-2025 contém só colocation pequena (ordem de 25 MW no
+    NE, distribuição). DC de Rede Básica no NE começa em 2026 (Renova Satoshi).

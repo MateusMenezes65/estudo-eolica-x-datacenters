@@ -12,3 +12,5 @@ requests==2.34.2
 holidays==0.108
 openpyxl==3.1.5
 python-docx==1.2.0
+pypdf==7.0.1
+pypdfium2==5.15.2
