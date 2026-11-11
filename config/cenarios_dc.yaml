@@ -4,7 +4,7 @@
 # Valores oficiais: config/dc_trajetoria_oficial_ne.csv; projetos: config/data_centers_ne.csv.
 # Parâmetros marcados `hipotese` são HIPÓTESES DE CENÁRIO (regra 1), não fatos observados.
 
-versao: 0.2
+versao: 0.3   # cenário alto aceito pelo usuário em 2026-11-11
 horizonte: {ano_referencia: 2030, ano_intermediario: 2028}
 
 # Projeção oficial: previsão de carga do PLAN 2026-2030, 2ª Revisão Quadrimestral
@@ -29,8 +29,8 @@ cenarios:
     # 2030: 2.098 MWmed
   alto:
     descricao: >-
-      PROPOSTA (pendente do usuário): contratos 100% + pareceres 100% + projetos M3
-      do inventário com MW publicado e sem processo de acesso conhecido.
+      contratos 100% + pareceres 100% + projetos M3 do inventário com MW publicado
+      e sem processo de acesso conhecido (aceito pelo usuário em 2026-11-11).
     componentes:
       - {fonte: oficial, componente: contratos_assinados, peso: 1.0}
       - {fonte: oficial, componente: pareceres_favoraveis_50pct, peso: 2.0}   # 50% -> 100%

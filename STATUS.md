@@ -68,9 +68,9 @@ Correções feitas no código: leitura de `val_*` gravados como texto em alguns 
 
 1. ~~Identidade Git~~ — configurada em 2026-11-11.
 2. ~~Definição de L_base~~ — **decidido em 2026-11-11**: carga líquida de MMGD da API (`val_cargaglobalsmmgd`) como L_base; MMGD (`val_cargammgd`) como geração distribuída separada (decisão 13).
-3. **Data centers** — decidido: A + C. Caso-base = PDE referência (L_DC = 0); cenários de DC: conservador = contratos assinados da 2ª RQ (1.886 MWmed em 2030); central = 2ª RQ completa (2.098 MWmed). **Pendente: definição do cenário alto** (proposta em `config/cenarios_dc.yaml`: contratos + 100% dos pareceres + projetos M3 com MW publicado, ≈ 2,3 GWmed + inventário). Possível dupla contagem com o PDE: sensibilidade de −258 MWmed.
+3. **Data centers** — decidido: A + C. Caso-base = PDE referência (L_DC = 0); cenários de DC: conservador = contratos assinados da 2ª RQ (1.886 MWmed em 2030); central = 2ª RQ completa (2.098 MWmed). Alto = contratos + 100% dos pareceres + projetos M3 com MW publicado (CDV_ACESSOS 645, QAIR2 415, ENEGIX 100 MW, com utilização e rampa), ≈ 2,3 GWmed + inventário — aceito em 2026-11-11. Possível dupla contagem com o PDE: sensibilidade de −258 MWmed.
 4. ~~ERA5 1995–2021~~ — autorizado e em download.
 
 ## 6. Próxima tarefa
 
-Dia 2: (a) extrair do PDE 2035 a expansão da geração e os limites de intercâmbio até 2030 (carga do NE já extraída); (b) fechar o cenário alto de DC; (c) definir alvos e features (A: carga líquida; B: CF potencial eólico; C: solar como perfil ou modelo), com baseline sazonal e backtesting temporal; (d) configurar os cenários em YAML; (e) construir o simulador determinístico.
+Dia 2: (a) extrair do PDE 2035 a expansão da geração e os limites de intercâmbio até 2030 (carga do NE já extraída); (c) definir alvos e features (A: carga líquida; B: CF potencial eólico; C: solar como perfil ou modelo), com baseline sazonal e backtesting temporal; (d) configurar os cenários em YAML; (e) construir o simulador determinístico.

@@ -89,8 +89,9 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
     Valores lidos dos rótulos dos gráficos (slides do workshop; a nota técnica da
     2ª RQ não foi localizada) e conferidos com o texto (incremento de 807 MWmed
     sobre a 1ª RQ). Cenários: conservador = contratos; central = 2ª RQ; alto =
-    contratos + 100% pareceres + inventário M3 (proposta, pendente). Os valores já
-    são MWmed de carga: sem PUE nem utilização. — adotada (alto pendente).
+    contratos + 100% pareceres + inventário M3 (CDV_ACESSOS, QAIR2, ENEGIX). Os
+    valores oficiais já são MWmed de carga: sem PUE nem utilização. — adotada;
+    cenário alto aceito pelo usuário em 2026-11-11.
 19. **ERA5 1995–2021** nos mesmos 34 pontos, em blocos de 9 anos
     (`data/raw/openmeteo/hist/`), autorizado pelo usuário em 2026-11-11. Mesma
     grade e modelo (`models=era5`) do período de calibração. — adotada.
