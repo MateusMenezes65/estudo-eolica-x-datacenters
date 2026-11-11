@@ -1,0 +1,102 @@
+variavel,escopo,cenario,ano,valor,unidade,fonte,nota
+carga_energia,Norte,referencia,2025,8345.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Nordeste,referencia,2025,13684.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Sudeste/CO,referencia,2025,46423.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Sul,referencia,2025,14238.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,SIN,referencia,2025,82691.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Norte,referencia,2030,9993.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Nordeste,referencia,2030,16340.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Sudeste/CO,referencia,2030,54226.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Sul,referencia,2030,16981.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,SIN,referencia,2030,97540.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Norte,referencia,2035,11579.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Nordeste,referencia,2035,19610.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Sudeste/CO,referencia,2035,63133.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Sul,referencia,2035,20285.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,SIN,referencia,2035,114607.0,MWmed,"Relatório final, Tabela 2-3, p. 53","carga de energia (inclui MMGD, conceito de carga global ONS)"
+carga_energia,Norte,inferior,2025,8200.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Norte,inferior,2035,11000.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Norte,referencia,2025,8300.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Norte,referencia,2035,11600.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Norte,superior,2025,8300.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Norte,superior,2035,12500.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Nordeste,inferior,2025,13500.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Nordeste,inferior,2035,18100.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Nordeste,referencia,2025,13700.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Nordeste,referencia,2035,19600.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Nordeste,superior,2025,13700.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Nordeste,superior,2035,28700.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sudeste/CO,inferior,2025,46100.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sudeste/CO,inferior,2035,59400.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sudeste/CO,referencia,2025,46400.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sudeste/CO,referencia,2035,63100.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sudeste/CO,superior,2025,46900.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sudeste/CO,superior,2035,75200.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sul,inferior,2025,14100.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sul,inferior,2035,19000.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sul,referencia,2025,14200.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sul,referencia,2035,20300.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sul,superior,2025,14300.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,Sul,superior,2035,21900.0,MWmed,"Caderno Demanda de Eletricidade, p. 25","carga global (GWmed no original, arredondado a 0,1 GW)"
+carga_energia,SIN,inferior,2025,81967.6595047586,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2025,82690.50823726886,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2025,83268.59103554173,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2026,84196.83217790788,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2026,85569.06811226247,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2026,86571.50141952881,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2027,86386.46340178451,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2027,88366.02640972642,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2027,89899.49239309863,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2028,88851.69816912511,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2028,91229.79405489573,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2028,94668.84712195402,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2029,91284.4647884781,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2029,94156.15049318352,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2029,99673.84919291797,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2030,93834.60434345814,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2030,97539.80318164475,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2030,104525.06624082942,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2031,96431.71018418169,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2031,100658.10052145363,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2031,109582.88195470907,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2032,99086.84711879356,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2032,103954.9494468514,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2032,118874.55401403907,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2033,101832.93674806089,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2033,107410.27472149668,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2033,125226.55124048542,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2034,104610.0128297256,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2034,110918.92192656167,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2034,131706.0379735233,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,inferior,2035,107451.92993331677,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,referencia,2035,114606.92821690325,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+carga_energia,SIN,superior,2035,138293.58466612204,MWmed,"Dados Cap. 2, Figura 2-25","carga global (conceito ONS, inclui MMGD)"
+consumo_cargas_especiais,Brasil,inferior,2035,9.50597741988639,TWh,"Dados Cap. 2, Figura 2-24","veículos elétricos + data centers + H2 eletrolítico, somados; sem separação por tipo nem subsistema"
+consumo_cargas_especiais,Brasil,referencia,2035,11.73977741988639,TWh,"Dados Cap. 2, Figura 2-24","veículos elétricos + data centers + H2 eletrolítico, somados; sem separação por tipo nem subsistema"
+consumo_cargas_especiais,Brasil,superior,2035,131.1210574198864,TWh,"Dados Cap. 2, Figura 2-24","veículos elétricos + data centers + H2 eletrolítico, somados; sem separação por tipo nem subsistema"
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2026,1810.68,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2026,1810.68,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2027,1648.91,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2027,3459.5900000000006,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2028,2926.5,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2028,6386.09,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2029,6606.5,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2029,12992.59,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2030,4429.0999999999985,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2030,17421.69,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2031,4561.800000000003,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2031,21983.489999999998,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2032,1233.3999999999978,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2032,23216.89,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2033,1037.6000000000022,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2033,24254.49,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2034,675.5999999999985,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2034,24930.09,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2035,686.5999999999985,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2035,25616.69,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2036,361.0,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2036,25977.69,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2037,92.0,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2037,26069.69,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2038,174.0,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
+pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2038,26243.69,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado

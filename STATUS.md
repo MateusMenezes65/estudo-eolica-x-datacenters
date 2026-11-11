@@ -5,7 +5,7 @@
 ## 1. Executado
 
 - **Ambiente**: Windows 11; Git 2.56; Python 3.14.1 real (alias da Microsoft Store também existe em `WindowsApps`, não usado); `.venv` criado no projeto; dependências fixadas em `requirements.txt` / `requirements.lock.txt`; 125 GB livres.
-- **Git**: repositório local iniciado (não havia repositório pai). **Sem commits**: identidade Git não configurada.
+- **Git**: repositório local; identidade configurada só neste repositório (MateusMenezes65). Commits: `9278ea9` (Dia 1) e o commit desta atualização.
 - **Estrutura**: `config/ src/ tests/ docs/ reports/ data/{raw,interim,processed}`, `.gitignore`, README, `docs/decisoes.md`.
 - **Arquivos originais**: `AGENTS.md` e `docs/Plano_Orientador_...docx` preservados. Onde divergem, vale o AGENTS.md (horizonte 2030; o plano fala em 2035).
 - **Coleta** (346 registros no manifesto `docs/manifest/manifest.csv`, com URL, tamanho, SHA-256, data de coleta; checagem `python -m src.collect.manifest` sem pendências):
@@ -55,18 +55,22 @@ Correções feitas no código: leitura de `val_*` gravados como texto em alguns 
 ## 4. Lacunas
 
 - **#11 Inventário de data centers**: não iniciado (pesquisa documental: MME, EPE, pareceres de acesso do ONS, governos estaduais, anúncios). É P1 e necessário para L_DC.
-- **#10 PDE 2035**: arquivos coletados, mas a trajetória de carga do NE até 2030, os limites de intercâmbio e a parcela de data centers ainda não foram extraídos das planilhas/PDFs. O PDE informa que o cenário de referência já inclui "cargas especiais" com data centers (~1,4 % do consumo; 12,9 % no superior).
+- **#10 PDE 2035**: carga extraída (`config/pde2035_extraido.csv`, `src/collect/pde_extract.py`): NE referência 13 684 → 16 340 → 19 610 MWmed (2025/2030/2035); inferior e superior só para 2025 e 2035 (NE 2035: 18,1 e 28,7 GWmed). **Não há trajetória de data centers por subsistema**: o PDE só publica "cargas especiais" no Brasil em 2035 (VE + DC + H2: 9,5 / 11,7 / 131,1 TWh) e os pedidos de conexão de DC no MME (Brasil: 17,4 GW até 2030). Ainda faltam a expansão da geração e os limites de intercâmbio.
 - **P2 não coletados**: ENSO/ONI (#12), hidrologia do São Francisco (#13; 74 MB disponíveis no ONS), IBC-Br (#14), limites de intercâmbio documentais (#15).
 - Feriados municipais não incluídos.
-- Reanálise anterior a 2022 (para anos climáticos sintéticos) ainda não baixada.
+- ERA5 1995–2021 (34 pontos, blocos de 9 anos, `data/raw/openmeteo/hist/`): download em andamento em 2026-11-11; retomável com `python -m src.collect.openmeteo --start 1995-01-01 --end 2021-12-31 --chunk-years 9`.
 
 ## 5. Decisões pendentes do usuário
 
-1. **Identidade Git** (nome e e-mail para commits locais) — sem ela não há commits.
+1. ~~Identidade Git~~ — configurada em 2026-11-11.
 2. ~~Definição de L_base~~ — **decidido em 2026-11-11**: carga líquida de MMGD da API (`val_cargaglobalsmmgd`) como L_base; MMGD (`val_cargammgd`) como geração distribuída separada (decisão 13).
-3. **Data centers**: aceitar que L_DC seja incremental ao PDE 2035 de referência (que já tem data centers embutidos) e iniciar a pesquisa documental do inventário (#11)?
-4. Anos climáticos para o Monte Carlo: baixar ERA5 1995–2021 nos mesmos 34 pontos (~50 MB, Open-Meteo) agora ou no Dia 3?
+3. **Data centers** — decidido: L_DC incremental ao PDE de referência, reproduzindo o PDE num primeiro momento. **Pendente**: como o PDE não separa data centers no NE, escolher como construir L_DC:
+   - (A) caso-base = PDE referência puro (L_DC incremental = 0; os DC do PDE estão embutidos na carga de 16,34 GWmed em 2030);
+   - (B) estresse pelo PDE superior: diferença superior − referência no NE (9,1 GWmed em 2035; 2030 só por interpolação pela forma do SIN, ≈ 2,7 GWmed), que mistura DC, H2 e economia;
+   - (C) inventário de projetos de DC no NE (#11: pedidos de conexão MME/ONS, portarias, anúncios) em classes de maturidade (conservador/central/alto), com o pipeline do MME como teto.
+   Recomendação: A como base, C para os cenários de DC e B só como teste de estresse.
+4. ~~ERA5 1995–2021~~ — autorizado e em download.
 
 ## 6. Próxima tarefa
 
-Dia 2: (a) extrair do PDE 2035 a carga do NE, a expansão e os limites de intercâmbio até 2030; (b) montar o inventário de data centers; (c) definir alvos e features (A: carga líquida; B: CF potencial eólico; C: solar como perfil ou modelo), com baseline sazonal e backtesting temporal; (d) configurar os cenários em YAML; (e) construir o simulador determinístico.
+Dia 2: (a) extrair do PDE 2035 a expansão da geração e os limites de intercâmbio até 2030 (carga do NE já extraída); (b) montar o inventário de data centers; (c) definir alvos e features (A: carga líquida; B: CF potencial eólico; C: solar como perfil ou modelo), com baseline sazonal e backtesting temporal; (d) configurar os cenários em YAML; (e) construir o simulador determinístico.

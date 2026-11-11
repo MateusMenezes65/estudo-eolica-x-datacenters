@@ -7,8 +7,9 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
 1. **Python 3.14.1** em `.venv` — é o único Python instalado (não há 3.11/3.12);
    pandas 3.1, numpy 2.5, pyarrow 26, scikit-learn 1.9 têm wheels para 3.14 e
    instalaram sem compilação. — adotada.
-2. **Git local inicializado** (a pasta não pertencia a nenhum repositório). Sem
-   identidade Git configurada: **nenhum commit feito**. — pendente do usuário (nome e e-mail).
+2. **Git local inicializado** (a pasta não pertencia a nenhum repositório).
+   Identidade configurada só neste repositório (`git config --local`), informada
+   pelo usuário em 2026-11-11; configuração global não alterada. — adotada.
 
 ## Coleta
 
@@ -60,10 +61,24 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
     só nos patamares restritos) como corte; potencial = geração + GNRa. Não usar
     `referência − geração` em todas as horas: a referência é menor que a geração
     em 45 % das horas-usina eólicas (65 % em 2022), logo não é potencial puro. — adotada (regra 4).
-15. **Data centers no PDE 2035**: o cenário de referência já inclui "cargas
-    especiais" (veículos elétricos, data centers, hidrogênio) ≈ 1,4 % do consumo;
-    o superior ≈ 12,9 %. L_DC dos cenários deve ser incremental ao que está no PDE
-    usado como base (regra 9). — pendente (Dia 2).
+15. **Data centers no PDE 2035** — usuário (2026-11-11): L_DC é incremental ao
+    PDE de referência e, num primeiro momento, deve reproduzir a projeção do PDE.
+    O que o PDE publica (extraído por `src/collect/pde_extract.py` →
+    `config/pde2035_extraido.csv`):
+    - carga do NE, referência: 13 684 (2025) → 16 340 (2030) → 19 610 MWmed (2035)
+      (Tabela 2-3); inferior/superior só em 2025 e 2035 (18,1 e 28,7 GWmed em 2035);
+    - "cargas especiais" (VE + data centers + H2) no Brasil em 2035: 9,5 / 11,7 /
+      131,1 TWh (inferior / referência / superior), sem separação por tipo,
+      subsistema nem ano;
+    - pedidos de conexão de data centers à Rede Básica no MME (out/2025), Brasil:
+      17,4 GW acumulados até 2030, 26,3 GW até 2038; a distribuição por UF existe
+      só como mapa (Figura 4-4), sem valores legíveis por tipo e UF.
+    Conclusão: **o PDE não publica uma trajetória de data centers para o NE**. Os
+    data centers do cenário de referência estão embutidos na carga do NE e não são
+    separáveis. — pendente do usuário: como construir L_DC (opções no STATUS).
+19. **ERA5 1995–2021** nos mesmos 34 pontos, em blocos de 9 anos
+    (`data/raw/openmeteo/hist/`), autorizado pelo usuário em 2026-11-11. Mesma
+    grade e modelo (`models=era5`) do período de calibração. — adotada.
 
 ## Anomalias conhecidas (não corrigidas; tratadas na análise)
 

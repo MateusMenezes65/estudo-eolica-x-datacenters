@@ -67,6 +67,18 @@ Coleta (cada script registra arquivo, URL, tamanho, SHA-256 e data de coleta em
 .venv/Scripts/python.exe -m src.collect.calendario_ne
 ```
 
+Anos climáticos ERA5 para o Monte Carlo (retomável; respeita os limites da API gratuita):
+
+```bash
+.venv/Scripts/python.exe -m src.collect.openmeteo --start 1995-01-01 --end 2021-12-31 --chunk-years 9
+```
+
+Valores do PDE 2035 usados nos cenários (gera `config/pde2035_extraido.csv`):
+
+```bash
+.venv/Scripts/python.exe -m src.collect.pde_extract
+```
+
 Conferência do manifesto, integração horária, auditoria e testes:
 
 ```bash
