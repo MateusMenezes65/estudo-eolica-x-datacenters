@@ -1,0 +1,52 @@
+# Conjuntos de dados do ONS Dados Abertos (CKAN: https://dados.ons.org.br)
+# key: nome curto usado em data/raw/ons/<key>/
+# ckan_id: identificador do pacote no CKAN (confirmado via package_list em 2026-11-11)
+# priority / catalog_item: referência ao catálogo de features do AGENTS.md
+default_period: {start: 2022, end: 2026}   # 2026 é parcial (complementar)
+format: PARQUET
+datasets:
+  balanco:
+    ckan_id: balanco-energia-subsistema
+    catalog_item: 1
+    priority: P1
+    descr: Balanço horário de energia por subsistema (carga, geração por fonte, intercâmbio)
+  intercambio:
+    ckan_id: intercambio-nacional
+    catalog_item: 1
+    priority: P1
+    descr: Intercâmbio horário entre subsistemas
+  curva_carga:
+    ckan_id: curva-carga
+    catalog_item: 1
+    priority: P1
+    descr: Curva de carga horária por subsistema (conferência da carga do balanço)
+  geracao_usina:
+    ckan_id: geracao-usina-2
+    catalog_item: 2
+    priority: P1
+    descr: Geração horária por usina (todas as fontes)
+  fator_capacidade:
+    ckan_id: fator-capacidade-2
+    catalog_item: 2
+    priority: P1
+    descr: Fator de capacidade horário eólico/solar por usina/conjunto (ONS)
+  coff_eolica:
+    ckan_id: restricao_coff_eolica_usi
+    catalog_item: 3
+    priority: P1
+    descr: Constrained-off eólico por usina (semi-horário), com motivo e geração de referência
+  coff_solar:
+    ckan_id: restricao_coff_fotovoltaica
+    catalog_item: 3
+    priority: P1
+    descr: Constrained-off fotovoltaico por usina (semi-horário)
+  capacidade:
+    ckan_id: capacidade-geracao
+    catalog_item: 4
+    priority: P1
+    descr: Capacidade instalada por unidade/usina com datas de operação
+  hidrologicos:
+    ckan_id: dados_hidrologicos_ho
+    catalog_item: 13
+    priority: P2
+    descr: Dados hidrológicos horários dos reservatórios (vazões, defluências)

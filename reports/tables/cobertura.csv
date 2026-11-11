@@ -1,0 +1,10 @@
+bloco,coluna,inicio,fim,horas_esperadas,horas_presentes,lacunas_internas
+balanço ONS,bal_carga,2022-01-01,2026-11-09 23:00:00,42576,42576,0
+carga verificada API,api_cargaglobal,2022-01-01,2026-11-11 23:00:00,42624,42624,0
+geração por usina,gu_eol_desp,2022-01-01,2026-11-10 23:00:00,42600,42600,0
+MMGD em geração por usina,gu_sol_mmgd,2023-04-29,2026-11-10 23:00:00,31008,31008,0
+FC eólico ONS,fc_eol_cap,2022-01-01,2026-11-09 23:00:00,42576,42576,0
+FC solar ONS,fc_sol_cap,2022-01-01,2026-11-09 23:00:00,42576,42576,0
+constrained-off eólico,coff_eol_geracao,2022-01-01,2026-11-10 23:00:00,42600,42600,0
+constrained-off solar,coff_sol_geracao,2024-04-01,2026-11-10 23:00:00,22896,22896,0
+clima ERA5 (ponderado),w_temperature_2m_pop,2022-01-01,2026-11-03 19:00:00,42428,42428,0

@@ -1,0 +1,40 @@
+# Ambientes e caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+
+# Segredos (permitido apenas .env.example com valores fictícios)
+.env
+.env.*
+!.env.example
+
+# Dados (versionar apenas manifestos e receitas)
+data/raw/
+data/interim/
+data/processed/
+
+# Artefatos grandes de modelos
+models/
+*.pkl
+*.joblib
+*.onnx
+*.h5
+
+# Bases soltas fora de data/ (revisar antes de commit)
+*.zip
+*.parquet
+*.csv
+!config/**/*.csv
+!docs/manifest/*.csv
+!reports/tables/*.csv
+
+# SO / editores
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

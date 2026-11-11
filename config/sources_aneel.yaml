@@ -1,0 +1,18 @@
+# Conjuntos da ANEEL Dados Abertos (CKAN: https://dadosabertos.aneel.gov.br)
+datasets:
+  siga:
+    ckan_id: siga-sistema-de-informacoes-de-geracao-da-aneel
+    catalog_item: 4
+    priority: P1
+    descr: Empreendimentos de geração (fase, potência, datas, coordenadas)
+    files:
+      - dm-siga-sistema-de-informacoes-de-geracao-da-aneel.pdf
+      - siga-empreendimentos-geracao.csv
+  mmgd:
+    ckan_id: relacao-de-empreendimentos-de-geracao-distribuida
+    catalog_item: 5
+    priority: P1
+    descr: Empreendimentos de micro e minigeração distribuída (data de conexão, UF, potência)
+    files:
+      - dm-geracao-distribuida-relacao-de-empreendimentos.pdf
+      - empreendimento-geracao-distribuida.parquet

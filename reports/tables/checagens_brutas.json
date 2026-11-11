@@ -1,0 +1,17 @@
+{
+ "balanco_duplicatas_(subsistema,t)": 0,
+ "balanco_negativos_exceto_intercambio": 1,
+ "balanco_valores_nao_numericos": 0,
+ "carga_api_duplicatas_t": 0,
+ "carga_api_consistencia_nao_nula_(30min)": 2629,
+ "coff_eol_usina_h_duplicatas_(usina,t)": 0,
+ "coff_eol_usina_h_horas_incompletas_(n_sub!=2)": 0,
+ "coff_eol_usina_h_ref<ger_(% horas-usina)": 45.4,
+ "coff_sol_usina_h_duplicatas_(usina,t)": 0,
+ "coff_sol_usina_h_horas_incompletas_(n_sub!=2)": 0,
+ "coff_sol_usina_h_ref<ger_(% horas-usina)": 21.0,
+ "fc_duplicatas_(usina,t)": 0,
+ "fc_cf_fora_[0,1]": 4411,
+ "fc_cf_>1.05_recalculado": 1796,
+ "fc_capacidade_zero_ou_nula": 3888
+}

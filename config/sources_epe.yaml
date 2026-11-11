@@ -1,0 +1,12 @@
+# EPE – Plano Decenal de Expansão de Energia 2035 (somente trajetória até 2030 é usada)
+# Página: https://www.epe.gov.br/pt/publicacoes-dados-abertos/publicacoes/plano-decenal-de-expansao-de-energia-2035
+base_url: https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/
+catalog_item: 10
+files:
+  - {path: "Documents/PDE 2035_Relatório Final_Envio MME_2026-11-05_rev4.pdf", use: "relatório final (expansão, intercâmbio, balanço)"}
+  - {path: "Documents/PDE 2035_Dados_Relatório Final.zip", use: "planilhas de dados do relatório final"}
+  - {path: "PublicacoesArquivos/publicacao-894/PDE 2035_Caderno_Demanda_Eletricidade_rev_mme_20250914.pdf", use: "projeção de carga por subsistema; grandes cargas/data centers"}
+  - {path: "PublicacoesArquivos/publicacao-894/PDE 2035_Caderno de Transmissão de Energia.pdf", use: "limites de intercâmbio documentados"}
+  - {path: "PublicacoesArquivos/publicacao-894/Caderno_MMGD_Baterias_2035_v2025.07.31.pdf", use: "trajetória da MMGD"}
+  - {path: "PublicacoesArquivos/publicacao-894/PDE 2035_Dados_Cadernos.zip", use: "planilhas de dados dos cadernos"}
+  - {path: "PublicacoesArquivos/publicacao-894/PDE 2035_Consolidação de Resultados.pdf", use: "síntese de resultados"}

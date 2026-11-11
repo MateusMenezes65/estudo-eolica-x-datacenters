@@ -1,0 +1,365 @@
+arquivo,fonte,conjunto,bytes,linhas,colunas,periodo_ref,sha256,coletado_utc
+data/raw/aneel/mmgd/dm-geracao-distribuida-relacao-de-empreendimentos.pdf,aneel,mmgd,117309,,,snapshot,416dbfe47b428e08,2026-11-11T22:07:08Z
+data/raw/aneel/mmgd/empreendimento-geracao-distribuida.parquet,aneel,mmgd,108080441,4735908.0,31.0,snapshot,1974b91516aa0fa5,2026-11-11T22:07:48Z
+data/raw/aneel/siga/dm-siga-sistema-de-informacoes-de-geracao-da-aneel.pdf,aneel,siga,176580,,,snapshot,765488e53aef975f,2026-11-11T21:53:57Z
+data/raw/aneel/siga/siga-empreendimentos-geracao.csv,aneel,siga,7883527,25046.0,,snapshot,9f21aa730a5ccde8,2026-11-11T21:54:08Z
+data/raw/epe/pde2035/Caderno_MMGD_Baterias_2035_v2025.07.31.pdf,epe,pde2035,4069938,,,horizonte 2026-2035 (usar até 2030),9cd49d63bf8f5a67,2026-11-11T21:54:48Z
+data/raw/epe/pde2035/PDE 2035_Caderno de Transmissão de Energia.pdf,epe,pde2035,5393235,,,horizonte 2026-2035 (usar até 2030),19305e6c9cb8aeeb,2026-11-11T21:54:48Z
+data/raw/epe/pde2035/PDE 2035_Caderno_Demanda_Eletricidade_rev_mme_20250914.pdf,epe,pde2035,2976870,,,horizonte 2026-2035 (usar até 2030),b618345fa413c650,2026-11-11T21:54:46Z
+data/raw/epe/pde2035/PDE 2035_Consolidação de Resultados.pdf,epe,pde2035,2517935,,,horizonte 2026-2035 (usar até 2030),81de64d22d0dcd33,2026-11-11T21:54:50Z
+data/raw/epe/pde2035/PDE 2035_Dados_Cadernos/PDE 2035_Dados_Caderno de Abastecimento de Derivados de Petróleo.xlsx,epe,pde2035,240568,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Cadernos/PDE 2035_Dados_Caderno de Demanda Energética do Setor de Transportes.xlsx,epe,pde2035,232375,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Cadernos/PDE 2035_Dados_Caderno de Eletromobilidade.xlsx,epe,pde2035,219801,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Cadernos/PDE 2035_Dados_Caderno de Meio Ambiente e Energia.xlsx,epe,pde2035,178223,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Cadernos/PDE 2035_Dados_Caderno de Oferta de Biocombustíveis.xlsx,epe,pde2035,179484,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Cadernos/PDE 2035_Dados_Caderno de Preços Internacionais do Petróleo e seus Derivados.xlsx,epe,pde2035,263720,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Cadernos.zip,epe,pde2035,1315515,,,horizonte 2026-2035 (usar até 2030),22b2f0fa78f8d59e,2026-11-11T21:54:49Z
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 01_Economia e Demografia.xlsx,epe,pde2035,204214,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 02_Demanda de Energia.xlsx,epe,pde2035,319888,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 03_Geração Centralizada de Energia Elétrica.xlsx,epe,pde2035,5330713,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 04_Transmissão de Energia Elétrica.xlsx,epe,pde2035,296577,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 05_Produção de Petróleo e Gás Natural.xlsx,epe,pde2035,214116,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 06_Abastecimento de Derivados de Petróleo.xlsx,epe,pde2035,218119,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 07_Gás Natural.xlsx,epe,pde2035,147764,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 08_Oferta de Biocombustíveis.xlsx,epe,pde2035,191336,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 09_Eficiência Energética e Recursos Energéticos Distribuídos.xlsx,epe,pde2035,857629,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 10_Análise Socioambiental.xlsx,epe,pde2035,189162,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 11_Transição Energética.xlsx,epe,pde2035,156645,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final/PDE 2035_Dados_Capítulo 12_Consolidação dos Resultados.xlsx,epe,pde2035,226043,,,extraído de zip,,
+data/raw/epe/pde2035/PDE 2035_Dados_Relatório Final.zip,epe,pde2035,7964621,,,horizonte 2026-2035 (usar até 2030),aac18732cc527fda,2026-11-11T21:54:45Z
+data/raw/epe/pde2035/PDE 2035_Relatório Final_Envio MME_2026-11-05_rev4.pdf,epe,pde2035,15032810,,,horizonte 2026-2035 (usar até 2030),f638709c55210a5c,2026-11-11T21:54:44Z
+data/raw/ibge/pop_censo2022_uf_ne.json,ibge,(arquivos na raiz da fonte),2461,,,2022,335aac284a4d767f,2026-11-11T22:06:49Z
+data/raw/ons/balanco/BALANCO_ENERGIA_SUBSISTEMA_2022.parquet,ons,balanco,2750811,43800.0,9.0,2022,4bf9709aa1dec7a3,2026-11-11T21:52:13Z
+data/raw/ons/balanco/BALANCO_ENERGIA_SUBSISTEMA_2023.parquet,ons,balanco,2075363,43800.0,9.0,2023,f7afdc813eba42a8,2026-11-11T21:52:16Z
+data/raw/ons/balanco/BALANCO_ENERGIA_SUBSISTEMA_2024.parquet,ons,balanco,2086316,43920.0,9.0,2024,51e24a2daf088242,2026-11-11T21:52:18Z
+data/raw/ons/balanco/BALANCO_ENERGIA_SUBSISTEMA_2025.parquet,ons,balanco,2105644,43800.0,9.0,2025,e9b36337b8980693,2026-11-11T21:52:21Z
+data/raw/ons/balanco/BALANCO_ENERGIA_SUBSISTEMA_2026.parquet,ons,balanco,1842942,37560.0,9.0,2026,9e8aa2b2054a0e42,2026-11-11T21:52:24Z
+data/raw/ons/balanco/dicionario/DicionarioDados_Balanco_Energia_Subsistema.json,ons,balanco,1286,,,,b9a2e1ae184e9945,2026-11-11T21:52:22Z
+data/raw/ons/balanco/dicionario/DicionarioDados_Balanco_Energia_Subsistema.pdf,ons,balanco,129703,,,,cef1b71ee55569f4,2026-11-11T21:52:11Z
+data/raw/ons/capacidade/CAPACIDADE_GERACAO.parquet,ons,capacidade,242945,5837.0,18.0,snapshot,961cfa81c30c149d,2026-11-11T21:52:51Z
+data/raw/ons/capacidade/dicionario/DicionarioDados_Capacidade_Instalada_Geracao.json,ons,capacidade,2733,,,,68e823cd62cc06ae,2026-11-11T21:52:52Z
+data/raw/ons/capacidade/dicionario/DicionarioDados_Capacidade_Instalada_Geracao.pdf,ons,capacidade,230482,,,,2f327d123f18a9fa,2026-11-11T21:52:49Z
+data/raw/ons/carga_verificada/NE_2022_01.json.gz,ons,carga_verificada,50724,,,2022-01,d4e95dea0dfef9d9,2026-11-11T21:58:37Z
+data/raw/ons/carga_verificada/NE_2022_02.json.gz,ons,carga_verificada,45796,,,2022-02,c64689ab1c36cd5f,2026-11-11T21:58:38Z
+data/raw/ons/carga_verificada/NE_2022_03.json.gz,ons,carga_verificada,50654,,,2022-03,b1e0cf889b0071fb,2026-11-11T21:58:40Z
+data/raw/ons/carga_verificada/NE_2022_04.json.gz,ons,carga_verificada,46740,,,2022-04,218d29f7cb138fa6,2026-11-11T21:58:41Z
+data/raw/ons/carga_verificada/NE_2022_05.json.gz,ons,carga_verificada,50586,,,2022-05,1a76ca92c1c71f0e,2026-11-11T21:58:42Z
+data/raw/ons/carga_verificada/NE_2022_06.json.gz,ons,carga_verificada,49433,,,2022-06,68acfd2978e71396,2026-11-11T21:58:44Z
+data/raw/ons/carga_verificada/NE_2022_07.json.gz,ons,carga_verificada,48542,,,2022-07,7761719316797fc3,2026-11-11T21:58:45Z
+data/raw/ons/carga_verificada/NE_2022_08.json.gz,ons,carga_verificada,51591,,,2022-08,9fac6a8d648c23c3,2026-11-11T21:58:47Z
+data/raw/ons/carga_verificada/NE_2022_09.json.gz,ons,carga_verificada,47189,,,2022-09,29c89890046ad774,2026-11-11T21:58:48Z
+data/raw/ons/carga_verificada/NE_2022_10.json.gz,ons,carga_verificada,51566,,,2022-10,0b844fd4cf6bdc47,2026-11-11T21:58:50Z
+data/raw/ons/carga_verificada/NE_2022_11.json.gz,ons,carga_verificada,49470,,,2022-11,176e091727dee50e,2026-11-11T21:58:51Z
+data/raw/ons/carga_verificada/NE_2022_12.json.gz,ons,carga_verificada,49971,,,2022-12,fa701576dc142317,2026-11-11T21:58:52Z
+data/raw/ons/carga_verificada/NE_2023_01.json.gz,ons,carga_verificada,52076,,,2023-01,78dde2cdb95c3bc4,2026-11-11T21:58:54Z
+data/raw/ons/carga_verificada/NE_2023_02.json.gz,ons,carga_verificada,48338,,,2023-02,dc9ebe578671e4c7,2026-11-11T21:58:56Z
+data/raw/ons/carga_verificada/NE_2023_03.json.gz,ons,carga_verificada,52123,,,2023-03,71952f7bf1432421,2026-11-11T21:58:57Z
+data/raw/ons/carga_verificada/NE_2023_04.json.gz,ons,carga_verificada,51590,,,2023-04,2ac446b5bee2c67b,2026-11-11T21:58:59Z
+data/raw/ons/carga_verificada/NE_2023_05.json.gz,ons,carga_verificada,53751,,,2023-05,7469450077104b50,2026-11-11T21:59:00Z
+data/raw/ons/carga_verificada/NE_2023_06.json.gz,ons,carga_verificada,50555,,,2023-06,14815892f8794927,2026-11-11T21:59:02Z
+data/raw/ons/carga_verificada/NE_2023_07.json.gz,ons,carga_verificada,53222,,,2023-07,56b361e948a8bd0e,2026-11-11T21:59:03Z
+data/raw/ons/carga_verificada/NE_2023_08.json.gz,ons,carga_verificada,53058,,,2023-08,8e7024af5973c18a,2026-11-11T21:59:05Z
+data/raw/ons/carga_verificada/NE_2023_09.json.gz,ons,carga_verificada,51828,,,2023-09,888a1bc475e2694a,2026-11-11T21:59:06Z
+data/raw/ons/carga_verificada/NE_2023_10.json.gz,ons,carga_verificada,53897,,,2023-10,f1bea5592ab98f48,2026-11-11T21:59:07Z
+data/raw/ons/carga_verificada/NE_2023_11.json.gz,ons,carga_verificada,52984,,,2023-11,6a4e76d4cdd3c21f,2026-11-11T21:59:09Z
+data/raw/ons/carga_verificada/NE_2023_12.json.gz,ons,carga_verificada,54479,,,2023-12,9a6aba90120a0577,2026-11-11T21:59:10Z
+data/raw/ons/carga_verificada/NE_2024_01.json.gz,ons,carga_verificada,53169,,,2024-01,124982094e42acdf,2026-11-11T21:59:12Z
+data/raw/ons/carga_verificada/NE_2024_02.json.gz,ons,carga_verificada,50452,,,2024-02,803329fb19f5f0a7,2026-11-11T21:59:13Z
+data/raw/ons/carga_verificada/NE_2024_03.json.gz,ons,carga_verificada,52977,,,2024-03,88022fdd710e6f57,2026-11-11T21:59:15Z
+data/raw/ons/carga_verificada/NE_2024_04.json.gz,ons,carga_verificada,51224,,,2024-04,0e4669b18eaf34ab,2026-11-11T21:59:16Z
+data/raw/ons/carga_verificada/NE_2024_05.json.gz,ons,carga_verificada,54468,,,2024-05,b21a9db96010c34c,2026-11-11T21:59:17Z
+data/raw/ons/carga_verificada/NE_2024_06.json.gz,ons,carga_verificada,50441,,,2024-06,3f79b5c224ad6a2d,2026-11-11T21:59:19Z
+data/raw/ons/carga_verificada/NE_2024_07.json.gz,ons,carga_verificada,52963,,,2024-07,80fbdbcd46ef2ad8,2026-11-11T21:59:20Z
+data/raw/ons/carga_verificada/NE_2024_08.json.gz,ons,carga_verificada,52702,,,2024-08,78c3d8e2990c7422,2026-11-11T21:59:22Z
+data/raw/ons/carga_verificada/NE_2024_09.json.gz,ons,carga_verificada,50606,,,2024-09,20d0c31904331492,2026-11-11T21:59:23Z
+data/raw/ons/carga_verificada/NE_2024_10.json.gz,ons,carga_verificada,53821,,,2024-10,38eb322c2da049e6,2026-11-11T21:59:25Z
+data/raw/ons/carga_verificada/NE_2024_11.json.gz,ons,carga_verificada,52384,,,2024-11,92a6014a13c84081,2026-11-11T21:59:26Z
+data/raw/ons/carga_verificada/NE_2024_12.json.gz,ons,carga_verificada,53329,,,2024-12,f345f35e4b0fb91f,2026-11-11T21:59:27Z
+data/raw/ons/carga_verificada/NE_2025_01.json.gz,ons,carga_verificada,53107,,,2025-01,8995052432101221,2026-11-11T21:59:29Z
+data/raw/ons/carga_verificada/NE_2025_02.json.gz,ons,carga_verificada,47156,,,2025-02,599701ec5a88063e,2026-11-11T21:59:30Z
+data/raw/ons/carga_verificada/NE_2025_03.json.gz,ons,carga_verificada,52828,,,2025-03,b0137df723811614,2026-11-11T21:59:32Z
+data/raw/ons/carga_verificada/NE_2025_04.json.gz,ons,carga_verificada,50791,,,2025-04,2a25eb9e0dadff59,2026-11-11T21:59:33Z
+data/raw/ons/carga_verificada/NE_2025_05.json.gz,ons,carga_verificada,53576,,,2025-05,dd7d5fc33a9f95aa,2026-11-11T21:59:34Z
+data/raw/ons/carga_verificada/NE_2025_06.json.gz,ons,carga_verificada,50756,,,2025-06,b40fd8fc330dc91f,2026-11-11T21:59:36Z
+data/raw/ons/carga_verificada/NE_2025_07.json.gz,ons,carga_verificada,52847,,,2025-07,6bc7367044a94a39,2026-11-11T21:59:37Z
+data/raw/ons/carga_verificada/NE_2025_08.json.gz,ons,carga_verificada,53312,,,2025-08,ad19cd69bfd2cc43,2026-11-11T21:59:39Z
+data/raw/ons/carga_verificada/NE_2025_09.json.gz,ons,carga_verificada,48590,,,2025-09,9c96a4f8eda8dc27,2026-11-11T21:59:40Z
+data/raw/ons/carga_verificada/NE_2025_10.json.gz,ons,carga_verificada,53538,,,2025-10,cbe7e1d51cda24ef,2026-11-11T21:59:42Z
+data/raw/ons/carga_verificada/NE_2025_11.json.gz,ons,carga_verificada,53447,,,2025-11,ba31003bb9ecc191,2026-11-11T21:59:43Z
+data/raw/ons/carga_verificada/NE_2025_12.json.gz,ons,carga_verificada,54073,,,2025-12,fc98e59703b95af8,2026-11-11T21:59:44Z
+data/raw/ons/carga_verificada/NE_2026_01.json.gz,ons,carga_verificada,54123,,,2026-01,d272f1a1b4695c45,2026-11-11T21:59:46Z
+data/raw/ons/carga_verificada/NE_2026_02.json.gz,ons,carga_verificada,51175,,,2026-02,1d66569d3d84bd88,2026-11-11T21:59:47Z
+data/raw/ons/carga_verificada/NE_2026_03.json.gz,ons,carga_verificada,53456,,,2026-03,7daed03292c627eb,2026-11-11T21:59:49Z
+data/raw/ons/carga_verificada/NE_2026_04.json.gz,ons,carga_verificada,51444,,,2026-04,926132ab8aa97ef5,2026-11-11T21:59:50Z
+data/raw/ons/carga_verificada/NE_2026_05.json.gz,ons,carga_verificada,53048,,,2026-05,4439c3fb20f9d5d7,2026-11-11T21:59:52Z
+data/raw/ons/carga_verificada/NE_2026_06.json.gz,ons,carga_verificada,51333,,,2026-06,42eb61486dbe717f,2026-11-11T21:59:53Z
+data/raw/ons/carga_verificada/NE_2026_07.json.gz,ons,carga_verificada,52222,,,2026-07,9ddd4b0c17beb925,2026-11-11T21:59:55Z
+data/raw/ons/carga_verificada/NE_2026_08.json.gz,ons,carga_verificada,54607,,,2026-08,a6118cad8fb496cd,2026-11-11T21:59:56Z
+data/raw/ons/carga_verificada/NE_2026_09.json.gz,ons,carga_verificada,51998,,,2026-09,928fa3339a6155b2,2026-11-11T21:59:58Z
+data/raw/ons/carga_verificada/NE_2026_10.json.gz,ons,carga_verificada,52959,,,2026-10,290d62f01acf2fae,2026-11-11T21:59:59Z
+data/raw/ons/carga_verificada/NE_2026_11.json.gz,ons,carga_verificada,18305,,,2026-11,069d0e34e54f2e0a,2026-11-11T22:00:00Z
+data/raw/ons/coff_eolica/dicionario/DicionarioDados_RestricaoContrainedoff_UsiEolicas.json,ons,coff_eolica,4715,,,,136d14be22a722e6,2026-11-11T22:03:04Z
+data/raw/ons/coff_eolica/dicionario/DicionarioDados_RestricaoContrainedoff_UsiEolicas.pdf,ons,coff_eolica,359850,,,,3b11359619b53825,2026-11-11T22:03:03Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_01.parquet,ons,coff_eolica,2160624,200880.0,24.0,2022-01,b10b94386ce0a3e4,2026-11-11T22:03:06Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_02.parquet,ons,coff_eolica,2057766,183648.0,24.0,2022-02,03ac898958adaf4d,2026-11-11T22:03:12Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_03.parquet,ons,coff_eolica,2255479,203856.0,24.0,2022-03,a29032a0ea047eed,2026-11-11T22:03:15Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_04.parquet,ons,coff_eolica,2155872,197328.0,24.0,2022-04,3b75093c12e5c87e,2026-11-11T22:03:18Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_05.parquet,ons,coff_eolica,2287728,206592.0,24.0,2022-05,3ac41eb8e59a135d,2026-11-11T22:03:20Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_06.parquet,ons,coff_eolica,2158369,198576.0,24.0,2022-06,afb8ad73e1cc9557,2026-11-11T22:03:23Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_07.parquet,ons,coff_eolica,2502303,206832.0,24.0,2022-07,f86791592efc698f,2026-11-11T22:03:25Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_08.parquet,ons,coff_eolica,2576713,209616.0,24.0,2022-08,249550569f99db5b,2026-11-11T22:03:27Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_09.parquet,ons,coff_eolica,2509194,204432.0,24.0,2022-09,a5fe1464815f2137,2026-11-11T22:03:30Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_10.parquet,ons,coff_eolica,2679439,214272.0,24.0,2022-10,7d18056799ebb650,2026-11-11T22:03:32Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_11.parquet,ons,coff_eolica,2362463,209904.0,24.0,2022-11,faad14ee5f9bbc40,2026-11-11T22:03:35Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2022_12.parquet,ons,coff_eolica,2499956,216048.0,24.0,2022-12,027dad0483fa9036,2026-11-11T22:03:37Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_01.parquet,ons,coff_eolica,2533150,219696.0,24.0,2023-01,eb2a1e169b90b794,2026-11-11T22:03:40Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_02.parquet,ons,coff_eolica,2406856,196320.0,24.0,2023-02,82820cacdda637cf,2026-11-11T22:03:43Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_03.parquet,ons,coff_eolica,2613881,217728.0,24.0,2023-03,a0fc92a430979ccf,2026-11-11T22:03:45Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_04.parquet,ons,coff_eolica,2367275,211680.0,24.0,2023-04,e78089c9376b6b3f,2026-11-11T22:03:48Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_05.parquet,ons,coff_eolica,2564945,221088.0,24.0,2023-05,ec5e4eb7381509fd,2026-11-11T22:03:50Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_06.parquet,ons,coff_eolica,2905822,214752.0,24.0,2023-06,564d5fd7337bb4ce,2026-11-11T22:03:52Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_07.parquet,ons,coff_eolica,3111835,224400.0,24.0,2023-07,11683abd2fbe0f78,2026-11-11T22:03:55Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_08.parquet,ons,coff_eolica,3118391,226320.0,24.0,2023-08,28dff5960d408364,2026-11-11T22:03:57Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_09.parquet,ons,coff_eolica,3326215,220320.0,24.0,2023-09,82f39af87db0a204,2026-11-11T22:04:02Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_10.parquet,ons,coff_eolica,3318833,227664.0,24.0,2023-10,027faf8db524b7a1,2026-11-11T22:04:04Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_11.parquet,ons,coff_eolica,3018375,220320.0,24.0,2023-11,00877e21c0b0f1b1,2026-11-11T22:04:07Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2023_12.parquet,ons,coff_eolica,3098734,230016.0,24.0,2023-12,24e7c1448bd92e7d,2026-11-11T22:04:10Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_01.parquet,ons,coff_eolica,2702440,231984.0,24.0,2024-01,561c12e71cfdceb1,2026-11-11T22:04:12Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_02.parquet,ons,coff_eolica,2726660,219888.0,24.0,2024-02,58e8b8c8be059031,2026-11-11T22:04:15Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_03.parquet,ons,coff_eolica,2795723,235680.0,24.0,2024-03,91e98a32591dee63,2026-11-11T22:04:18Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_04.parquet,ons,coff_eolica,2830457,228960.0,24.0,2024-04,29bb33d966b4d23f,2026-11-11T22:04:21Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_05.parquet,ons,coff_eolica,3272193,236592.0,24.0,2024-05,7496be757b93f030,2026-11-11T22:04:23Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_06.parquet,ons,coff_eolica,3462283,228960.0,24.0,2024-06,db1c2f9f6ecc2cb1,2026-11-11T22:04:25Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_07.parquet,ons,coff_eolica,3971926,237264.0,24.0,2024-07,58480926990a6530,2026-11-11T22:04:28Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_08.parquet,ons,coff_eolica,4360354,239328.0,24.0,2024-08,bf779f5387fd55c1,2026-11-11T22:04:31Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_09.parquet,ons,coff_eolica,4324853,231120.0,24.0,2024-09,2439a86bd92444f5,2026-11-11T22:04:34Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_10.parquet,ons,coff_eolica,3911506,234048.0,24.0,2024-10,e86692858654621f,2026-11-11T22:04:37Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_11.parquet,ons,coff_eolica,3525276,221136.0,24.0,2024-11,16a3ebd7c7c22c94,2026-11-11T22:04:40Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2024_12.parquet,ons,coff_eolica,3719705,229776.0,24.0,2024-12,cba1f0de63b498a0,2026-11-11T22:04:42Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_01.parquet,ons,coff_eolica,3253368,232128.0,24.0,2025-01,431709d434d06521,2026-11-11T22:04:45Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_02.parquet,ons,coff_eolica,3722753,209664.0,24.0,2025-02,2389034a0011d07e,2026-11-11T22:04:48Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_03.parquet,ons,coff_eolica,3498526,231840.0,24.0,2025-03,c584081112a5efd4,2026-11-11T22:04:51Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_04.parquet,ons,coff_eolica,3225522,223200.0,24.0,2025-04,0aaff25651b79edc,2026-11-11T22:04:54Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_05.parquet,ons,coff_eolica,4105618,230640.0,24.0,2025-05,edda6abd19f0a212,2026-11-11T22:04:56Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_06.parquet,ons,coff_eolica,3973542,223536.0,24.0,2025-06,025b8067cd6fe361,2026-11-11T22:05:02Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_07.parquet,ons,coff_eolica,4273457,230592.0,24.0,2025-07,a5d9316788012f58,2026-11-11T22:05:05Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_08.parquet,ons,coff_eolica,4509482,229152.0,24.0,2025-08,0b86dc86836127ee,2026-11-11T22:05:07Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_09.parquet,ons,coff_eolica,4453066,222096.0,24.0,2025-09,bd07d2fda2cafcdd,2026-11-11T22:05:11Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_10.parquet,ons,coff_eolica,4649456,229152.0,24.0,2025-10,e2e6104c01f35f51,2026-11-11T22:05:13Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_11.parquet,ons,coff_eolica,4106610,221760.0,24.0,2025-11,8d07036417141438,2026-11-11T22:05:17Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2025_12.parquet,ons,coff_eolica,3971259,229152.0,24.0,2025-12,602e7f45d187d7bb,2026-11-11T22:05:19Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_01.parquet,ons,coff_eolica,4165544,229152.0,24.0,2026-01,d8832a130a93dd40,2026-11-11T22:05:22Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_02.parquet,ons,coff_eolica,2934696,205824.0,24.0,2026-02,0d18bf06337840c8,2026-11-11T22:05:27Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_03.parquet,ons,coff_eolica,3462171,227664.0,24.0,2026-03,43da00348fe53edf,2026-11-11T22:05:30Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_04.parquet,ons,coff_eolica,3547016,220320.0,24.0,2026-04,539444b1390664c0,2026-11-11T22:05:32Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_05.parquet,ons,coff_eolica,4050889,227664.0,24.0,2026-05,ac295852533b956a,2026-11-11T22:05:35Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_06.parquet,ons,coff_eolica,3696290,220320.0,24.0,2026-06,e0dc62ffafa0211b,2026-11-11T22:05:38Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_07.parquet,ons,coff_eolica,4234747,227664.0,24.0,2026-07,66f09c1a6dc236ef,2026-11-11T22:05:41Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_08.parquet,ons,coff_eolica,4419667,227664.0,24.0,2026-08,f794af75a7b2d734,2026-11-11T22:05:43Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_09.parquet,ons,coff_eolica,4208205,219264.0,24.0,2026-09,ac7750210a879803,2026-11-11T22:05:46Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_10.parquet,ons,coff_eolica,4600131,226128.0,24.0,2026-10,499c64bad38738bf,2026-11-11T22:05:50Z
+data/raw/ons/coff_eolica/RESTRICAO_COFF_EOLICA_2026_11.parquet,ons,coff_eolica,1636185,72960.0,24.0,2026-11,c51073e4f6f2420c,2026-11-11T22:05:52Z
+data/raw/ons/coff_solar/dicionario/DicionarioDados_RestricaoContrainedoff_UsiFotovoltaica.json,ons,coff_solar,4667,,,,d3f324977219d3b7,2026-11-11T22:05:55Z
+data/raw/ons/coff_solar/dicionario/DicionarioDados_RestricaoContrainedoff_UsiFotovoltaica.pdf,ons,coff_solar,357723,,,,ba604e3e9b9d38d5,2026-11-11T22:05:54Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_04.parquet,ons,coff_solar,677734,79776.0,24.0,2024-04,3693f72949440ec9,2026-11-11T22:05:57Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_05.parquet,ons,coff_solar,779325,85920.0,24.0,2024-05,dfe82b9178847477,2026-11-11T22:05:59Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_06.parquet,ons,coff_solar,814018,85728.0,24.0,2024-06,bf01ac30d461492c,2026-11-11T22:06:01Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_07.parquet,ons,coff_solar,901649,90528.0,24.0,2024-07,f2010b7e01c3d6a0,2026-11-11T22:06:03Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_08.parquet,ons,coff_solar,958370,90768.0,24.0,2024-08,25f4594f364b079f,2026-11-11T22:06:06Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_09.parquet,ons,coff_solar,954835,86640.0,24.0,2024-09,1b7078bf88ac4b16,2026-11-11T22:06:08Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_10.parquet,ons,coff_solar,960311,91344.0,24.0,2024-10,d8ef4a8f04613daf,2026-11-11T22:06:10Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_11.parquet,ons,coff_solar,908939,89280.0,24.0,2024-11,a1a61ea30c1fab6d,2026-11-11T22:06:12Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2024_12.parquet,ons,coff_solar,1048562,93168.0,24.0,2024-12,0486a5acb87abf65,2026-11-11T22:06:14Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_01.parquet,ons,coff_solar,1030629,96000.0,24.0,2025-01,f9960fd7954d7305,2026-11-11T22:06:16Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_02.parquet,ons,coff_solar,991484,87360.0,24.0,2025-02,7702565f1a2e82fa,2026-11-11T22:06:19Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_03.parquet,ons,coff_solar,1016432,96720.0,24.0,2025-03,a3b6e9488e2f0387,2026-11-11T22:06:21Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_04.parquet,ons,coff_solar,957849,93600.0,24.0,2025-04,d71681651229c96c,2026-11-11T22:06:23Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_05.parquet,ons,coff_solar,1125095,96720.0,24.0,2025-05,3a2fe3f06ca1f51b,2026-11-11T22:06:25Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_06.parquet,ons,coff_solar,1055413,93600.0,24.0,2025-06,74f4cee8a6cef29d,2026-11-11T22:06:27Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_07.parquet,ons,coff_solar,1147572,96720.0,24.0,2025-07,12ddc02784ee0c15,2026-11-11T22:06:30Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_08.parquet,ons,coff_solar,1185801,96720.0,24.0,2025-08,6547bdf4f7877774,2026-11-11T22:06:32Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_09.parquet,ons,coff_solar,1200817,96864.0,24.0,2025-09,90d6336b3add45dc,2026-11-11T22:06:34Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_10.parquet,ons,coff_solar,1277532,102288.0,24.0,2025-10,e615c3919e13228d,2026-11-11T22:06:36Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_11.parquet,ons,coff_solar,1225806,99360.0,24.0,2025-11,7da952371b3a5ff2,2026-11-11T22:06:38Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2025_12.parquet,ons,coff_solar,1232727,105168.0,24.0,2025-12,b86fe52f0ba149ea,2026-11-11T22:06:40Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_01.parquet,ons,coff_solar,1257823,106464.0,24.0,2026-01,82d7bfb5a22feab4,2026-11-11T22:06:43Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_02.parquet,ons,coff_solar,1028057,98112.0,24.0,2026-02,bbd081c99e9b45ef,2026-11-11T22:06:45Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_03.parquet,ons,coff_solar,1301640,112992.0,24.0,2026-03,0758fc32da44d1f1,2026-11-11T22:06:47Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_04.parquet,ons,coff_solar,1311407,112320.0,24.0,2026-04,f1abbb1e48649e88,2026-11-11T22:06:49Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_05.parquet,ons,coff_solar,1345985,116064.0,24.0,2026-05,75fce8ef8715cbd8,2026-11-11T22:06:51Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_06.parquet,ons,coff_solar,1231733,113904.0,24.0,2026-06,6070a9fb630ea9aa,2026-11-11T22:06:54Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_07.parquet,ons,coff_solar,1339148,119136.0,24.0,2026-07,a4a8f538ee8879ab,2026-11-11T22:06:56Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_08.parquet,ons,coff_solar,1417630,121536.0,24.0,2026-08,7c609a08af4aece3,2026-11-11T22:06:58Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_09.parquet,ons,coff_solar,1429761,119808.0,24.0,2026-09,3c038ed2d4906d7e,2026-11-11T22:07:01Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_10.parquet,ons,coff_solar,1703170,124992.0,24.0,2026-10,62e48130d4d048a0,2026-11-11T22:07:03Z
+data/raw/ons/coff_solar/RESTRICAO_COFF_FOTOVOLTAICA_2026_11.parquet,ons,coff_solar,624877,40320.0,24.0,2026-11,3f3dc8031aa502d1,2026-11-11T22:07:05Z
+data/raw/ons/curva_carga/CURVA_CARGA_2022.parquet,ons,curva_carga,498130,35040.0,4.0,2022,670962bf091bc5e1,2026-11-11T21:52:38Z
+data/raw/ons/curva_carga/CURVA_CARGA_2023.parquet,ons,curva_carga,492541,35040.0,4.0,2023,d6f60c6c7b9df144,2026-11-11T21:52:40Z
+data/raw/ons/curva_carga/CURVA_CARGA_2024.parquet,ons,curva_carga,489394,35136.0,4.0,2024,aa1a74db69e36391,2026-11-11T21:52:42Z
+data/raw/ons/curva_carga/CURVA_CARGA_2025.parquet,ons,curva_carga,383346,35040.0,4.0,2025,e317f4c1a4b82f04,2026-11-11T21:52:44Z
+data/raw/ons/curva_carga/CURVA_CARGA_2026.parquet,ons,curva_carga,337609,30048.0,4.0,2026,458cff03eda82a0c,2026-11-11T21:52:47Z
+data/raw/ons/curva_carga/dicionario/DicionarioDados_CurvaCarga.json,ons,curva_carga,560,,,,4dc6b8166eae279c,2026-11-11T21:52:45Z
+data/raw/ons/curva_carga/dicionario/DicionarioDados_CurvaCarga.pdf,ons,curva_carga,283974,,,,ba0fb840656b8cd0,2026-11-11T21:52:36Z
+data/raw/ons/fator_capacidade/dicionario/DicionarioDados_FatorCapacidade.json,ons,fator_capacidade,2825,,,,2851b24aa9c338fa,2026-11-11T22:00:21Z
+data/raw/ons/fator_capacidade/dicionario/DicionarioDados_FatorCapacidade.pdf,ons,fator_capacidade,197116,,,,8c2594e4ac4133dd,2026-11-11T22:00:20Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_01.parquet,ons,fator_capacidade,2587692,121272.0,21.0,2022-01,9edb0b9bc4d5142c,2026-11-11T22:00:24Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_02.parquet,ons,fator_capacidade,2395493,110232.0,21.0,2022-02,9c03aa5debf087ed,2026-11-11T22:00:26Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_03.parquet,ons,fator_capacidade,2665620,123456.0,21.0,2022-03,8f4bc626404890e2,2026-11-11T22:00:29Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_04.parquet,ons,fator_capacidade,2554067,120864.0,21.0,2022-04,a794e10f5d161d13,2026-11-11T22:00:32Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_05.parquet,ons,fator_capacidade,2701263,125304.0,21.0,2022-05,2242ebf2762dc8f2,2026-11-11T22:00:34Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_06.parquet,ons,fator_capacidade,2603111,120696.0,21.0,2022-06,4257051229509bc4,2026-11-11T22:00:37Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_07.parquet,ons,fator_capacidade,2898114,130704.0,21.0,2022-07,1b1b39e12cdd737b,2026-11-11T22:00:39Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_08.parquet,ons,fator_capacidade,2947870,132336.0,21.0,2022-08,9bf00154b175dbf6,2026-11-11T22:00:42Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_09.parquet,ons,fator_capacidade,2918907,129360.0,21.0,2022-09,03d806fa4610e717,2026-11-11T22:00:44Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_10.parquet,ons,fator_capacidade,3143876,136440.0,21.0,2022-10,0fe6c1f8385578d6,2026-11-11T22:00:47Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_11.parquet,ons,fator_capacidade,2948147,133512.0,21.0,2022-11,fcc2e2452a0f1692,2026-11-11T22:00:49Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2022_12.parquet,ons,fator_capacidade,3028818,137496.0,21.0,2022-12,7c1f45b6086b338e,2026-11-11T22:00:52Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_01.parquet,ons,fator_capacidade,3102731,138624.0,21.0,2023-01,f1fb9475e864db26,2026-11-11T22:00:54Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_02.parquet,ons,fator_capacidade,2862852,126960.0,21.0,2023-02,d57c7ac16fc783b6,2026-11-11T22:00:57Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_03.parquet,ons,fator_capacidade,3018831,142920.0,21.0,2023-03,87737d78cf4adb2e,2026-11-11T22:00:59Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_04.parquet,ons,fator_capacidade,2893029,140400.0,21.0,2023-04,0dcfd7e165dd7f28,2026-11-11T22:01:03Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_05.parquet,ons,fator_capacidade,3139673,145080.0,21.0,2023-05,afedae70d05f9e14,2026-11-11T22:01:06Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_06.parquet,ons,fator_capacidade,3165623,140400.0,21.0,2023-06,086c5b96fdd96148,2026-11-11T22:01:09Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_07.parquet,ons,fator_capacidade,3340759,146496.0,21.0,2023-07,723b868fab8562f7,2026-11-11T22:01:12Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_08.parquet,ons,fator_capacidade,3343341,148800.0,21.0,2023-08,46becc0f13e12dcf,2026-11-11T22:01:15Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_09.parquet,ons,fator_capacidade,3192273,144216.0,21.0,2023-09,8f4bf1fd025f6d15,2026-11-11T22:01:17Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_10.parquet,ons,fator_capacidade,3428020,149544.0,21.0,2023-10,c28af1cd3c099849,2026-11-11T22:01:20Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_11.parquet,ons,fator_capacidade,3290328,144720.0,21.0,2023-11,9fd8dcd6bc3d211d,2026-11-11T22:01:22Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2023_12.parquet,ons,fator_capacidade,3463040,151272.0,21.0,2023-12,6d60e4da84179339,2026-11-11T22:01:25Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_01.parquet,ons,fator_capacidade,3346631,153528.0,21.0,2024-01,753c321ed9a525a4,2026-11-11T22:01:27Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_02.parquet,ons,fator_capacidade,3209825,147912.0,21.0,2024-02,4941b777aad2f343,2026-11-11T22:01:30Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_03.parquet,ons,fator_capacidade,3344134,160536.0,21.0,2024-03,ec8c7148141caa39,2026-11-11T22:01:33Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_04.parquet,ons,fator_capacidade,3323288,156816.0,21.0,2024-04,5849214910e5d418,2026-11-11T22:01:35Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_05.parquet,ons,fator_capacidade,3607635,163152.0,21.0,2024-05,20089ca79fb78f32,2026-11-11T22:01:38Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_06.parquet,ons,fator_capacidade,3542078,158832.0,21.0,2024-06,eaa4db21d7b00009,2026-11-11T22:01:40Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_07.parquet,ons,fator_capacidade,3674187,165528.0,21.0,2024-07,f92560c74ab233eb,2026-11-11T22:01:43Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_08.parquet,ons,fator_capacidade,3742345,166752.0,21.0,2024-08,4fe0d553b1ba7120,2026-11-11T22:01:46Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_09.parquet,ons,fator_capacidade,3610522,160728.0,21.0,2024-09,166acfd0bfb854b1,2026-11-11T22:01:48Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_10.parquet,ons,fator_capacidade,3617476,163176.0,21.0,2024-10,eb2c4051d2a2bdd3,2026-11-11T22:01:51Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_11.parquet,ons,fator_capacidade,3486004,157080.0,21.0,2024-11,ed3696b2969959f8,2026-11-11T22:01:55Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2024_12.parquet,ons,fator_capacidade,3631707,163680.0,21.0,2024-12,c576c15ae7fa44f7,2026-11-11T22:01:58Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_01.parquet,ons,fator_capacidade,3452601,165072.0,21.0,2025-01,22dee3b4dc05ce9a,2026-11-11T22:02:01Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_02.parquet,ons,fator_capacidade,3078139,149184.0,21.0,2025-02,0e988f16028d92b2,2026-11-11T22:02:04Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_03.parquet,ons,fator_capacidade,3564826,165024.0,21.0,2025-03,f22415de79342221,2026-11-11T22:02:06Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_04.parquet,ons,fator_capacidade,3423768,159840.0,21.0,2025-04,c8815015d0b1debc,2026-11-11T22:02:09Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_05.parquet,ons,fator_capacidade,3589423,164424.0,21.0,2025-05,1ddfaffddadc4a5b,2026-11-11T22:02:12Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_06.parquet,ons,fator_capacidade,3490239,159120.0,21.0,2025-06,36ac785c01a30c66,2026-11-11T22:02:14Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_07.parquet,ons,fator_capacidade,3604879,164400.0,21.0,2025-07,156dd5df114f4e74,2026-11-11T22:02:17Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_08.parquet,ons,fator_capacidade,3599513,163680.0,21.0,2025-08,a8147becc0b36460,2026-11-11T22:02:20Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_09.parquet,ons,fator_capacidade,3552625,159552.0,21.0,2025-09,eec57c7a3079903b,2026-11-11T22:02:23Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_10.parquet,ons,fator_capacidade,3656261,165720.0,21.0,2025-10,5e2cd9f1a0f543de,2026-11-11T22:02:26Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_11.parquet,ons,fator_capacidade,3496423,160560.0,21.0,2025-11,45be05c864815d65,2026-11-11T22:02:28Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2025_12.parquet,ons,fator_capacidade,3640264,167160.0,21.0,2025-12,077becf875a02a37,2026-11-11T22:02:31Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_01.parquet,ons,fator_capacidade,2644014,167808.0,21.0,2026-01,d94e54de0d2a0d0e,2026-11-11T22:02:34Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_02.parquet,ons,fator_capacidade,2331071,151968.0,21.0,2026-02,97a560c131dee526,2026-11-11T22:02:36Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_03.parquet,ons,fator_capacidade,2571119,170328.0,21.0,2026-03,70d78bf0ef844026,2026-11-11T22:02:39Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_04.parquet,ons,fator_capacidade,2502087,166320.0,21.0,2026-04,5f0db07f6cc2569f,2026-11-11T22:02:41Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_05.parquet,ons,fator_capacidade,2633481,171864.0,21.0,2026-05,bbf54aa8f8fbec5c,2026-11-11T22:02:45Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_06.parquet,ons,fator_capacidade,2600842,167112.0,21.0,2026-06,d30ff426cf1d9687,2026-11-11T22:02:48Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_07.parquet,ons,fator_capacidade,2707103,173400.0,21.0,2026-07,7c31e51c3de37141,2026-11-11T22:02:50Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_08.parquet,ons,fator_capacidade,2728652,174600.0,21.0,2026-08,4a6e2e3b1b32ea5a,2026-11-11T22:02:53Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_09.parquet,ons,fator_capacidade,2669258,169536.0,21.0,2026-09,9115991bbd496ff8,2026-11-11T22:02:55Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_10.parquet,ons,fator_capacidade,2723977,175560.0,21.0,2026-10,a84a588fc923099f,2026-11-11T22:02:58Z
+data/raw/ons/fator_capacidade/FATOR_CAPACIDADE-2_2026_11.parquet,ons,fator_capacidade,859080,50976.0,21.0,2026-11,814a87f237da9b75,2026-11-11T22:03:00Z
+data/raw/ons/geracao_usina/dicionario/DicionarioDados_GeracaoPorUsina.json,ons,geracao_usina,1508,,,,5bc25c0f2d813715,2026-11-11T21:57:26Z
+data/raw/ons/geracao_usina/dicionario/DicionarioDados_GeracaoPorUsina.pdf,ons,geracao_usina,181813,,,,c254f312198ad314,2026-11-11T21:57:25Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_01.parquet,ons,geracao_usina,3995665,429384.0,12.0,2022-01,210df40e97be7d1a,2026-11-11T21:57:28Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_02.parquet,ons,geracao_usina,3587677,388032.0,12.0,2022-02,221313b4769d8b5f,2026-11-11T21:57:31Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_03.parquet,ons,geracao_usina,3999250,430368.0,12.0,2022-03,d8697bc9bfcb64f2,2026-11-11T21:57:33Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_04.parquet,ons,geracao_usina,3858654,419640.0,12.0,2022-04,b9719b0e4a853581,2026-11-11T21:57:36Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_05.parquet,ons,geracao_usina,4064052,436632.0,12.0,2022-05,c25e142e9b941fae,2026-11-11T21:57:39Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_06.parquet,ons,geracao_usina,3979421,422880.0,12.0,2022-06,b1378ea12691f928,2026-11-11T21:57:41Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_07.parquet,ons,geracao_usina,4213076,443688.0,12.0,2022-07,d208e1676f978f78,2026-11-11T21:57:44Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_08.parquet,ons,geracao_usina,4241840,446472.0,12.0,2022-08,f8705c816f254460,2026-11-11T21:57:47Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_09.parquet,ons,geracao_usina,4162666,435504.0,12.0,2022-09,2cc7478d4071729a,2026-11-11T21:57:50Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_10.parquet,ons,geracao_usina,4345604,457704.0,12.0,2022-10,84503e111e1ca6b7,2026-11-11T21:57:54Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_11.parquet,ons,geracao_usina,4186586,446544.0,12.0,2022-11,ced8b117179959f8,2026-11-11T21:57:58Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2022_12.parquet,ons,geracao_usina,4320327,462984.0,12.0,2022-12,32f3c819a7eba8a5,2026-11-11T21:58:00Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_01.parquet,ons,geracao_usina,4272050,464736.0,12.0,2023-01,df2e487cc6a19713,2026-11-11T21:58:04Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_02.parquet,ons,geracao_usina,3821240,416784.0,12.0,2023-02,43f3cdc58353e25f,2026-11-11T21:58:07Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_03.parquet,ons,geracao_usina,4243749,463536.0,12.0,2023-03,aaa244ca76e6c649,2026-11-11T21:58:10Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_04.parquet,ons,geracao_usina,4133338,451776.0,12.0,2023-04,25725e7df41cdcec,2026-11-11T21:58:12Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_05.parquet,ons,geracao_usina,4523333,493464.0,12.0,2023-05,9b4cfa2b49939f06,2026-11-11T21:58:15Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_06.parquet,ons,geracao_usina,4447402,479016.0,12.0,2023-06,7efde756927a2389,2026-11-11T21:58:18Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_07.parquet,ons,geracao_usina,4623986,496872.0,12.0,2023-07,dbcd2a8d5f35dcdd,2026-11-11T21:58:21Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_08.parquet,ons,geracao_usina,4688054,501432.0,12.0,2023-08,801659872cdcbb63,2026-11-11T21:58:24Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_09.parquet,ons,geracao_usina,4523477,485664.0,12.0,2023-09,74b20157e5bde74c,2026-11-11T21:58:27Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_10.parquet,ons,geracao_usina,4727903,503664.0,12.0,2023-10,c6356cd99988eec6,2026-11-11T21:58:29Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_11.parquet,ons,geracao_usina,4591625,486720.0,12.0,2023-11,15aba654bbec7b26,2026-11-11T21:58:32Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2023_12.parquet,ons,geracao_usina,4756830,504840.0,12.0,2023-12,d2c2bd4812f50cea,2026-11-11T21:58:35Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_01.parquet,ons,geracao_usina,4603601,506352.0,12.0,2024-01,588e00c7cd7417ad,2026-11-11T21:58:38Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_02.parquet,ons,geracao_usina,4352075,478104.0,12.0,2024-02,9418eb58c46d2c7d,2026-11-11T21:58:40Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_03.parquet,ons,geracao_usina,4636616,513192.0,12.0,2024-03,2c2738398ff4ec84,2026-11-11T21:58:43Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_04.parquet,ons,geracao_usina,4492664,498480.0,12.0,2024-04,7b43f2e0308dafa6,2026-11-11T21:58:46Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_05.parquet,ons,geracao_usina,4720627,515808.0,12.0,2024-05,76269fd59fb9cac1,2026-11-11T21:58:49Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_06.parquet,ons,geracao_usina,4599837,500136.0,12.0,2024-06,8ec145eee3642bcb,2026-11-11T21:58:52Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_07.parquet,ons,geracao_usina,4804834,518184.0,12.0,2024-07,301e74528c41ede3,2026-11-11T21:58:56Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_08.parquet,ons,geracao_usina,4852960,519408.0,12.0,2024-08,d362b458887fb009,2026-11-11T21:58:58Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_09.parquet,ons,geracao_usina,4720204,502008.0,12.0,2024-09,6f63e1d4c0f2b17b,2026-11-11T21:59:01Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_10.parquet,ons,geracao_usina,4838031,517344.0,12.0,2024-10,37349104ba47464e,2026-11-11T21:59:04Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_11.parquet,ons,geracao_usina,4663755,500904.0,12.0,2024-11,0d2ef26719106eae,2026-11-11T21:59:07Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2024_12.parquet,ons,geracao_usina,4740038,519696.0,12.0,2024-12,72ad2602a8b34ecc,2026-11-11T21:59:09Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_01.parquet,ons,geracao_usina,4619062,519744.0,12.0,2025-01,e2fc1e1d7dbd0611,2026-11-11T21:59:12Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_02.parquet,ons,geracao_usina,4146821,470232.0,12.0,2025-02,60eb1f50f67a8a53,2026-11-11T21:59:15Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_03.parquet,ons,geracao_usina,4629214,520656.0,12.0,2025-03,feaa7532d387395c,2026-11-11T21:59:18Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_04.parquet,ons,geracao_usina,4547817,510456.0,12.0,2025-04,c673855b8f510ce4,2026-11-11T21:59:21Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_05.parquet,ons,geracao_usina,4674960,526704.0,12.0,2025-05,306994d883b8e118,2026-11-11T21:59:24Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_06.parquet,ons,geracao_usina,4604885,510288.0,12.0,2025-06,c4bcd99ecb240cd6,2026-11-11T21:59:26Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_07.parquet,ons,geracao_usina,4800798,528192.0,12.0,2025-07,7968c094da67469a,2026-11-11T21:59:29Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_08.parquet,ons,geracao_usina,4824077,528240.0,12.0,2025-08,105e14fc913b51b0,2026-11-11T21:59:32Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_09.parquet,ons,geracao_usina,4506677,491736.0,12.0,2025-09,adc987c963829d62,2026-11-11T21:59:35Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_10.parquet,ons,geracao_usina,4470658,483816.0,12.0,2025-10,108482042cc2de3a,2026-11-11T21:59:40Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_11.parquet,ons,geracao_usina,4347750,471552.0,12.0,2025-11,84790f2d84d96267,2026-11-11T21:59:43Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2025_12.parquet,ons,geracao_usina,4483220,485496.0,12.0,2025-12,6eab1db070c3ea96,2026-11-11T21:59:45Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_01.parquet,ons,geracao_usina,4514617,495227.0,12.0,2026-01,57db2a68425f74fd,2026-11-11T21:59:48Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_02.parquet,ons,geracao_usina,4113547,450264.0,12.0,2026-02,a0995f815a5a503c,2026-11-11T21:59:51Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_03.parquet,ons,geracao_usina,4431724,490992.0,12.0,2026-03,082a67b10a69b74c,2026-11-11T21:59:54Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_04.parquet,ons,geracao_usina,4239276,473760.0,12.0,2026-04,bc6c339cc135fd91,2026-11-11T21:59:57Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_05.parquet,ons,geracao_usina,4497694,530808.0,12.0,2026-05,c90f2bed4471381a,2026-11-11T22:00:00Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_06.parquet,ons,geracao_usina,4403679,514728.0,12.0,2026-06,0787fe30e3c9ade5,2026-11-11T22:00:03Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_07.parquet,ons,geracao_usina,4559494,533832.0,12.0,2026-07,b5a385e25ea3f09b,2026-11-11T22:00:07Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_08.parquet,ons,geracao_usina,4610599,536712.0,12.0,2026-08,3fda1f68650edc9c,2026-11-11T22:00:09Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_09.parquet,ons,geracao_usina,4476385,519840.0,12.0,2026-09,de289d8c8d8db65b,2026-11-11T22:00:12Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_10.parquet,ons,geracao_usina,4641018,537384.0,12.0,2026-10,0f78a2f0fb047085,2026-11-11T22:00:16Z
+data/raw/ons/geracao_usina/GERACAO_USINA-2_2026_11.parquet,ons,geracao_usina,1575428,165840.0,12.0,2026-11,4c4c8120edb050ad,2026-11-11T22:00:18Z
+data/raw/ons/intercambio/dicionario/DicionarioDados_Intercambio_Nacional.json,ons,intercambio,960,,,,e4224d3fc163d018,2026-11-11T21:53:16Z
+data/raw/ons/intercambio/dicionario/DicionarioDados_Intercambio_Nacional.pdf,ons,intercambio,298486,,,,b3c9941804cdccb6,2026-11-11T21:53:15Z
+data/raw/ons/intercambio/INTERCAMBIO_NACIONAL_2022.csv,ons,intercambio,1882399,34944.0,,2022,6d2eee9860181528,2026-11-11T21:53:18Z
+data/raw/ons/intercambio/INTERCAMBIO_NACIONAL_2023.parquet,ons,intercambio,377008,35040.0,6.0,2023,82bc8b81467395bb,2026-11-11T21:53:18Z
+data/raw/ons/intercambio/INTERCAMBIO_NACIONAL_2024.parquet,ons,intercambio,377408,35136.0,6.0,2024,c420eb392e7314e4,2026-11-11T21:53:18Z
+data/raw/ons/intercambio/INTERCAMBIO_NACIONAL_2025.parquet,ons,intercambio,377333,35040.0,6.0,2025,ff7343de6f03768f,2026-11-11T21:53:18Z
+data/raw/ons/intercambio/INTERCAMBIO_NACIONAL_2026.parquet,ons,intercambio,647677,30144.0,7.0,2026,06d8800de07f91d8,2026-11-11T21:53:18Z
+data/raw/openmeteo/cap_AJU.json.gz,openmeteo,(arquivos na raiz da fonte),301172,,,2022-01-01..2026-11-03,51f46850d6f21c81,2026-11-11T22:02:33Z
+data/raw/openmeteo/cap_FOR.json.gz,openmeteo,(arquivos na raiz da fonte),299799,,,2022-01-01..2026-11-03,c65e4efcd9023067,2026-11-11T22:01:46Z
+data/raw/openmeteo/cap_JPA.json.gz,openmeteo,(arquivos na raiz da fonte),305564,,,2022-01-01..2026-11-03,d61c7a1db1fbeff5,2026-11-11T22:02:07Z
+data/raw/openmeteo/cap_MCZ.json.gz,openmeteo,(arquivos na raiz da fonte),305363,,,2022-01-01..2026-11-03,69675c37508b5c10,2026-11-11T22:02:13Z
+data/raw/openmeteo/cap_NAT.json.gz,openmeteo,(arquivos na raiz da fonte),292089,,,2022-01-01..2026-11-03,c71bb1ab83748745,2026-11-11T22:01:58Z
+data/raw/openmeteo/cap_REC.json.gz,openmeteo,(arquivos na raiz da fonte),314293,,,2022-01-01..2026-11-03,5ec6613587eec066,2026-11-11T22:01:52Z
+data/raw/openmeteo/cap_SSA.json.gz,openmeteo,(arquivos na raiz da fonte),297581,,,2022-01-01..2026-11-03,254aaa89e29e5a75,2026-11-11T22:01:24Z
+data/raw/openmeteo/cap_THE.json.gz,openmeteo,(arquivos na raiz da fonte),324415,,,2022-01-01..2026-11-03,4309409c394bda76,2026-11-11T22:02:22Z
+data/raw/openmeteo/eol_00.json.gz,openmeteo,(arquivos na raiz da fonte),265043,,,2022-01-01..2026-11-03,f3f81f9ed7d37c7c,2026-11-11T22:02:45Z
+data/raw/openmeteo/eol_01.json.gz,openmeteo,(arquivos na raiz da fonte),260626,,,2022-01-01..2026-11-03,d02bcd80daa3efc6,2026-11-11T22:02:54Z
+data/raw/openmeteo/eol_02.json.gz,openmeteo,(arquivos na raiz da fonte),268272,,,2022-01-01..2026-11-03,65edf4cd49aa7d31,2026-11-11T22:03:03Z
+data/raw/openmeteo/eol_03.json.gz,openmeteo,(arquivos na raiz da fonte),265805,,,2022-01-01..2026-11-03,53d45f4052715b1e,2026-11-11T22:03:12Z
+data/raw/openmeteo/eol_04.json.gz,openmeteo,(arquivos na raiz da fonte),258595,,,2022-01-01..2026-11-03,5529d343f2a0b72f,2026-11-11T22:03:20Z
+data/raw/openmeteo/eol_05.json.gz,openmeteo,(arquivos na raiz da fonte),261705,,,2022-01-01..2026-11-03,5ed8493ce6557fd9,2026-11-11T22:01:34Z
+data/raw/openmeteo/eol_06.json.gz,openmeteo,(arquivos na raiz da fonte),268380,,,2022-01-01..2026-11-03,85769134c5f15989,2026-11-11T22:03:27Z
+data/raw/openmeteo/eol_07.json.gz,openmeteo,(arquivos na raiz da fonte),267040,,,2022-01-01..2026-11-03,5a01aca15d7aa023,2026-11-11T22:03:33Z
+data/raw/openmeteo/eol_08.json.gz,openmeteo,(arquivos na raiz da fonte),270805,,,2022-01-01..2026-11-03,d17224a96d500b33,2026-11-11T22:03:42Z
+data/raw/openmeteo/eol_09.json.gz,openmeteo,(arquivos na raiz da fonte),267784,,,2022-01-01..2026-11-03,60e897c4979e44b6,2026-11-11T22:03:51Z
+data/raw/openmeteo/eol_10.json.gz,openmeteo,(arquivos na raiz da fonte),264512,,,2022-01-01..2026-11-03,9fe3dae16ca08100,2026-11-11T22:03:59Z
+data/raw/openmeteo/eol_11.json.gz,openmeteo,(arquivos na raiz da fonte),262551,,,2022-01-01..2026-11-03,c68aa7bafb69446d,2026-11-11T22:04:10Z
+data/raw/openmeteo/eol_12.json.gz,openmeteo,(arquivos na raiz da fonte),260309,,,2022-01-01..2026-11-03,c9efe8ff8fa869bf,2026-11-11T22:04:16Z
+data/raw/openmeteo/eol_13.json.gz,openmeteo,(arquivos na raiz da fonte),263190,,,2022-01-01..2026-11-03,7363140a37435b30,2026-11-11T22:04:24Z
+data/raw/openmeteo/eol_14.json.gz,openmeteo,(arquivos na raiz da fonte),266797,,,2022-01-01..2026-11-03,77c62c47e438a884,2026-11-11T22:04:34Z
+data/raw/openmeteo/eol_15.json.gz,openmeteo,(arquivos na raiz da fonte),268738,,,2022-01-01..2026-11-03,57311c8adad082dd,2026-11-11T22:04:43Z
+data/raw/openmeteo/sol_00.json.gz,openmeteo,(arquivos na raiz da fonte),238412,,,2022-01-01..2026-11-03,b315d47005bed2c3,2026-11-11T22:04:49Z
+data/raw/openmeteo/sol_01.json.gz,openmeteo,(arquivos na raiz da fonte),235856,,,2022-01-01..2026-11-03,a982401ff17879de,2026-11-11T22:04:58Z
+data/raw/openmeteo/sol_02.json.gz,openmeteo,(arquivos na raiz da fonte),235858,,,2022-01-01..2026-11-03,fef18662cc86d5d2,2026-11-11T22:05:03Z
+data/raw/openmeteo/sol_03.json.gz,openmeteo,(arquivos na raiz da fonte),239417,,,2022-01-01..2026-11-03,2c77ec7aac023db4,2026-11-11T22:05:09Z
+data/raw/openmeteo/sol_04.json.gz,openmeteo,(arquivos na raiz da fonte),236218,,,2022-01-01..2026-11-03,607688e9995c009e,2026-11-11T22:05:18Z
+data/raw/openmeteo/sol_05.json.gz,openmeteo,(arquivos na raiz da fonte),237976,,,2022-01-01..2026-11-03,a3152fcad278a702,2026-11-11T22:05:23Z
+data/raw/openmeteo/sol_06.json.gz,openmeteo,(arquivos na raiz da fonte),237864,,,2022-01-01..2026-11-03,d770d483c7b8e634,2026-11-11T22:05:32Z
+data/raw/openmeteo/sol_07.json.gz,openmeteo,(arquivos na raiz da fonte),239374,,,2022-01-01..2026-11-03,f668572cae64668c,2026-11-11T22:05:38Z
+data/raw/openmeteo/sol_08.json.gz,openmeteo,(arquivos na raiz da fonte),239799,,,2022-01-01..2026-11-03,b40ba7c8f2d76e84,2026-11-11T22:05:43Z
+data/raw/openmeteo/sol_09.json.gz,openmeteo,(arquivos na raiz da fonte),234737,,,2022-01-01..2026-11-03,7e38ad52b1834751,2026-11-11T22:05:51Z
