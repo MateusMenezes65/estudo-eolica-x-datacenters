@@ -100,3 +100,115 @@ pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2037,92.0,MW,"Dados Cap. 4, Fig
 pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2037,26069.69,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
 pedidos_conexao_dc_acrescimo,Brasil,pipeline_MME,2038,174.0,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",potência instalada de processos de conexão à Rede Básica protocolados no MME; não é previsão de carga
 pedidos_conexao_dc_acumulado,Brasil,pipeline_MME,2038,26243.69,MW,"Dados Cap. 4, Figura 4-3 (MME, out/2025)",acumulado calculado
+mmgd_capacidade,Brasil,inferior,2013,3.51329999935627,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2013,3.51329999935627,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2013,3.51329999935627,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2014,6.522150015592577,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2014,6.522150015592577,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2014,6.522150015592577,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2015,22.444380018681297,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2015,22.444380018681297,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2015,22.444380018681297,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2016,85.90097987778859,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2016,85.90097987778859,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2016,85.90097987778859,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2017,241.97271977552398,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2017,241.97271977552398,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2017,241.97271977552398,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2018,683.8497296751625,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2018,683.8497296751625,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2018,683.8497296751625,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2019,2304.4465791786124,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2019,2304.4465791786124,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2019,2304.4465791786124,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2020,5310.118978844553,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2020,5310.118978844553,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2020,5310.118978844553,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2021,10038.92188006639,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2021,10038.92188006639,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2021,10038.92188006639,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2022,18216.591690116024,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2022,18216.591690116024,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2022,18216.591690116024,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2023,26607.18714962818,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2023,26607.18714962818,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2023,26607.18714962818,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2024,35249.54851924736,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2024,35249.54851924736,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2024,35249.54851924736,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2025,39583.15788207433,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2025,40024.294296472064,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2025,40493.049412743334,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2026,43043.16982503894,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2026,44226.86581054569,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2026,45459.08903483706,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2027,45045.76255547326,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2027,48101.20852912896,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2027,51127.91719157974,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2028,46108.41692919228,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2028,51950.608456341135,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2028,58676.390878860504,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2029,47819.38743758227,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2029,56014.071340062226,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2029,66285.29328154406,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2030,50298.06819409512,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2030,60307.50729104881,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2030,72004.9064866035,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2031,52702.49357312286,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2031,63911.50459648145,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2031,77134.69392962492,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2032,54990.81141548497,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2032,67538.55855791738,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2032,82266.64094621033,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2033,57183.61632259276,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2033,71102.37487420974,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2033,87412.1113724326,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2034,59298.450200534025,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2034,74615.90132091678,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2034,92582.16868178835,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,inferior,2035,61352.815032346225,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,referencia,2035,78099.4302297518,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,Brasil,superior,2035,97796.78805496027,MW,"Dados Cap. 9, Figura 9-18",
+mmgd_capacidade,CE,referencia,2035,3745.9756923921173,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+mmgd_capacidade,BA,referencia,2035,2881.4573935764743,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+mmgd_capacidade,PE,referencia,2035,2647.6660148259575,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+mmgd_capacidade,RN,referencia,2035,1693.8292270335917,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+mmgd_capacidade,PI,referencia,2035,1212.4526814895391,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+mmgd_capacidade,PB,referencia,2035,1008.98390660375,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+mmgd_capacidade,AL,referencia,2035,961.3489007415116,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+mmgd_capacidade,SE,referencia,2035,492.03614831174883,MW,"Dados Cap. 9, Figura 9-19",UF do subsistema NE
+expansao_indicativa_acumulada_eólica,SIN,referencia,2026,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2026,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2026,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2027,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2027,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2027,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2028,1700.001,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2028,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2028,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2029,3400.002,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2029,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2029,400.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2030,5100.003,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2030,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2030,2400.3,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2031,6800.004,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2031,0.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2031,2994.5,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2032,8500.005000000001,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2032,1200.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2032,4988.700000000001,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2033,10200.006,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2033,2400.0,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2033,5582.9,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2034,11900.007,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2034,3606.636198141633,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2034,6295.1,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_eólica,SIN,referencia,2035,13600.008,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_solar,SIN,referencia,2035,5606.636198141633,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+expansao_indicativa_acumulada_hidro,SIN,referencia,2035,7539.299999999999,MW,"Dados Cap. 3, Figura 3-23",indicativa (além da contratada); sem recorte por subsistema
+interc_ne_capacidade_min,Nordeste,referencia,2030,-10921.03,MW,"Dados Cap. 3, Figura 3-42",negativo = fornecimento (exportação) do NE; mínimo da permanência de 2.000 séries x 12 meses
+interc_ne_capacidade_max,Nordeste,referencia,2030,7454.1,MW,"Dados Cap. 3, Figura 3-42",positivo = recebimento (importação) do NE
+interc_ne_media_min,Nordeste,referencia,2030,-20389.0,MW,"Dados Cap. 3, Figura 3-42",negativo = fornecimento (exportação) do NE; mínimo da permanência de 2.000 séries x 12 meses
+interc_ne_media_max,Nordeste,referencia,2030,-552.0,MW,"Dados Cap. 3, Figura 3-42",positivo = recebimento (importação) do NE
+limite_exportacao_ne,Nordeste,referencia,2030,21000.0,MW,"Relatório final, seção 4.3.2, p. 149","a partir de 2030, com a maioria das obras licitadas; ~24 GW com bipolo Nordeste II"

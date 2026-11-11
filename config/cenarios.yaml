@@ -1,0 +1,47 @@
+# Cenários e hipóteses do balanço horário do NE em 2030 (simulador determinístico)
+# Fontes: config/pde2035_extraido.csv, SIGA (data/raw/aneel/siga), config/cenarios_dc.yaml.
+# `tipo: hipotese` = premissa de cenário (regra 1); `tipo: dado` = valor publicado.
+
+ano_alvo: 2030
+anos_climaticos_calibracao: [2022, 2023, 2024, 2025]   # perfis horários observados
+
+carga:
+  # Carga global (bruta, inclui MMGD) do NE no PDE 2035 referência, Tabela 2-3.
+  L_gross_media_MWmed: {valor: 16340, tipo: dado, fonte: "PDE 2035, Tabela 2-3"}
+  forma_horaria: carga bruta do ano climático normalizada pela média anual
+
+mmgd:
+  # PDE só publica MMGD do NE por UF em 2035; usa-se a taxa de crescimento da
+  # capacidade do Brasil (Fig. 9-18, referência) sobre a MMGD média do NE em 2025 (API ONS).
+  base_2025_MWmed: {valor: 1527, tipo: dado, fonte: "API ONS carga verificada, média de 2025"}
+  fator_2025_2030: {valor: 1.507, faixa: [1.27, 1.78], tipo: hipotese,
+                    fonte: "PDE Fig. 9-18: 60,3/40,0 GW (ref.); inferior 50,3/39,6; superior 72,0/40,5"}
+  forma_horaria: MMGD do ano climático normalizada pela média anual
+
+eolica:
+  # SIGA (fotografia 2026-11-01) não traz datas previstas para projetos fora de operação.
+  capacidade_2030_MW:
+    baixa: {valor: 32250, tipo: hipotese, regra: "só usinas em operação (SIGA)"}
+    base:  {valor: 34288, tipo: hipotese, regra: "operação + em construção (SIGA, 2,04 GW)"}
+    alta:  {valor: 39388, tipo: hipotese, regra: "base + expansão indicativa do PDE até 2030 (5,1 GW no SIN) toda no NE"}
+  cf: CF potencial (geração + GNRa) do ano climático x fator de frota (modelo B0 da frota recente)
+
+solar:
+  capacidade_2030_MW: {valor: 13500, tipo: hipotese, regra: "operação + construção (SIGA); PDE sem expansão solar indicativa até 2031"}
+  cf: CF solar potencial do ano climático (observado antes de 2024-04, sem dado de corte) x fator de frota (modelo C0)
+
+hidro_termica:
+  regra: geração hidráulica e térmica horária observada no ano climático (despacho histórico)
+  tipo: hipotese
+  limitacao: >-
+    Não representa redespacho: em 2030 a térmica e a hidráulica do São Francisco
+    poderiam responder a déficits ou excedentes. Sensibilidade no Dia 3.
+
+intercambio:
+  limite_exportacao_MW: {valor: 21000, tipo: dado, fonte: "PDE 2035, seção 4.3.2 (a partir de 2030)"}
+  limites_importacao_sensibilidade_MW: {valores: [6000, 8000, 10000], tipo: hipotese,
+                                        nota: "sem limite documentado; máximo histórico de fluxo 2022-2025 ≈ 7,9 GW (fluxo não é capacidade)"}
+
+compensacao_eolica:
+  criterios: [energia_anual, importacao_anual, horas_importacao, p95_importacao]
+  busca_MW: {min: 0, max: 30000, tolerancia: 10}

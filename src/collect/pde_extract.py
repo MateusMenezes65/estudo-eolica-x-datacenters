@@ -35,7 +35,7 @@ def _sheet(path, name_like):
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     name = next(s for s in wb.sheetnames if s.replace("‑", "-") == name_like)
     rows = [[c for c in r] for r in wb[name].iter_rows(values_only=True)]
-    hdr = next(i for i, r in enumerate(rows) if r and r[0] in ("Ano", "Classe"))
+    hdr = next(i for i, r in enumerate(rows) if r and r[0] in ("Ano", "Classe", "UF"))
     cols = [c for c in rows[hdr] if c is not None]
     body = [r[:len(cols)] for r in rows[hdr + 1:] if r and r[0] is not None]
     return pd.DataFrame(body, columns=cols)
@@ -118,8 +118,53 @@ def rows_caderno_p25() -> list[dict]:
     return out
 
 
+def rows_mmgd_expansao_intercambio() -> list[dict]:
+    """MMGD (Cap. 9 e 3), expansão indicativa (Fig. 3-23) e intercâmbio do NE (Fig. 3-42)."""
+    out = []
+    cap9 = XL / "PDE 2035_Dados_Capítulo 09_Eficiência Energética e Recursos Energéticos Distribuídos.xlsx"
+    d = _sheet(cap9, "Figura 9-18")
+    for _, r in d.iterrows():
+        for col, cen in [("Cenário inferior (GW)", "inferior"), ("Cenário de referência (GW)", "referencia"),
+                         ("Cenário superior (GW)", "superior")]:
+            out.append(dict(variavel="mmgd_capacidade", escopo="Brasil", cenario=cen, ano=int(r["Ano"]),
+                            valor=float(r[col]) * 1000, unidade="MW", fonte="Dados Cap. 9, Figura 9-18", nota=""))
+    d = _sheet(cap9, "Figura 9-19").rename(columns={"UF": "Ano"})
+    for _, r in d.iterrows():
+        if r["Ano"] in ("AL", "BA", "CE", "PB", "PE", "PI", "RN", "SE"):
+            out.append(dict(variavel="mmgd_capacidade", escopo=r["Ano"], cenario="referencia", ano=2035,
+                            valor=float(r["Potência (GW)"]) * 1000, unidade="MW", fonte="Dados Cap. 9, Figura 9-19",
+                            nota="UF do subsistema NE"))
+    cap3 = XL / "PDE 2035_Dados_Capítulo 03_Geração Centralizada de Energia Elétrica.xlsx"
+    d = _sheet(cap3, "Figura 3-23")
+    for _, r in d.iterrows():
+        for col in ["Eólica (MW)", "Solar (MW)", "Hidro (MW)"]:
+            out.append(dict(variavel="expansao_indicativa_acumulada_" + col.split()[0].lower(), escopo="SIN",
+                            cenario="referencia", ano=int(r["Ano"]), valor=float(r[col]), unidade="MW",
+                            fonte="Dados Cap. 3, Figura 3-23", nota="indicativa (além da contratada); sem recorte por subsistema"))
+    wb = openpyxl.load_workbook(cap3, read_only=True, data_only=True)
+    rows = [r for r in wb["Figura 3-42"].iter_rows(values_only=True)]
+    i = next(k for k, r in enumerate(rows) if r and any("Patamar" in str(x) for x in r if x))
+    f = pd.DataFrame([r[1:5] for r in rows[i + 1:] if r and r[1] is not None],
+                     columns=["cap2030", "cap2035", "med2030", "med2035"])
+    for col, ano, pat in [("cap2030", 2030, "capacidade"), ("med2030", 2030, "media")]:
+        out.append(dict(variavel=f"interc_ne_{pat}_min", escopo="Nordeste", cenario="referencia", ano=ano,
+                        valor=float(f[col].min()), unidade="MW", fonte="Dados Cap. 3, Figura 3-42",
+                        nota="negativo = fornecimento (exportação) do NE; mínimo da permanência de 2.000 séries x 12 meses"))
+        out.append(dict(variavel=f"interc_ne_{pat}_max", escopo="Nordeste", cenario="referencia", ano=ano,
+                        valor=float(f[col].max()), unidade="MW", fonte="Dados Cap. 3, Figura 3-42",
+                        nota="positivo = recebimento (importação) do NE"))
+    t = _pdf_text(PDE / "PDE 2035_Relatório Final_Envio MME_2026-11-05_rev4.pdf", [149])
+    m = re.search(r"capacidade de exportação da Região Nordeste\s+para\s+aproximadamente\s+(\d+)\s+GW", t)
+    assert m, "texto da capacidade de exportação do NE não encontrado"
+    out.append(dict(variavel="limite_exportacao_ne", escopo="Nordeste", cenario="referencia", ano=2030,
+                    valor=float(m.group(1)) * 1000, unidade="MW", fonte="Relatório final, seção 4.3.2, p. 149",
+                    nota="a partir de 2030, com a maioria das obras licitadas; ~24 GW com bipolo Nordeste II"))
+    return out
+
+
 def main() -> None:
-    rows = (rows_tabela_2_3() + rows_caderno_p25() + rows_fig_2_25() + rows_fig_2_24() + rows_fig_4_3())
+    rows = (rows_tabela_2_3() + rows_caderno_p25() + rows_fig_2_25() + rows_fig_2_24() + rows_fig_4_3()
+            + rows_mmgd_expansao_intercambio())
     d = pd.DataFrame(rows)
     d.to_csv(CONFIG / "pde2035_extraido.csv", index=False, encoding="utf-8")
     ne = d[(d.escopo == "Nordeste") & (d.variavel == "carga_energia")]
