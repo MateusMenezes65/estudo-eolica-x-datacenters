@@ -1,0 +1,72 @@
+{
+ "seed": 20261111,
+ "hgb": {
+  "max_iter": 400,
+  "learning_rate": 0.05,
+  "max_leaf_nodes": 31,
+  "min_samples_leaf": 40,
+  "l2_regularization": 1.0,
+  "random_state": 20261111
+ },
+ "dobras": [
+  "2025-01",
+  "2025-02",
+  "2025-03",
+  "2025-04",
+  "2025-05",
+  "2025-06",
+  "2025-07",
+  "2025-08",
+  "2025-09",
+  "2025-10",
+  "2025-11",
+  "2025-12"
+ ],
+ "targets": {
+  "A_carga_liquida": {
+   "y": "L_net",
+   "exog": [
+    "hora",
+    "dia_semana",
+    "mes",
+    "dia_ano",
+    "feriado_nacional",
+    "n_uf_feriado_estadual",
+    "ponto_facultativo",
+    "carnaval",
+    "sao_joao",
+    "ponte",
+    "vespera_feriado",
+    "pos_feriado",
+    "temperature_2m",
+    "apparent_temperature",
+    "relative_humidity_2m",
+    "cdh24",
+    "shortwave_radiation"
+   ],
+   "unidade": "MW"
+  },
+  "B_cf_eolico_pot": {
+   "y": "cf_eol_pot",
+   "exog": [
+    "hora",
+    "mes",
+    "dia_ano",
+    "wind_speed_100m",
+    "wind_speed3_100m"
+   ],
+   "unidade": "CF"
+  },
+  "C_cf_solar": {
+   "y": "cf_sol_obs",
+   "exog": [
+    "hora",
+    "mes",
+    "dia_ano",
+    "shortwave_radiation",
+    "temperature_2m"
+   ],
+   "unidade": "CF"
+  }
+ }
+}

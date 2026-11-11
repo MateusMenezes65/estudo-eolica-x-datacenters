@@ -1,76 +1,96 @@
 # STATUS — Estudo Eólica × Data Centers (NE, 2030)
 
-Última atualização: 2026-11-11 · Etapa concluída: **Dia 1 — ambiente, coleta e auditoria** · Próxima: **Dia 2 — modelos e cenários** (nenhum modelo treinado ainda).
+Última atualização: 2026-11-11 · Etapas concluídas: **Dia 1** (ambiente, coleta, auditoria) e **Dia 2** (modelos, cenários, simulador determinístico) · Próxima: **Dia 3 — incerteza (Monte Carlo), sensibilidades e relatório final**.
 
-## 1. Executado
+## 1. Ambiente e repositório
 
-- **Ambiente**: Windows 11; Git 2.56; Python 3.14.1 real (alias da Microsoft Store também existe em `WindowsApps`, não usado); `.venv` criado no projeto; dependências fixadas em `requirements.txt` / `requirements.lock.txt`; 125 GB livres.
-- **Git**: repositório local; identidade configurada só neste repositório (MateusMenezes65). Histórico em `git log`.
-- **Estrutura**: `config/ src/ tests/ docs/ reports/ data/{raw,interim,processed}`, `.gitignore`, README, `docs/decisoes.md`.
-- **Arquivos originais**: `AGENTS.md` e `docs/Plano_Orientador_...docx` preservados. Onde divergem, vale o AGENTS.md (horizonte 2030; o plano fala em 2035).
-- **Coleta** (346 registros no manifesto `docs/manifest/manifest.csv`, com URL, tamanho, SHA-256, data de coleta; checagem `python -m src.collect.manifest` sem pendências):
+- Windows 11; Git 2.56; Python 3.14.1 em `.venv` (o alias da Microsoft Store existe, mas não é usado). Dependências em `requirements.txt` / `requirements.lock.txt`.
+- Git local com identidade configurada só neste repositório (MateusMenezes65). Histórico em `git log`. Nenhum dado bruto, intermediário ou processado é versionado.
+- `AGENTS.md` e o plano orientador estão preservados. Onde divergem, vale o AGENTS.md (horizonte 2030).
+- Comandos reproduzíveis: README (Dia 1 e Dia 2).
+- Testes: `pytest -q` → **22 aprovados**:
+  - fuso horário, agregação 30 min → hora, MW×h = MWh, cardinalidade da junção;
+  - fechamento do balanço, quebra da MMGD, identidade carga global = líquida + MMGD;
+  - extração do PDE e trajetória oficial de data centers;
+  - cenários-limite do simulador: carga de data centers zero reproduz o caso-base; mais carga não reduz a importação; a compensação devolve a importação ao caso-base.
 
-| # | Fonte | Período | Volume |
-|---|---|---|---|
-| 1 | ONS balanço, intercâmbio, curva de carga (horário) | 2022-01 → 2026-11-09 | 18 MB |
-| 1 | ONS carga verificada semi-horária (API; separa MMGD) | 2022-01 → 2026-11-11 | 3 MB |
-| 2 | ONS geração por usina e fator de capacidade por usina (horário) | 2022-01 → 2026-11 | 442 MB |
-| 3 | ONS constrained-off eólico (2022-01+) e solar (só existe desde 2024-04) | → 2026-11 | 229 MB |
-| 4 | ONS capacidade instalada; ANEEL SIGA (fotografia 2026-11-01) | snapshot | 9 MB |
-| 5 | ANEEL MMGD (fotografia 2026-11-10) | snapshot | 108 MB |
-| 6 | Calendário NE (`config/calendario_ne.csv`, biblioteca holidays) | 2015–2030 | — |
-| 7–9 | Open-Meteo ERA5: 8 capitais, 16 pontos eólicos, 10 solares | 2022-01-01 → 2026-11-03 (UTC) | 9 MB |
-| 10 | EPE PDE 2035: relatório final, cadernos de demanda, transmissão, MMGD, planilhas | publicação 2026-11-05 | 49 MB |
-| — | IBGE Censo 2022 (população por UF, pesos de temperatura) | 2022 | <1 MB |
+## 2. Dados (Dia 1)
 
-- **Integração**: `data/interim/ne_hourly.parquet` (42 624 horas × 59 colunas) + bases por usina (FC, constrained-off) e clima por ponto.
-- **Auditoria**: `reports/quality/relatorio_qualidade.md`, tabelas em `reports/tables/`, figuras `reports/figures/q1…q6`.
-- **Testes**: `pytest -q` → 13 aprovados (tempo/fuso, 30 min→hora, MW×h=MWh, parsing, seleção de arquivos, calendário, unicidade horária, fechamento do balanço 2022–2025, quebra MMGD, identidade carga global = líquida + MMGD, cardinalidade da junção, CF agregado em [0,1]).
+- **Manifesto:** 451 registros em `docs/manifest/manifest.csv`, com URL, tamanho, SHA-256 e data de coleta; sem pendências em `python -m src.collect.manifest`.
+- **ONS, histórico de 2022-01 até nov/2026:** balanço, intercâmbio, carga verificada pela API (separa a MMGD), geração e fator de capacidade por usina, constrained-off eólico e solar (solar só desde 2024-04), capacidade.
+- **ANEEL:** SIGA e MMGD.
+- **EPE:** PDE 2035, relatório e planilhas.
+- **ONS/EPE/CCEE:** notas de previsão de carga do PLAN 2026–2030 e slides da 2ª Revisão Quadrimestral.
+- **Clima:** ERA5 via Open-Meteo em 34 pontos, para 2022–2026 e **1995–2021** (102 blocos, completo).
+- **Outros:** IBGE (população) e calendário do NE.
+- **Base integrada:** `data/interim/ne_hourly.parquet`.
+- **Base analítica:** `data/processed/ne_features_h.parquet`.
+- **Auditoria:** `reports/quality/relatorio_qualidade.md`.
 
-Comandos: ver README (seção "Pipeline reproduzível").
+Principais achados do Dia 1:
+- Em 29/04/2023 o balanço ONS passou a incluir a MMGD na carga e na solar.
+- O corte eólico apurado subiu de 0,6% (2022) para 20,2% (2025) do potencial.
+- O balanço de jan–mai/2026 não fecha em 878 horas.
+- A geração de referência do constrained-off não equivale ao potencial.
+- O ERA5 não reproduz o jato noturno.
 
-## 2. Cobertura e principais números (2022–2025, anos completos)
+## 3. Dia 2 — executado
 
-- Cobertura horária completa, sem duplicatas nem lacunas internas, em todas as bases centrais. Constrained-off solar só desde 2024-04; MMGD em "geração por usina" só desde 2023-04-29.
-- Carga líquida de MMGD (API): 11,1 → 12,1 GWmed (2022 → 2025); MMGD estimada: 0,4 → 1,5 GWmed.
-- Capacidade eólica NE (FC ONS): 19,6 → 30,6 GW médios (2022 → 2025); SIGA: 32,3 GW em operação, 2,0 GW em construção, 11,3 GW não iniciados; solar 12,3 / 1,2 / 44,9 GW.
-- NE exportador líquido: exportação 34 → 56 TWh/ano; importação 1,5–3,3 TWh/ano; 7–14 % das horas com importação; pico de importação ≈ 7,1–7,9 GW.
-- **Constrained-off eólico apurado (GNRa)**: 0,6 % (2022) → 3,9 % → 9,1 % → **20,2 % (2025)** do potencial; solar 16,7 % (2024-04+) → 25,6 % (2025). Em 2025 o corte energético (ENE) superou o de confiabilidade (CNF).
+Relatório: `reports/dia2_modelos_cenarios.md`.
 
-## 3. Problemas encontrados e tratamento
+- **PDE 2035** (`config/pde2035_extraido.csv`, 213 valores, cada um com fonte):
+  - carga do NE, referência: 16.340 MWmed em 2030;
+  - MMGD do Brasil: 40,0 → 60,3 GW;
+  - expansão indicativa de eólica no SIN: +5,1 GW até 2030;
+  - exportação do NE limitada a 21 GW a partir de 2030; nenhum limite de importação documentado.
+- **Data centers:**
+  - trajetória oficial da 2ª RQ do PLAN 2026–2030: 2.098 MWmed no NE em 2030;
+  - inventário de 17 projetos (`config/data_centers_ne.csv`);
+  - cenários em `config/cenarios_dc.yaml`: sem_dc 0, conservador 1.886, central 2.098, alto 2.753 MWmed.
+- **Cenários do balanço** (`config/cenarios.yaml`):
+  - eólica baixa / base / alta = 32,3 / 34,3 / 39,4 GW;
+  - solar 13,5 GW;
+  - MMGD ≈ 2,3 GWmed;
+  - despacho hidrotérmico histórico.
+- **Modelos** (`src/models/backtest.py`), com HGB contra baselines em 12 dobras mensais de 2025:
 
-1. **Quebra de definição da carga no balanço ONS em 2023-04-29**: carga e solar passam a incluir a MMGD estimada (degrau ~0,5 GW). Sem correção da série bruta; adotada a carga líquida de MMGD da API como L_base (decisão 13).
-2. **Duas estimativas de MMGD do ONS** (API vs. geração por usina) diferem em 30–370 MWmed por trimestre.
-3. **Balanço 2026-01 a 2026-05 inconsistente**: 878 horas sem fechamento (até −17,5 GW) e eólica do balanço muito abaixo da soma das usinas. Marcado; 2026 é só complementar.
-4. **Geração de referência do constrained-off ≠ potencial**: menor que a geração em 45 % das horas-usina eólicas. Corte medido pela GNRa (regra 4).
-5. **Mudança de regime dos cortes**: correlação vento³ × CF observado cai de 0,87 (2022) para 0,58 (2025), mas vento³ × CF potencial (geração + GNRa) fica em 0,85–0,89. O alvo do modelo B deve ser o potencial, e o classificador de cortes (D) precisa considerar quebra de regime 2024–2025 (regra 15).
-6. **ERA5 não reproduz o jato noturno**: o CF eólico tem pico noturno forte (0,46 vs. 0,26 ao meio-dia), mas o vento ERA5 a 100 m quase não tem ciclo diário. O modelo B precisará de interação hora × mês.
-7. FC por usina: horas com capacidade 0 ou geração > capacidade (registro defasado; ~0,3 TWh em ~450 TWh). Não recortado.
-8. MMGD ANEEL sem data de conexão (só a última atualização cadastral); contém dados pessoais tarjados — usar apenas agregados; não versionar.
-9. Intercâmbio nacional: os pares de subsistemas trocam de sentido entre anos (N→NE e NE→N); reconcilia exatamente com o balanço quando somado com sinal.
-10. Curva de carga ONS = carga do balanço (redundante; mantida só como conferência).
+| Alvo | Ganho de MAE em 1 h | Ganho de MAE em 24 h |
+|---|---|---|
+| Carga líquida | 70% | 36% |
+| CF eólico potencial | 41% | 47% |
+| CF solar | 62% | 13% |
 
-Correções feitas no código: leitura de `val_*` gravados como texto em alguns anos; fallback para CSV (intercâmbio 2022); codificação UTF-8 do SIGA; trava de escrita no manifesto (coletores paralelos).
+  O HGB vence em 10 a 12 dos 12 meses. O clima perfeito torna esses ganhos um limite superior.
+- **Funções de transferência clima → sistema:**
+  - carga bruta: MAE de 2,6–3,2% deixando um ano de fora;
+  - CF eólico potencial: MAE de 0,044 com a frota recente;
+  - CF solar potencial: MAE de 0,024–0,027.
+- **CF eólico potencial em 2025 (0,48):** explicado por vento mais forte e frota mais nova. O simulador corrige o nível de cada ano climático com um fator de frota.
+- **Simulador determinístico** (`src/sim/deterministico.py`), eólica base, média dos anos climáticos 2022–2025:
+  - importação: sem_dc 3,1 TWh e 920 h → central 5,5 TWh e 1.440 h → alto 6,5 TWh e 1.629 h;
+  - eólica que compensa o cenário central: 4,7 GW pelo critério de energia anual, mas 10,5 GW para manter a importação anual (regra 11);
+  - cerca de 87% da energia dos data centers cairia em horas de excedente regional (potencial de absorção, não corte evitado).
+- **Classificador de cortes:** discrimina bem os motivos ENE e CNF e o total (ROC-AUC de 0,86 a 0,95), mas a calibração é instável por mudança de regime. Fica só como uso descritivo; REL não é previsível.
 
-## 4. Lacunas
+## 4. Limitações e lacunas abertas
 
-- **#11 Inventário de data centers — feito (v0.2, 2026-11-11)**:
-  - Projeção oficial (PLAN 2026-2030, ONS/EPE/CCEE), carga de DC na Rede Básica do NE em MWmed: 2ª Revisão Quadrimestral 112 → 333 → 628 → 813 → **2.098** (2026→2030), dos quais 1.886 de contratos assinados; 1ª RQ 1.291 e PLAN 716 em 2030 (`config/dc_trajetoria_oficial_ne.csv`).
-  - Inventário de 17 itens com fonte, data, definição da potência, maturidade M0–M3 e grupo de deduplicação (`config/data_centers_ne.csv`). Principal: Pecém fase 1 (Omnia/ByteDance), 200 MW de TI e cerca de 300 MW de consumo, operação a partir do 3T2027; Renova Satoshi (BA) já consome cerca de 80 MW médios em 2026, junto a eólica.
-  - Nenhum documento oficial público traz MW por projeto (planilha do MME sem MW; MUST tarjado na carta do ONS). 7 itens foram conferidos diretamente; os demais vêm do relatório dos agentes de pesquisa ou só da busca, e estão marcados assim.
-  - Lacunas: MW da ExportData (4 DCs), Tecto Pecém, DC Xingó; nota técnica completa da 2ª RQ; tipo de carga de vários pedidos na BA (Satoshi II–IV, SNRA).
-- **#10 PDE 2035**: carga extraída (`config/pde2035_extraido.csv`, `src/collect/pde_extract.py`): NE referência 13 684 → 16 340 → 19 610 MWmed (2025/2030/2035); inferior e superior só para 2025 e 2035 (NE 2035: 18,1 e 28,7 GWmed). **Não há trajetória de data centers por subsistema**: o PDE só publica "cargas especiais" no Brasil em 2035 (VE + DC + H2: 9,5 / 11,7 / 131,1 TWh) e os pedidos de conexão de DC no MME (Brasil: 17,4 GW até 2030). Ainda faltam a expansão da geração e os limites de intercâmbio.
-- **P2 não coletados**: ENSO/ONI (#12), hidrologia do São Francisco (#13; 74 MB disponíveis no ONS), IBC-Br (#14), limites de intercâmbio documentais (#15).
-- Feriados municipais não incluídos.
-- ERA5 1995–2021 (34 pontos, blocos de 9 anos, `data/raw/openmeteo/hist/`): download em andamento em 2026-11-11; retomável com `python -m src.collect.openmeteo --start 1995-01-01 --end 2021-12-31 --chunk-years 9`.
+- Despacho hidrotérmico histórico, sem redespacho. Fatores de frota escalares. Carga de data centers flat. Só 4 anos climáticos no determinístico.
+- Possível dupla contagem com o PDE (sensibilidade de −258 MWmed ainda não rodada).
+- Inventário sem MW para ExportData, Tecto Pecém e DC Xingó. Nota técnica completa da 2ª RQ não localizada.
+- P2 não coletados: ENSO, hidrologia do São Francisco, IBC-Br e limites documentais de importação.
+- Os dados de 2026 são complementares e há anomalias no balanço de jan–mai/2026.
 
 ## 5. Decisões pendentes do usuário
 
-1. ~~Identidade Git~~ — configurada em 2026-11-11.
-2. ~~Definição de L_base~~ — **decidido em 2026-11-11**: carga líquida de MMGD da API (`val_cargaglobalsmmgd`) como L_base; MMGD (`val_cargammgd`) como geração distribuída separada (decisão 13).
-3. **Data centers** — decidido: A + C. Caso-base = PDE referência (L_DC = 0); cenários de DC: conservador = contratos assinados da 2ª RQ (1.886 MWmed em 2030); central = 2ª RQ completa (2.098 MWmed). Alto = contratos + 100% dos pareceres + projetos M3 com MW publicado (CDV_ACESSOS 645, QAIR2 415, ENEGIX 100 MW, com utilização e rampa), ≈ 2,3 GWmed + inventário — aceito em 2026-11-11. Possível dupla contagem com o PDE: sensibilidade de −258 MWmed.
-4. ~~ERA5 1995–2021~~ — autorizado e em download.
+Nenhuma bloqueante. Decisões tomadas: L_base = carga líquida da API + MMGD separada; data centers pela opção A + C, com o cenário alto aceito; ERA5 1995–2021 baixado. Hipóteses novas do Dia 2 (decisões 20–28 em `docs/decisoes.md`) que o usuário pode querer revisar:
+- capacidades eólicas dos cenários (a alta aloca toda a expansão indicativa do PDE ao NE);
+- MMGD de 2030 pela taxa de crescimento do Brasil;
+- despacho hidrotérmico histórico.
 
-## 6. Próxima tarefa
+## 6. Próxima tarefa (Dia 3)
 
-Dia 2: (a) extrair do PDE 2035 a expansão da geração e os limites de intercâmbio até 2030 (carga do NE já extraída); (c) definir alvos e features (A: carga líquida; B: CF potencial eólico; C: solar como perfil ou modelo), com baseline sazonal e backtesting temporal; (d) configurar os cenários em YAML; (e) construir o simulador determinístico.
+1. Gerar perfis sintéticos de 1995–2021 com as funções de transferência. Os pesos dos pontos eólicos e solares devem ser fixados na frota atual. Validar a extrapolação nos anos fora do treino.
+2. Monte Carlo por anos climáticos inteiros e/ou blocos, com sementes fixas e os mesmos sorteios em todos os cenários; aumentar o número de sorteios até as métricas estabilizarem.
+3. Sensibilidades: crescimento da carga (PDE inferior e superior), MMGD (1,27 a 1,78), utilização e rampa dos data centers, dupla contagem com o PDE, capacidade eólica, limites de importação e redespacho hidrotérmico.
+4. Diferenças pareadas entre cenários, separando incerteza amostral de escolha de cenário.
+5. Relatório final reproduzível.

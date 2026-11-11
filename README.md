@@ -101,6 +101,28 @@ Conferência do manifesto, integração horária, auditoria e testes:
 .venv/Scripts/python.exe -m src.audit.run_audit
 ```
 
+## Pipeline do Dia 2 (features → modelos → simulador)
+
+```bash
+.venv/Scripts/python.exe -m src.features.build
+```
+
+```bash
+.venv/Scripts/python.exe -m src.models.backtest
+```
+
+```bash
+.venv/Scripts/python.exe -m src.models.cortes
+```
+
+```bash
+.venv/Scripts/python.exe -m src.sim.deterministico
+```
+
+Resultados: `reports/dia2_modelos_cenarios.md`, `reports/models/`, `reports/sim/`.
+
+Testes:
+
 ```bash
 .venv/Scripts/python.exe -m pytest -q
 ```

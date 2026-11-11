@@ -19,7 +19,7 @@ data/interim/
 data/processed/
 
 # Artefatos grandes de modelos
-models/
+/models/
 *.pkl
 *.joblib
 *.onnx

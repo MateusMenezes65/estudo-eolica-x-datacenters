@@ -110,3 +110,28 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
     cadastral**, não a data de conexão; a capacidade acumulada por data é viesada
     para datas recentes. Uso: fotografia atual por UF; trajetória histórica pela
     MMGD estimada do ONS. Base contém dados pessoais tarjados: só agregados. — adotada.
+
+## Dia 2 — modelos e cenários (2026-11-11)
+
+20. **CF eólico potencial plausível**: o salto para 0,48 em 2025 vem de ano mais ventoso
+    (vento³ +11–17%) e de curva de potência 5–10% maior da frota nova, em horas restritas e
+    não restritas; não há sinal de GNRa inflada. — fato observado.
+21. **Fator de frota por ano climático** no simulador: k = média do modelo B0/C0 treinado na
+    frota recente (2024-07..2026-10) / média observada no ano. Preserva a variabilidade
+    horária observada. — adotada.
+22. **Carga modelada como bruta** (forma estável) e MMGD separada; a carga líquida muda de forma
+    com a MMGD (A0 líquida: MAE 3,4–9,5%; bruta: 2,6–3,2%). — adotada.
+23. **Nível de carga em 2030** = carga global do NE no PDE referência (16.340 MWmed). **MMGD em
+    2030** = MMGD média do NE em 2025 (API, 1.527 MWmed) × crescimento da capacidade de MMGD
+    do Brasil no PDE (1,507; faixa 1,27–1,78). — hipótese adotada.
+24. **Eólica em 2030**: baixa = operação (32,3 GW); base = operação + construção (34,3 GW);
+    alta = base + 5,1 GW da expansão indicativa do PDE alocada ao NE (39,4 GW). Solar =
+    13,5 GW. O SIGA aberto não traz datas para projetos fora de operação. — hipótese adotada.
+25. **Hidráulica e térmica**: despacho horário histórico do ano climático. — hipótese; sem redespacho.
+26. **Intercâmbio**: exportação limitada a 21 GW (PDE, seção 4.3.2); importação sem limite
+    documentado, então sensibilidade em 6, 8 e 10 GW. — adotada.
+27. **Classificador de cortes**: viável para ordenar horas (ENE, CNF, total), mas mal calibrado
+    sob mudança de regime; não gera probabilidade de corte em 2030. REL não é previsível. —
+    adotada (uso descritivo).
+28. **Backtesting**: 12 dobras mensais em 2025 com janela expansível, HGB com hiperparâmetros
+    fixos e semente 20261111; o clima ERA5 conta como previsão perfeita (limite superior). — adotada.
