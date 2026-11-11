@@ -32,6 +32,8 @@ data/processed/
 !config/**/*.csv
 !docs/manifest/*.csv
 !reports/tables/*.csv
+!reports/models/*.csv
+!reports/sim/*.csv
 
 # SO / editores
 Thumbs.db
