@@ -151,6 +151,12 @@ determinístico, perfis sintéticos, Monte Carlo e relatório (cerca de 20 min):
 Para rodar só um trecho, use `--desde` e `--ate` (ex.: `--desde montecarlo`).
 Relatório final: `reports/relatorio_final.md`.
 
+Versão HTML do relatório (com sumário e figuras), para compartilhar:
+
+```bash
+.venv/Scripts/python.exe -m src.report.html --saida reports/site
+```
+
 Testes:
 
 ```bash
