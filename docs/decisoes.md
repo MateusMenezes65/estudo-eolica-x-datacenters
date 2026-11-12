@@ -148,3 +148,31 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
     confirmada pelo usuário.
 31. **Despacho hidrotérmico histórico** como caso central, com **hidráulica plana** (mesma
     energia anual, perfil constante) como sensibilidade pessimista. — adotada pelo usuário.
+
+## Dia 3 — incerteza e relatório final (2026-11-12)
+
+32. **Clima com pesos fixos da frota atual** (out/2026) para todos os anos 1995–2026
+    (`src/features/clima_historico.py`): todos os anos meteorológicos representam a mesma
+    população de usinas. — adotada.
+33. **Perfis sintéticos de 2030** por funções de transferência (carga bruta, MMGD, CF eólico e
+    solar potenciais), com o clima de cada ano alinhado ao calendário de 2030 (29/02 descartado).
+    A variabilidade não explicada é recomposta com resíduos FORA DA AMOSTRA (validação cruzada
+    mensal, janela 2024-07..2025-12), reamostrados juntos em blocos de 7 dias iniciados à 00h,
+    a ±14 dias do dia do ano. CF limitado a [0, 1]: ajusta <0,1% da energia. — adotada.
+34. **Hidráulica no Monte Carlo = regra histórica emulada** (decisão do usuário, 2026-11-12):
+    energia diária do ano hidrológico sorteado (2022–2025); forma intradiária = média diária +
+    beta × desvio intradiário da carga líquida simulada (beta do próprio ano: 0,27–0,43),
+    limitada ao mínimo e ao máximo mensais históricos e reajustada para conservar a energia
+    diária. Despacho histórico sorteado (sem resposta) e hidráulica plana ficam como
+    sensibilidades. A térmica segue o histórico do ano sorteado. Motivo: sortear o despacho de
+    outro ano quebra a dependência entre clima e despacho (a hidráulica do NE responde às
+    variações intradiárias da carga líquida, correlação ~0,7). — adotada.
+35. **Monte Carlo**: 2.000 sorteios (semente 20261112); números aleatórios comuns entre
+    cenários; a incerteza amostrada é só climática e operacional, e as escolhas de cenário
+    ficam como eixos separados. Convergência: média ±0,3% e P95 ±0,5% entre 1.500 e 2.000
+    sorteios. Sensibilidades com 500 sorteios comuns. — adotada.
+36. **Limites de importação** (6, 8 e 10 GW) são reportados como horas acima do limite e como a
+    fração dos anos simulados com ao menos uma hora acima dele, sem interpretação de risco de
+    déficit. — adotada.
+37. **Referências acadêmicas** citadas apenas após conferir os metadados (Crossref, JMLR ou
+    DOI). — adotada.

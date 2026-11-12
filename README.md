@@ -121,6 +121,36 @@ Conferência do manifesto, integração horária, auditoria e testes:
 
 Resultados: `reports/dia2_modelos_cenarios.md`, `reports/models/`, `reports/sim/`.
 
+## Dia 3 (incerteza e relatório final)
+
+```bash
+.venv/Scripts/python.exe -m src.features.clima_historico
+```
+
+```bash
+.venv/Scripts/python.exe -m src.sim.sinteticos --refazer-residuos
+```
+
+```bash
+.venv/Scripts/python.exe -m src.sim.montecarlo --n 2000
+```
+
+```bash
+.venv/Scripts/python.exe -m src.report.final
+```
+
+## Pipeline completo a partir de `data/raw`
+
+Roda, em ordem, integração, auditoria, PDE, features, clima, backtesting, cortes, simulador
+determinístico, perfis sintéticos, Monte Carlo e relatório (cerca de 20 min):
+
+```bash
+.venv/Scripts/python.exe -m src.pipeline
+```
+
+Para rodar só um trecho, use `--desde` e `--ate` (ex.: `--desde montecarlo`).
+Relatório final: `reports/relatorio_final.md`.
+
 Testes:
 
 ```bash

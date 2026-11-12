@@ -1,6 +1,6 @@
 # Relatório de qualidade dos dados — Dia 1
 
-Gerado por `python -m src.audit.run_audit` em 2026-11-11 22:16 UTC.
+Gerado por `python -m src.audit.run_audit` em 2026-11-12 18:16 UTC.
 Recorte: subsistema Nordeste (ONS) — UFs AL, BA, CE, PB, PE, PI, RN, SE (o MA pertence ao subsistema Norte).
 Convenção temporal da base integrada: `t` = início da hora, horário de Brasília (UTC−3, sem horário de verão no período).
 
@@ -21,7 +21,9 @@ Convenção temporal da base integrada: `t` = início da hora, horário de Bras�
 | ons | fator_capacidade | 61 | 183.1 |
 | ons | geracao_usina | 61 | 259.2 |
 | ons | intercambio | 7 | 4 |
+| ons | plan_carga | 3 | 9.3 |
 | openmeteo | (arquivos na raiz da fonte) | 34 | 9.1 |
+| openmeteo | hist | 102 | 50 |
 
 Detalhe por arquivo: `reports/tables/inventario_raw.csv`; origem, URL, SHA-256 e data de coleta: `docs/manifest/manifest.csv`.
 
