@@ -1,6 +1,6 @@
 # Dia 2 — Modelos, cenários e simulador determinístico (2030)
 
-Data: 2026-11-11. Tabelas de origem em `reports/models/` e `reports/sim/`; configuração em
+Data: 2026-11-11; revisado em 2026-11-12, após a revisão de hipóteses com o usuário (base de carga e MMGD passaram a vir da 2ª Revisão Quadrimestral do PLAN 2026–2030). Tabelas de origem em `reports/models/` e `reports/sim/`; configuração em
 `config/cenarios.yaml` e `config/cenarios_dc.yaml`. Todos os números de 2030 são **resultados
 condicionais a hipóteses de cenário**, não previsões.
 
@@ -59,9 +59,10 @@ Servem para gerar perfis horários de anos meteorológicos, incluindo ERA5 1995�
 `python -m src.sim.deterministico`. Para cada ano climático (2022–2025), cenário de data
 centers e cenário eólico, com os mesmos perfis em todos os cenários (comparação pareada):
 
-- L_bruta(t) = forma do ano × 16.340 MWmed (carga global do NE no PDE 2035 referência, Tabela 2-3).
-- MMGD(t) = forma do ano × 1.527 MWmed (2025) × 1,507 (crescimento da capacidade de MMGD do
-  Brasil no PDE, 2025→2030) ≈ 2,3 GWmed.
+- L_bruta(t) = forma do ano × 16.180 MWmed. É a carga global do NE em 2030 na 2ª RQ do PLAN
+  2026–2030 (18.278 MWmed) menos os 2.098 MWmed de data centers de Rede Básica dessa mesma
+  projeção, que entram pelos cenários de data centers. Assim não há dupla contagem.
+- MMGD(t) = forma do ano × 2.386 MWmed (MMGD do NE em 2030 na 2ª RQ do PLAN).
 - Eólica = fator de frota × CF potencial do ano × capacidade de 2030. Os fatores de frota
   (modelo B0 da frota recente) são 1,05, 1,09, 1,05 e 1,00 para 2022–2025.
 - Solar = fator de frota × CF solar × 13,5 GW.
@@ -77,7 +78,7 @@ L_DC em 2030 (MWmed, flat):
 
 | Cenário | L_DC |
 |---|---|
-| sem_dc | 0 (data centers do PDE embutidos na carga) |
+| sem_dc | 0 (sem novos data centers de Rede Básica) |
 | conservador | 1.886 (contratos assinados, 2ª RQ do PLAN) |
 | central | 2.098 (2ª RQ do PLAN) |
 | alto | 2.753 (contratos + 100% dos pareceres + 443 MWmed do inventário M3 em rampa) |
@@ -86,21 +87,21 @@ L_DC em 2030 (MWmed, flat):
 
 | Cenário de DC | Importação (TWh/ano) | Horas com importação | P95 da importação (MW) | Pico (MW) | Excedente (TWh) | Excedente acima de 21 GW (TWh) | Horas com importação > 8 GW |
 |---|---|---|---|---|---|---|---|
-| sem_dc | 3,1 [2,2–4,7] | 920 [786–1.226] | 2.917 | 10.713 | 87,9 | 3,1 | 63 |
-| conservador | 5,2 [4,3–7,4] | 1.382 [1.196–1.697] | 4.803 | 12.599 | 73,5 | 1,9 | 165 |
-| central | 5,5 [4,6–7,8] | 1.440 [1.247–1.768] | 5.015 | 12.811 | 71,9 | 1,7 | 176 |
-| alto | 6,5 [5,6–9,0] | 1.629 [1.428–1.963] | 5.670 | 13.466 | 67,2 | 1,4 | 221 |
+| sem_dc | 2,9 [2,1–4,4] | 882 [753–1.177] | 2.729 | 10.547 | 89,8 | 3,5 | 55 |
+| conservador | 5,0 [4,1–7,1] | 1.326 [1.151–1.631] | 4.615 | 12.433 | 75,4 | 2,1 | 154 |
+| central | 5,3 [4,4–7,4] | 1.388 [1.204–1.699] | 4.827 | 12.645 | 73,8 | 2,0 | 168 |
+| alto | 6,3 [5,3–8,6] | 1.570 [1.371–1.894] | 5.482 | 13.300 | 69,0 | 1,6 | 208 |
 
-Com eólica baixa, a importação do cenário central é de 6,3 TWh; com eólica alta, 4,1 TWh
+Com eólica baixa, a importação do cenário central é de 6,1 TWh; com eólica alta, 3,9 TWh
 (`reports/sim/resumo_cenarios_2030.csv`; figura `reports/figures/s1_importacao_cenarios_2030.png`).
 
 ### Compensação eólica (regra 11) — eólica base, média dos anos climáticos
 
 | Cenário de DC | Energia anual | Importação anual igual a sem_dc | Horas de importação iguais | P95 igual | Carga de DC atendível com excedente (%) |
 |---|---|---|---|---|---|
-| conservador | 4,2 GW | 9,4 GW [8,6–10,4] | 6,8 GW | 8,9 GW | 87% |
-| central | 4,7 GW | 10,5 GW [9,7–11,7] | 7,6 GW | 9,9 GW | 87% |
-| alto | 6,1 GW | 14,1 GW [12,9–15,8] | 10,1 GW | 13,1 GW | 86% |
+| conservador | 4,2 GW | 9,5 GW [8,8–10,5] | 6,9 GW | 9,0 GW | 88% |
+| central | 4,7 GW | 10,6 GW [9,8–11,8] | 7,7 GW | 10,0 GW | 87% |
+| alto | 6,1 GW | 14,2 GW [13,1–16,0] | 10,2 GW | 13,1 GW | 86% |
 
 Leitura:
 - Compensar a importação anual exige cerca de 2,2 vezes a capacidade que compensa a energia anual.
@@ -109,10 +110,26 @@ Leitura:
 - Por outro lado, cerca de 87% da energia dos data centers cairia em horas de excedente regional.
   Isso é potencial de absorção, não corte evitado (regra 7).
 
+### Sensibilidades univariadas (DC central, eólica base; média dos 4 anos climáticos)
+
+`reports/sim/sensibilidades_2030.csv`
+
+| Caso | Importação (TWh/ano) | Horas com importação | P95 (MW) |
+|---|---|---|---|
+| referência (2ª RQ do PLAN) | 5,28 | 1.388 | 4.827 |
+| sem data centers | 2,93 | 883 | 2.729 |
+| base PDE 2035 (16.340 MWmed, −258 MWmed de DC embutido) | 5,15 | 1.362 | 4.739 |
+| MMGD 1.939 / 2.718 MWmed | 5,38 / 5,22 | 1.429 / 1.363 | 4.896 / 4.808 |
+| carga −5% / +5% | 4,23 / 6,52 | 1.171 / 1.624 | 4.022 / 5.663 |
+| hidráulica plana (mesma energia anual) | 6,80 | 1.595 | 6.059 |
+
+O nível da carga (±5%) e o despacho hidráulico pesam tanto quanto o próprio cenário de data
+centers. A MMGD pesa pouco, porque a importação ocorre sobretudo à noite.
+
 ### Limites de intercâmbio
 
 - **Exportação:** 21 GW a partir de 2030 (PDE, seção 4.3.2). O excedente acima desse limite
-  cai de 3,1 TWh (sem_dc) para 1,7 TWh (central), com eólica base.
+  cai de 3,5 TWh (sem_dc) para 2,0 TWh (central), com eólica base.
 - **Importação:** sem limite documentado. Reporta-se a sensibilidade em horas acima de 6, 8 e
   10 GW; não é risco de suprimento nem probabilidade de déficit.
 
@@ -141,7 +158,7 @@ ex-ante, com clima perfeito (limite superior).
 - Despacho hidrotérmico histórico, sem redespacho.
 - Fatores de frota escalares por ano.
 - A carga de data centers é flat, com média anual.
-- O PDE pode já conter parte da carga de data centers de Rede Básica (sensibilidade de −258 MWmed).
+- A base da 2ª RQ do PLAN exclui os data centers de Rede Básica; a alternativa do PDE aparece só como sensibilidade.
 - Só 4 anos climáticos (o Monte Carlo com ERA5 1995–2021 fica para o Dia 3).
 - O excedente não é corte: não há representação da rede interna nem das restrições locais.
 - Os dados de 2026 são complementares e há anomalias no balanço de jan–mai/2026.

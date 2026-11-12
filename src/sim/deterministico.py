@@ -4,8 +4,8 @@ Uso: python -m src.sim.deterministico
 Saídas: reports/sim/resultados_2030.csv, compensacao_eolica_2030.csv, resumo.md, figuras s*.png
 
 Para cada ano climático y (2022–2025), cenário de data centers e cenário eólico:
-  L_gross(t) = forma_y(t) × L̄_gross,2030                  (PDE referência)
-  MMGD(t)    = forma_MMGD,y(t) × MMGD̄_2030
+  L_gross(t) = forma_y(t) × L̄_gross,2030 sem DC          (2ª RQ PLAN 2026-2030)
+  MMGD(t)    = forma_MMGD,y(t) × MMGD̄_2030                (2ª RQ PLAN 2026-2030)
   G_c(t)     = hid_y(t) + ter_y(t) + k_eol,y·CF_eol,y(t)·Cap_eol + k_sol,y·CF_sol,y(t)·Cap_sol
   M(t)       = G_c(t) − [L_gross(t) − MMGD(t) + L_DC]      (regra 6; MMGD como geração distribuída)
   importação = max(0, −M); excedente = max(0, M)
@@ -62,14 +62,15 @@ def fleet_factors(X: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).T
 
 
-def profiles(X: pd.DataFrame, y: int, c: dict, ff: pd.DataFrame, mmgd_fator: float | None = None) -> pd.DataFrame:
+def profiles(X: pd.DataFrame, y: int, c: dict, ff: pd.DataFrame, mmgd_MWmed: float | None = None,
+             L_gross_MWmed: float | None = None, hidraulica_plana: bool = False) -> pd.DataFrame:
     g = X[X.ano == y].set_index("t")
     p = pd.DataFrame(index=g.index)
-    Lg = c["carga"]["L_gross_media_MWmed"]["valor"]
+    Lg = L_gross_MWmed if L_gross_MWmed is not None else c["carga"]["L_gross_sem_dc_MWmed"]["valor"]
     p["L_gross"] = g.L_gross / g.L_gross.mean() * Lg
-    fm = mmgd_fator if mmgd_fator is not None else c["mmgd"]["fator_2025_2030"]["valor"]
-    p["MMGD"] = g.MMGD / g.MMGD.mean() * c["mmgd"]["base_2025_MWmed"]["valor"] * fm
-    p["hid"] = g.hid
+    mm = mmgd_MWmed if mmgd_MWmed is not None else c["mmgd"]["media_2030_MWmed"]["valor"]
+    p["MMGD"] = g.MMGD / g.MMGD.mean() * mm
+    p["hid"] = g.hid if not hidraulica_plana else pd.Series(g.hid.mean(), index=g.index)
     p["ter"] = g.ter
     p["cf_eol"] = g.cf_eol_pot * ff.loc[y, "k_eol"]
     p["cf_sol"] = g.cf_sol_pot.fillna(g.cf_sol_obs) * ff.loc[y, "k_sol"]
@@ -199,6 +200,28 @@ def run(X: pd.DataFrame | None = None):
     return R, pd.DataFrame(comp_rows), ff, pd.concat(dc_parts)
 
 
+def sensibilidades(X: pd.DataFrame, c: dict, d: dict, ff: pd.DataFrame) -> pd.DataFrame:
+    """Sensibilidades univariadas sobre o caso central (DC central, eólica base), pareadas por ano."""
+    cap_sol = c["solar"]["capacidade_2030_MW"]["valor"]
+    cap_eol = c["eolica"]["capacidade_2030_MW"]["base"]["valor"]
+    ldc = l_dc_2030("central", d)[0]
+    pde = c["carga"]["sensibilidade_pde"]
+    casos = {"referencia": {}, "sem_dc": {"ldc": 0.0},
+             "base_PDE_2035_(dc_embutido_descontado)": {"L": pde["L_gross_MWmed"], "ldc": ldc - pde["desconto_dc_embutido_MWmed"]},
+             "MMGD_baixa": {"mm": c["mmgd"]["faixa_sensibilidade_MWmed"]["valores"][0]},
+             "MMGD_alta": {"mm": c["mmgd"]["faixa_sensibilidade_MWmed"]["valores"][1]},
+             "carga_-5%": {"L": c["carga"]["L_gross_sem_dc_MWmed"]["valor"] * 0.95},
+             "carga_+5%": {"L": c["carga"]["L_gross_sem_dc_MWmed"]["valor"] * 1.05},
+             "hidraulica_plana": {"hp": True}}
+    rows = []
+    for nome, k in casos.items():
+        for y in c["anos_climaticos_calibracao"]:
+            p = profiles(X, y, c, ff, mmgd_MWmed=k.get("mm"), L_gross_MWmed=k.get("L"), hidraulica_plana=k.get("hp", False))
+            m = balance_metrics(margin(p, cap_eol, cap_sol, k.get("ldc", ldc)), c)
+            rows.append({"caso": nome, "ano_climatico": y, **m})
+    return pd.DataFrame(rows)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     R, C, ff, P = run()
@@ -229,6 +252,12 @@ def main() -> None:
     axes[0].legend(frameon=False, fontsize=8)
     fig.suptitle("NE 2030 — média e faixa entre anos climáticos 2022–2025", x=0.01, ha="left", fontsize=11)
     fig.tight_layout(); fig.savefig(FIGURES / "s1_importacao_cenarios_2030.png", dpi=130); plt.close(fig)
+    c, d = load_cfg()
+    X = pd.read_parquet(PROCESSED / "ne_features_h.parquet")
+    X = X[X.t < "2026-11-01"].reset_index(drop=True)
+    SE = sensibilidades(X, c, d, ff)
+    SE.to_csv(OUT / "sensibilidades_2030.csv", index=False)
+    print(SE.groupby("caso", sort=False)[["importacao_TWh", "horas_importacao", "importacao_p95_MW"]].mean().round(2).to_string())
     print(ff.round(3).to_string())
     print(S.xs("mean", axis=1, level=1).to_string())
     print(C.groupby(["cenario_dc", "cenario_eolico"]).mean(numeric_only=True).round(0).to_string())

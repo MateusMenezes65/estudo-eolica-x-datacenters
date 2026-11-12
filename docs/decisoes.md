@@ -135,3 +135,16 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
     adotada (uso descritivo).
 28. **Backtesting**: 12 dobras mensais em 2025 com janela expansível, HGB com hiperparâmetros
     fixos e semente 20261111; o clima ERA5 conta como previsão perfeita (limite superior). — adotada.
+
+## Revisão de hipóteses com o usuário (2026-11-12)
+
+29. **Base de carga de 2030 = 2ª Revisão Quadrimestral do PLAN 2026–2030** (ONS/EPE/CCEE,
+    ago/2026). Carga global do NE em 2030 = 18.278 MWmed, menos 2.098 MWmed de DC de Rede
+    Básica = **16.180 MWmed sem DC**. **MMGD em 2030 = 2.386 MWmed** (oficial). Valores em
+    `config/plan_2rq_ne.csv`. Substitui as decisões 23 (carga do PDE, MMGD estimada) e a
+    sensibilidade de dupla contagem. O PDE (16.340 MWmed, −258 MWmed) fica como sensibilidade. —
+    adotada pelo usuário.
+30. **Eólica alta mantida**: 39,4 GW (base + 5,1 GW da expansão indicativa do PDE, toda no NE). —
+    confirmada pelo usuário.
+31. **Despacho hidrotérmico histórico** como caso central, com **hidráulica plana** (mesma
+    energia anual, perfil constante) como sensibilidade pessimista. — adotada pelo usuário.

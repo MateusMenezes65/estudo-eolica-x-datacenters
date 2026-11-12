@@ -1,6 +1,6 @@
 # STATUS — Estudo Eólica × Data Centers (NE, 2030)
 
-Última atualização: 2026-11-11 · Etapas concluídas: **Dia 1** (ambiente, coleta, auditoria) e **Dia 2** (modelos, cenários, simulador determinístico) · Próxima: **Dia 3 — incerteza (Monte Carlo), sensibilidades e relatório final**.
+Última atualização: 2026-11-12 (revisão de hipóteses) · Etapas concluídas: **Dia 1** (ambiente, coleta, auditoria) e **Dia 2** (modelos, cenários, simulador determinístico) · Próxima: **Dia 3 — incerteza (Monte Carlo), sensibilidades e relatório final**.
 
 ## 1. Ambiente e repositório
 
@@ -8,7 +8,7 @@
 - Git local com identidade configurada só neste repositório (MateusMenezes65). Histórico em `git log`. Nenhum dado bruto, intermediário ou processado é versionado.
 - `AGENTS.md` e o plano orientador estão preservados. Onde divergem, vale o AGENTS.md (horizonte 2030).
 - Comandos reproduzíveis: README (Dia 1 e Dia 2).
-- Testes: `pytest -q` → **22 aprovados**:
+- Testes: `pytest -q` → **23 aprovados**:
   - fuso horário, agregação 30 min → hora, MW×h = MWh, cardinalidade da junção;
   - fechamento do balanço, quebra da MMGD, identidade carga global = líquida + MMGD;
   - extração do PDE e trajetória oficial de data centers;
@@ -39,7 +39,7 @@ Principais achados do Dia 1:
 Relatório: `reports/dia2_modelos_cenarios.md`.
 
 - **PDE 2035** (`config/pde2035_extraido.csv`, 213 valores, cada um com fonte):
-  - carga do NE, referência: 16.340 MWmed em 2030;
+  - carga do NE, referência: 16.340 MWmed em 2030 (agora só como sensibilidade);
   - MMGD do Brasil: 40,0 → 60,3 GW;
   - expansão indicativa de eólica no SIN: +5,1 GW até 2030;
   - exportação do NE limitada a 21 GW a partir de 2030; nenhum limite de importação documentado.
@@ -47,11 +47,11 @@ Relatório: `reports/dia2_modelos_cenarios.md`.
   - trajetória oficial da 2ª RQ do PLAN 2026–2030: 2.098 MWmed no NE em 2030;
   - inventário de 17 projetos (`config/data_centers_ne.csv`);
   - cenários em `config/cenarios_dc.yaml`: sem_dc 0, conservador 1.886, central 2.098, alto 2.753 MWmed.
-- **Cenários do balanço** (`config/cenarios.yaml`):
+- **Cenários do balanço** (`config/cenarios.yaml`), revisados com o usuário em 2026-11-12:
+  - carga base sem data centers = 16.180 MWmed e MMGD = 2.386 MWmed, ambos da 2ª RQ do PLAN 2026–2030 (`config/plan_2rq_ne.csv`); assim não há dupla contagem com os cenários de data centers;
   - eólica baixa / base / alta = 32,3 / 34,3 / 39,4 GW;
   - solar 13,5 GW;
-  - MMGD ≈ 2,3 GWmed;
-  - despacho hidrotérmico histórico.
+  - despacho hidrotérmico histórico, com hidráulica plana como sensibilidade.
 - **Modelos** (`src/models/backtest.py`), com HGB contra baselines em 12 dobras mensais de 2025:
 
 | Alvo | Ganho de MAE em 1 h | Ganho de MAE em 24 h |
@@ -67,30 +67,28 @@ Relatório: `reports/dia2_modelos_cenarios.md`.
   - CF solar potencial: MAE de 0,024–0,027.
 - **CF eólico potencial em 2025 (0,48):** explicado por vento mais forte e frota mais nova. O simulador corrige o nível de cada ano climático com um fator de frota.
 - **Simulador determinístico** (`src/sim/deterministico.py`), eólica base, média dos anos climáticos 2022–2025:
-  - importação: sem_dc 3,1 TWh e 920 h → central 5,5 TWh e 1.440 h → alto 6,5 TWh e 1.629 h;
-  - eólica que compensa o cenário central: 4,7 GW pelo critério de energia anual, mas 10,5 GW para manter a importação anual (regra 11);
+  - importação: sem_dc 2,9 TWh e 883 h → central 5,3 TWh e 1.388 h → alto 6,3 TWh e 1.570 h;
+  - eólica que compensa o cenário central: 4,7 GW pelo critério de energia anual, mas 10,6 GW para manter a importação anual (regra 11);
+  - sensibilidades no caso central: carga ±5% leva a importação a 4,2–6,5 TWh; hidráulica plana, a 6,8 TWh; base do PDE, a 5,2 TWh; a faixa de MMGD, a 5,2–5,4 TWh;
   - cerca de 87% da energia dos data centers cairia em horas de excedente regional (potencial de absorção, não corte evitado).
 - **Classificador de cortes:** discrimina bem os motivos ENE e CNF e o total (ROC-AUC de 0,86 a 0,95), mas a calibração é instável por mudança de regime. Fica só como uso descritivo; REL não é previsível.
 
 ## 4. Limitações e lacunas abertas
 
 - Despacho hidrotérmico histórico, sem redespacho. Fatores de frota escalares. Carga de data centers flat. Só 4 anos climáticos no determinístico.
-- Possível dupla contagem com o PDE (sensibilidade de −258 MWmed ainda não rodada).
+- A carga base vem do PLAN (sem data centers); o PDE entra só como sensibilidade.
 - Inventário sem MW para ExportData, Tecto Pecém e DC Xingó. Nota técnica completa da 2ª RQ não localizada.
 - P2 não coletados: ENSO, hidrologia do São Francisco, IBC-Br e limites documentais de importação.
 - Os dados de 2026 são complementares e há anomalias no balanço de jan–mai/2026.
 
 ## 5. Decisões pendentes do usuário
 
-Nenhuma bloqueante. Decisões tomadas: L_base = carga líquida da API + MMGD separada; data centers pela opção A + C, com o cenário alto aceito; ERA5 1995–2021 baixado. Hipóteses novas do Dia 2 (decisões 20–28 em `docs/decisoes.md`) que o usuário pode querer revisar:
-- capacidades eólicas dos cenários (a alta aloca toda a expansão indicativa do PDE ao NE);
-- MMGD de 2030 pela taxa de crescimento do Brasil;
-- despacho hidrotérmico histórico.
+Nenhuma. Revisão de hipóteses concluída em 2026-11-12 (decisões 29–31): base de carga e MMGD pela 2ª RQ do PLAN; eólica alta mantida em 39,4 GW; despacho hidrotérmico histórico com hidráulica plana como sensibilidade.
 
 ## 6. Próxima tarefa (Dia 3)
 
 1. Gerar perfis sintéticos de 1995–2021 com as funções de transferência. Os pesos dos pontos eólicos e solares devem ser fixados na frota atual. Validar a extrapolação nos anos fora do treino.
 2. Monte Carlo por anos climáticos inteiros e/ou blocos, com sementes fixas e os mesmos sorteios em todos os cenários; aumentar o número de sorteios até as métricas estabilizarem.
-3. Sensibilidades: crescimento da carga (PDE inferior e superior), MMGD (1,27 a 1,78), utilização e rampa dos data centers, dupla contagem com o PDE, capacidade eólica, limites de importação e redespacho hidrotérmico.
+3. Sensibilidades: nível da carga, MMGD, utilização e rampa dos data centers, base do PDE, capacidade eólica, limites de importação e hidráulica plana. As univariadas já existem no determinístico; no Dia 3, levá-las ao Monte Carlo.
 4. Diferenças pareadas entre cenários, separando incerteza amostral de escolha de cenário.
 5. Relatório final reproduzível.

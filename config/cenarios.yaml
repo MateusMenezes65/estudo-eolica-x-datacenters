@@ -6,16 +6,18 @@ ano_alvo: 2030
 anos_climaticos_calibracao: [2022, 2023, 2024, 2025]   # perfis horários observados
 
 carga:
-  # Carga global (bruta, inclui MMGD) do NE no PDE 2035 referência, Tabela 2-3.
-  L_gross_media_MWmed: {valor: 16340, tipo: dado, fonte: "PDE 2035, Tabela 2-3"}
+  # Decisão do usuário (2026-11-12): base = 2ª Revisão Quadrimestral do PLAN 2026-2030
+  # (ONS/EPE/CCEE, ago/2026), carga global do NE em 2030 SEM a carga de DC de Rede Básica,
+  # que entra separadamente pelos cenários de config/cenarios_dc.yaml (sem dupla contagem).
+  L_gross_sem_dc_MWmed: {valor: 16180, tipo: dado, fonte: "2ª RQ PLAN 26-30: 18.278 (slide 79) − 2.098 de DC (slide 71)"}
   forma_horaria: carga bruta do ano climático normalizada pela média anual
+  sensibilidade_pde: {L_gross_MWmed: 16340, desconto_dc_embutido_MWmed: 258,
+                      fonte: "PDE 2035 Tabela 2-3; DC da 2ª RQ do PLAN 25-29 em 2029"}
 
 mmgd:
-  # PDE só publica MMGD do NE por UF em 2035; usa-se a taxa de crescimento da
-  # capacidade do Brasil (Fig. 9-18, referência) sobre a MMGD média do NE em 2025 (API ONS).
-  base_2025_MWmed: {valor: 1527, tipo: dado, fonte: "API ONS carga verificada, média de 2025"}
-  fator_2025_2030: {valor: 1.507, faixa: [1.27, 1.78], tipo: hipotese,
-                    fonte: "PDE Fig. 9-18: 60,3/40,0 GW (ref.); inferior 50,3/39,6; superior 72,0/40,5"}
+  media_2030_MWmed: {valor: 2386, tipo: dado, fonte: "2ª RQ PLAN 26-30, slide 60 (NE, base + expansão)"}
+  faixa_sensibilidade_MWmed: {valores: [1939, 2718], tipo: hipotese,
+                              fonte: "MMGD do NE em 2025 (API, 1.527) × crescimento da capacidade de MMGD do Brasil no PDE, cenários inferior (1,27) e superior (1,78)"}
   forma_horaria: MMGD do ano climático normalizada pela média anual
 
 eolica:
@@ -33,9 +35,10 @@ solar:
 hidro_termica:
   regra: geração hidráulica e térmica horária observada no ano climático (despacho histórico)
   tipo: hipotese
+  sensibilidade: hidraulica_plana   # mesma energia anual do ano, perfil constante (pessimista); decisão do usuário 2026-11-12
   limitacao: >-
     Não representa redespacho: em 2030 a térmica e a hidráulica do São Francisco
-    poderiam responder a déficits ou excedentes. Sensibilidade no Dia 3.
+    poderiam responder a déficits ou excedentes.
 
 intercambio:
   limite_exportacao_MW: {valor: 21000, tipo: dado, fonte: "PDE 2035, seção 4.3.2 (a partir de 2030)"}

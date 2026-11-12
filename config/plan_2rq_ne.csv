@@ -1,0 +1,13 @@
+variavel,ano,mwmed,fonte,localizacao,nota
+carga_global,2025,13445,Workshop 2a RQC PLAN 2026-2030 (ONS/EPE/CCEE),slide 79,verificado 2025 (conceito PLAN; inclui MMGD)
+carga_global,2026,14182,Workshop 2a RQC PLAN 2026-2030,slide 79,inclui MMGD e DC de Rede Basica
+carga_global,2027,14996,Workshop 2a RQC PLAN 2026-2030,slide 79,
+carga_global,2028,15672,Workshop 2a RQC PLAN 2026-2030,slide 79,
+carga_global,2029,16364,Workshop 2a RQC PLAN 2026-2030,slide 79,
+carga_global,2030,18278,Workshop 2a RQC PLAN 2026-2030,slide 79,inclui 2.098 MWmed de DC (slide 71)
+mmgd_total,2026,1786,Workshop 2a RQC PLAN 2026-2030,slide 60,base + expansao
+mmgd_total,2027,2019,Workshop 2a RQC PLAN 2026-2030,slide 60,
+mmgd_total,2028,2152,Workshop 2a RQC PLAN 2026-2030,slide 60,
+mmgd_total,2029,2274,Workshop 2a RQC PLAN 2026-2030,slide 60,
+mmgd_total,2030,2386,Workshop 2a RQC PLAN 2026-2030,slide 60,
+carga_global_1rq,2030,17353,NT EPE-DEA-SEE-017/2026 (1a RQ),Anexo B p. 27,inclui 1.291 MWmed de DC
