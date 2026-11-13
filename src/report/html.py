@@ -55,10 +55,12 @@ def render_list(items, i=0, indent=None):
     return "".join(out), i
 
 
-def md_to_html(md: str) -> tuple[str, list[tuple[str, str, int]]]:
+def md_to_html(md: str, figs_por_secao: dict | None = None):
+    """Converte o subconjunto de Markdown dos relatórios. Retorna (html, sumário, imagens citadas)."""
     lines = md.splitlines()
-    out, toc, para, items, table = [], [], [], [], []
-    secao = None
+    out, toc, para, items, table, imagens = [], [], [], [], [], []
+    secao, mermaid = None, None
+    figs_por_secao = FIGS if figs_por_secao is None else figs_por_secao
 
     def flush():
         nonlocal para, items, table
@@ -78,13 +80,37 @@ def md_to_html(md: str) -> tuple[str, list[tuple[str, str, int]]]:
     def figs_de(titulo):
         if titulo is None:
             return
-        for chave, figs in FIGS.items():
+        for chave, figs in figs_por_secao.items():
             if titulo.startswith(chave):
                 for arq, leg in figs:
                     out.append(f'<figure><div class="placa"><img src="fig/{arq}" alt="{html.escape(leg)}" loading="lazy"></div>'
                                f"<figcaption>{html.escape(leg)}</figcaption></figure>")
 
     for ln in lines:
+        if mermaid is not None:
+            if ln.strip() == "```":
+                out.append('<div class="diagrama"><pre class="mermaid">' + html.escape(chr(10).join(mermaid)) + "</pre></div>")
+                mermaid = None
+            else:
+                mermaid.append(ln)
+            continue
+        if ln.strip() == "```mermaid":
+            flush()
+            mermaid = []
+            continue
+        m_img = re.match(r"^!\[(.*)\]\((.*)\)\s*$", ln)
+        if m_img:
+            flush()
+            leg, src = m_img.group(1), m_img.group(2)
+            imagens.append(src)
+            nome = src.rsplit("/", 1)[-1]
+            out.append(f'<figure><div class="placa"><img src="fig/{nome}" alt="{html.escape(leg)}" loading="lazy"></div>'
+                       f"<figcaption>{inline(leg)}</figcaption></figure>")
+            continue
+        if ln.startswith("> "):
+            flush()
+            out.append(f"<blockquote>{inline(ln[2:])}</blockquote>")
+            continue
         m_h = re.match(r"^(#{1,3}) (.*)$", ln)
         m_li = re.match(r"^(\s*)(- |\d+\. )(.*)$", ln)
         if m_h:
@@ -117,7 +143,7 @@ def md_to_html(md: str) -> tuple[str, list[tuple[str, str, int]]]:
             para.append(ln)
     flush()
     figs_de(secao)
-    return "\n".join(out), toc
+    return "\n".join(out), toc, imagens
 
 
 def destaques() -> str:
@@ -194,6 +220,8 @@ figure { margin: 18px 0 22px; display: grid; gap: 8px; }
 .placa { background: #ffffff; border: 1px solid var(--line); border-radius: 8px; padding: 8px; overflow-x: auto; }
 .placa img { display: block; width: 100%; max-width: 100%; height: auto; }
 figcaption { font-size: 13px; color: var(--muted); max-width: 72ch; }
+blockquote { margin: 14px 0; padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--accent-soft); font: 500 14.5px/1.5 var(--f-mono); overflow-x: auto; }
+.diagrama { margin: 16px 0 20px; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
 @media (max-width: 900px) {
   .corpo { grid-template-columns: minmax(0, 1fr); gap: 20px; }
@@ -205,28 +233,47 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
 """
 
 
+DOCS = {
+    "final": dict(md="relatorio_final.md", titulo="Data Centers e Eólica no Nordeste",
+                  h1="Data centers e expansão eólica no balanço horário do Nordeste",
+                  sobre="Subsistema Nordeste (ONS) · ano-alvo 2030 · estudo acadêmico de cenários",
+                  lead="Como a entrada de data centers e a expansão eólica mudam a necessidade de importação e os excedentes horários do NE em 2030, e quanta eólica compensaria o consumo adicional. Resultados condicionais a cenários declarados, não previsões. Margem negativa indica importação do restante do SIN, não déficit de suprimento.",
+                  gerador="src.report.final", figs=None),
+    "tecnico": dict(md="relatorio_tecnico.md", titulo="Relatório Técnico NE 2030",
+                    h1="Relatório técnico: como o estudo foi feito, passo a passo",
+                    sobre="Data centers e expansão eólica · subsistema Nordeste (ONS) · ano-alvo 2030",
+                    lead="Documento para apresentação do projeto: quais dados foram coletados e para que servem, que análises e decisões vieram deles, como os modelos de machine learning foram construídos e validados, como o simulador e o Monte Carlo funcionam, e o que os resultados permitem concluir. Resultados condicionais a cenários declarados, não previsões.",
+                    gerador="src.report.tecnico", figs={}),
+}
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--saida", default=str(REPORTS / "site"))
-    out = Path(ap.parse_args(argv).saida)
+    ap.add_argument("--doc", choices=list(DOCS), default="final")
+    ap.add_argument("--saida", default=None)
+    a = ap.parse_args(argv)
+    cfg = DOCS[a.doc]
+    out = Path(a.saida or (REPORTS / "site" / a.doc))
     (out / "fig").mkdir(parents=True, exist_ok=True)
-    md = (REPORTS / "relatorio_final.md").read_text(encoding="utf-8")
-    gerado = re.search(r"gerado por `python -m src.report.final` em ([^.]+UTC)", md)
-    corpo, toc = md_to_html(md)
-    for figs in FIGS.values():
+    md = (REPORTS / cfg["md"]).read_text(encoding="utf-8")
+    gerado = re.search(r"em (\d{4}-\d{2}-\d{2} \d{2}:\d{2}) UTC", md)
+    corpo, toc, imagens = md_to_html(md, cfg["figs"])
+    for figs in (FIGS.values() if cfg["figs"] is None else []):
         for arq, _ in figs:
             shutil.copy(FIGURES / arq, out / "fig" / arq)
+    for src in imagens:
+        shutil.copy(REPORTS / src, out / "fig" / src.rsplit("/", 1)[-1])
     nav = "".join(f'<a class="n{n}" href="#{s}">{inline(t)}</a>' for t, s, n in toc)
-    page = f"""<title>Data Centers e Eólica no Nordeste</title>
+    page = f"""<title>{cfg['titulo']}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
 <style>{CSS}</style>
 <div class="pagina">
 <header class="topo">
-  <div class="sobre">Subsistema Nordeste (ONS) · ano-alvo 2030 · estudo acadêmico de cenários</div>
-  <h1>Data centers e expansão eólica no balanço horário do Nordeste</h1>
-  <p class="lead">Como a entrada de data centers e a expansão eólica mudam a necessidade de importação e os excedentes horários do NE em 2030, e quanta eólica compensaria o consumo adicional. Resultados condicionais a cenários declarados, não previsões. Margem negativa indica importação do restante do SIN, não déficit de suprimento.</p>
+  <div class="sobre">{html.escape(cfg['sobre'])}</div>
+  <h1>{html.escape(cfg['h1'])}</h1>
+  <p class="lead">{html.escape(cfg['lead'])}</p>
   <div class="formula">M(t) = G<sub>NE</sub>(t) − [L<sub>base</sub>(t) + L<sub>DC</sub>(t)] · importação = max(0, −M)</div>
   <div class="tiles">{destaques()}</div>
 </header>
@@ -234,11 +281,11 @@ def main(argv=None) -> None:
   <nav class="sumario" aria-label="Sumário"><p>Sumário</p>{nav}</nav>
   <article>{corpo}</article>
 </div>
-<footer>Gerado de <code>reports/relatorio_final.md</code> ({html.escape(gerado.group(1) if gerado else '')}). Todos os números vêm das tabelas do pipeline (<code>python -m src.pipeline</code>).</footer>
+<footer>Gerado de <code>reports/{cfg['md']}</code> ({html.escape(gerado.group(1) + ' UTC' if gerado else '')}) por <code>python -m {cfg['gerador']}</code>. Todos os números vêm das tabelas do pipeline (<code>python -m src.pipeline</code>).</footer>
 </div>
 """
     (out / "index.html").write_text(page, encoding="utf-8")
-    print(out / "index.html")
+    print(out / "index.html", f"({len(imagens) or sum(len(v) for v in FIGS.values())} figuras)")
 
 
 if __name__ == "__main__":

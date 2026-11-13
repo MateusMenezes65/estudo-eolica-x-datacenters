@@ -2,7 +2,12 @@
 
 Última atualização: 2026-11-12 · Etapas concluídas: **Dia 1** (dados e auditoria), **Dia 2** (modelos, cenários, simulador determinístico), **Dia 3** (Monte Carlo, sensibilidades e relatório final).
 
-**Entrega principal:** [reports/relatorio_final.md](reports/relatorio_final.md), gerado por `python -m src.report.final` a partir das tabelas do pipeline.
+**Entregas:**
+- [reports/relatorio_final.md](reports/relatorio_final.md): relatório final, gerado por `python -m src.report.final`.
+- [reports/relatorio_tecnico.md](reports/relatorio_tecnico.md): relatório técnico passo a passo para o mentor, com 30 figuras (18 delas didáticas, de `src/report/figuras_didaticas.py`), gerado por `python -m src.report.tecnico`.
+- Versões HTML: `python -m src.report.html --doc final|tecnico`.
+
+Todos os números dos dois relatórios vêm das tabelas do pipeline.
 
 ## 1. Como reproduzir
 

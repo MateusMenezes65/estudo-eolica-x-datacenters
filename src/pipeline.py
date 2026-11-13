@@ -2,7 +2,7 @@
 
 Uso: python -m src.pipeline [--desde etapa] [--ate etapa]
 Etapas, em ordem: integracao, auditoria, pde, features, clima, backtest, cortes,
-deterministico, sinteticos, montecarlo, relatorio.
+deterministico, sinteticos, montecarlo, relatorio, figuras, tecnico.
 A coleta (src.collect.*) não faz parte: ver README. Cada etapa é um módulo independente,
 sem estado oculto; as saídas intermediárias ficam em data/interim e data/processed.
 """
@@ -25,6 +25,8 @@ ETAPAS = [
     ("sinteticos", "src.sim.sinteticos", ["--refazer-residuos"]),
     ("montecarlo", "src.sim.montecarlo", []),
     ("relatorio", "src.report.final", []),
+    ("figuras", "src.report.figuras_didaticas", []),
+    ("tecnico", "src.report.tecnico", []),
 ]
 
 
