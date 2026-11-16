@@ -8,6 +8,22 @@ viabilidade econômica. Acordo de implementação: [AGENTS.md](AGENTS.md).
 Estado atual e próximos passos: [STATUS.md](STATUS.md). Decisões técnicas:
 [docs/decisoes.md](docs/decisoes.md).
 
+## Como obter o projeto (grupo)
+
+O repositório é privado: o dono precisa adicionar cada colega em
+*Settings → Collaborators*. Depois de aceitar o convite:
+
+```bash
+git clone https://github.com/MateusMenezes65/estudo-eolica-x-datacenters.git
+```
+
+O repositório contém código, configuração, manifesto de fontes, tabelas de
+resultado, figuras e relatórios (`reports/`). **Os dados brutos e
+intermediários (`data/`, cerca de 1,1 GB) não são versionados**: para rodar o
+pipeline, recrie o ambiente (seção abaixo) e baixe as bases com os comandos de
+coleta. Para apenas ler os resultados, basta abrir
+`reports/relatorio_final.md` e `reports/relatorio_tecnico.md`.
+
 ## Ambiente
 
 - Windows 11, Python 3.14.1 (único Python instalado; todas as dependências têm

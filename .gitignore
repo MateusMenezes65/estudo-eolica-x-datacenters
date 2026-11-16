@@ -42,3 +42,7 @@ Thumbs.db
 .vscode/
 .idea/
 reports/site/
+
+# Logs de execução
+logs/
+*.log
