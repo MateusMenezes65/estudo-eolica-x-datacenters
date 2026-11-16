@@ -17,6 +17,8 @@ from pathlib import Path
 import pandas as pd
 
 from src.paths import FIGURES, REPORTS
+from src.report import diagramas
+from src.report.diagramas import DIAGRAMAS
 from src.report.final import f
 
 FIGS = {  # figura inserida ao fim da seção cujo título começa com a chave
@@ -59,7 +61,7 @@ def md_to_html(md: str, figs_por_secao: dict | None = None):
     """Converte o subconjunto de Markdown dos relatórios. Retorna (html, sumário, imagens citadas)."""
     lines = md.splitlines()
     out, toc, para, items, table, imagens = [], [], [], [], [], []
-    secao, mermaid = None, None
+    secao, mermaid, n_diag = None, None, 0
     figs_por_secao = FIGS if figs_por_secao is None else figs_por_secao
 
     def flush():
@@ -89,7 +91,15 @@ def md_to_html(md: str, figs_por_secao: dict | None = None):
     for ln in lines:
         if mermaid is not None:
             if ln.strip() == "```":
-                out.append('<div class="diagrama"><pre class="mermaid">' + html.escape(chr(10).join(mermaid)) + "</pre></div>")
+                # cada fluxograma mermaid vira a imagem correspondente de src.report.diagramas
+                if n_diag < len(DIAGRAMAS) and (FIGURES / DIAGRAMAS[n_diag][0]).exists():
+                    arq, leg = DIAGRAMAS[n_diag]
+                    imagens.append(f"figures/{arq}")
+                    out.append(f'<figure><div class="placa"><img src="fig/{arq}" alt="{html.escape(leg)}" loading="lazy"></div>'
+                               f"<figcaption>{html.escape(leg)}</figcaption></figure>")
+                else:
+                    out.append('<div class="diagrama"><pre class="mermaid">' + html.escape(chr(10).join(mermaid)) + "</pre></div>")
+                n_diag += 1
                 mermaid = None
             else:
                 mermaid.append(ln)
@@ -256,6 +266,8 @@ def main(argv=None) -> None:
     out = Path(a.saida or (REPORTS / "site" / a.doc))
     (out / "fig").mkdir(parents=True, exist_ok=True)
     md = (REPORTS / cfg["md"]).read_text(encoding="utf-8")
+    if "```mermaid" in md:
+        diagramas.main()                                  # fluxogramas como imagem
     gerado = re.search(r"em (\d{4}-\d{2}-\d{2} \d{2}:\d{2}) UTC", md)
     corpo, toc, imagens = md_to_html(md, cfg["figs"])
     for figs in (FIGS.values() if cfg["figs"] is None else []):
