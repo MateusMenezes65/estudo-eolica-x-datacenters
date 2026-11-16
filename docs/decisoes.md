@@ -216,10 +216,10 @@ Verificação completa do projeto; correções técnicas aplicadas e resultados 
 44. **Cenário alto: possível sobreposição do CDV_ACESSOS.** É um direito de acesso comprado, com
     processo oficial (Portaria 2.835/2024). Não foi possível verificar se já está entre os
     pareceres favoráveis da 2ª RQ; se estiver, o cenário alto o conta duas vezes (266 MWmed;
-    sem ele, 2.487 MWmed). O cenário aceito pelo usuário foi mantido. — **pendente do usuário**.
+    sem ele, 2.487 MWmed). — **mantido pelo usuário em 2026-11-15**, com a ressalva registrada nos relatórios.
 45. **Convenção hidráulica do caso central.** A regra emulada (decisão 34) foi mantida. A
     validação retrospectiva não aponta uma convenção melhor; trocar o caso central é escolha de
-    premissa. — **pendente do usuário** (manter, ou adotar a média das duas convenções).
+    premissa. — **regra emulada mantida pelo usuário em 2026-11-15**.
 46. **Relatórios sem literais dependentes de resultado.** Correlações, postos de vento, betas,
     fluxo máximo, razões de compensação e faixas de sensibilidade passam a ser lidos das tabelas.
     Valores de análises exploratórias (degrau de ~0,5 GW, curva de potência 5–10%, 878 horas)

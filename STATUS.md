@@ -82,9 +82,9 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
 
 Todas registradas em `docs/decisoes.md` (1–46). As do usuário são: L_base = carga líquida da API (Dia 1); data centers pela opção A + C com o cenário alto aceito; base de carga e MMGD pela 2ª RQ do PLAN; eólica alta = 39,4 GW; despacho histórico com hidráulica plana como sensibilidade (determinístico); regra hidráulica emulada no Monte Carlo.
 
-Pendências do usuário:
-- **Decisão 44:** manter ou retirar o CDV_ACESSOS do cenário alto (possível dupla contagem de 266 MWmed com os pareceres da 2ª RQ).
-- **Decisão 45:** manter a regra hidráulica emulada como caso central ou adotar outra convenção, à luz da validação retrospectiva.
+Em 2026-11-15 o usuário manteve o CDV_ACESSOS no cenário alto (decisão 44) e a regra hidráulica emulada como caso central (decisão 45).
+
+Pendências do usuário: nenhuma.
 
 ## 6. Próximos passos possíveis (fora do escopo obrigatório)
 

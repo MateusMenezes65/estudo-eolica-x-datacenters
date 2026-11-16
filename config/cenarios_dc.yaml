@@ -38,7 +38,7 @@ cenarios:
       CDV_ACESSOS é um direito de acesso comprado e tem processo oficial (Portaria
       2.835/2024). Não foi possível verificar se já está entre os pareceres favoráveis da
       2ª RQ; se estiver, o cenário alto o conta duas vezes (266 MWmed em 2030, cerca de 10%
-      do cenário). Sem ele o cenário alto seria de 2.487 MWmed. Decisão pendente do usuário.
+      do cenário). Sem ele o cenário alto seria de 2.487 MWmed. Mantido pelo usuário em 2026-11-15 (decisão 44).
     componentes:
       - {fonte: oficial, componente: contratos_assinados, peso: 1.0}
       - {fonte: oficial, componente: pareceres_favoraveis_50pct, peso: 2.0}   # 50% -> 100%
