@@ -176,3 +176,51 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
     déficit. — adotada.
 37. **Referências acadêmicas** citadas apenas após conferir os metadados (Crossref, JMLR ou
     DOI). — adotada.
+
+## Revisão de verificação (2026-11-15)
+
+Verificação completa do projeto; correções técnicas aplicadas e resultados regerados.
+
+38. **Resíduos recentrados no Monte Carlo.** Os resíduos fora da amostra não têm média zero (CF
+    eólico −0,0055; CF solar −0,0042; MMGD −0,0042; carga +0,0019 sob o esquema de sorteio), e o
+    sorteio por época do ano pesa os meses de forma desigual. De cada série subtrai-se a média
+    esperada sob o próprio sorteio, e as formas de carga e MMGD são renormalizadas para média 1 em
+    cada sorteio. O nível anual passa a vir só dos cenários e das funções de transferência; os
+    resíduos repõem variabilidade horária. O caso sem a correção fica como sensibilidade
+    ("residuos sem recentrar"). — adotada (correção técnica).
+39. **Regra hidráulica conserva a energia diária exatamente.** A energia cortada pelos limites
+    mensais é devolvida às horas com folga até fechar o dia (antes, 3 iterações deixavam +0,4% de
+    energia anual). O coeficiente beta é estimado sobre a carga líquida observada (geração já
+    cortada); descontar ou não a térmica muda beta em menos de 0,005. — adotada.
+40. **Validação retrospectiva do simulador** (`src/sim/backcast.py`, etapa `backcast` do pipeline):
+    o simulador roda com clima, ano hidrotérmico e níveis observados de 2022–2025 e é comparado à
+    importação observada. Erro da importação anual: +4% a −30% com a regra emulada e +35% a −17%
+    com o despacho hidráulico observado; nenhuma convenção é melhor em todos os anos. Em 2025,
+    0,36 TWh de corte eólico ocorreram em horas de importação (não representados); a
+    subestimação de 2024 não tem origem identificada. Consequência: o nível absoluto da importação
+    de 2030 carrega erro dessa ordem; as diferenças pareadas são mais robustas. — adotada.
+41. **Diferença de carga entre API e balanço (pendência da decisão 13, investigada).** O resíduo
+    é exatamente carga líquida do balanço (`val_carga` − MMGD por usina) menos carga líquida da
+    API: +57 (2022), −24 (2023), −62 (2024) e −171 MWmed (2025; −313 no 3º e −431 no 4º
+    trimestre). A causa da divergência a partir de 2025-T3 não foi identificada nos dados
+    abertos. A carga global de 2025 é 13.623 MWmed na API e 13.445 no PLAN (fonte do nível de
+    2030). O nível do PLAN é mantido; o nível da API (+1,3%) entra como sensibilidade. — adotada.
+42. **Limites de importação: leitura.** A validação retrospectiva mostra que a regra emulada não
+    superestima os picos nos níveis históricos. Os picos de 2030 acima do maior fluxo observado
+    (7,9 GW) vêm do crescimento da carga com a térmica mantida no despacho histórico; o
+    redespacho térmico não é representado. A tabela mede exposição, não risco. — adotada.
+43. **CF solar potencial agregado acima de 0,85** (228 horas, quase todas em ago–out/2026):
+    investigado. O potencial passa da capacidade em menos de 1% das horas-usina (≤ 0,04 TWh por
+    ano), então não é capacidade defasada; nessas horas a GNRa é 31% do potencial. Mantido sem
+    recorte. Afeta excedente e absorção, não a importação. — fato observado.
+44. **Cenário alto: possível sobreposição do CDV_ACESSOS.** É um direito de acesso comprado, com
+    processo oficial (Portaria 2.835/2024). Não foi possível verificar se já está entre os
+    pareceres favoráveis da 2ª RQ; se estiver, o cenário alto o conta duas vezes (266 MWmed;
+    sem ele, 2.487 MWmed). O cenário aceito pelo usuário foi mantido. — **pendente do usuário**.
+45. **Convenção hidráulica do caso central.** A regra emulada (decisão 34) foi mantida. A
+    validação retrospectiva não aponta uma convenção melhor; trocar o caso central é escolha de
+    premissa. — **pendente do usuário** (manter, ou adotar a média das duas convenções).
+46. **Relatórios sem literais dependentes de resultado.** Correlações, postos de vento, betas,
+    fluxo máximo, razões de compensação e faixas de sensibilidade passam a ser lidos das tabelas.
+    Valores de análises exploratórias (degrau de ~0,5 GW, curva de potência 5–10%, 878 horas)
+    citam a decisão em que estão registrados. — adotada.

@@ -318,13 +318,12 @@ def r14_semana_2030(mc, c, d, ins):
     sd = mc.sortear(ins, 2000, 7, 20261112)
     i = int(alvo.sorteio)
     idx = np.array([i])
-    r = ins.res[sd["dias"][idx]].reshape(1, 8760, 4)
-    w, h = sd["w"][idx], sd["h"][idx]
-    L = (ins.A0[w] + r[..., 0])[0] * c["carga"]["L_gross_sem_dc_MWmed"]["valor"]
-    M = (np.clip(ins.E0[w] + r[..., 1], 0, None) * c["mmgd"]["media_2030_MWmed"]["valor"])[0]
-    eol = (np.clip(ins.B0[w] + r[..., 2], 0, 1) * c["eolica"]["capacidade_2030_MW"]["base"]["valor"])[0]
-    sol = (np.clip(ins.C0[w] + r[..., 3], 0, 1) * c["solar"]["capacidade_2030_MW"]["valor"])[0]
-    ter = ins.ter[h][0]
+    h = sd["h"][idx]
+    k = mc.componentes(ins, sd, idx, c)                   # mesmos componentes do simulador
+    L, M = k["L"][0], k["MMGD"][0]
+    eol = k["cfe"][0] * c["eolica"]["capacidade_2030_MW"]["base"]["valor"]
+    sol = k["cfs"][0] * c["solar"]["capacidade_2030_MW"]["valor"]
+    ter = k["ter"][0]
     base, cfe, _, hh = mc.series(ins, sd, idx, c)
     hid = mc.hidraulica(ins, hh, -(base + cfe * c["eolica"]["capacidade_2030_MW"]["base"]["valor"]), "regra_historica")[0]
     hid_hist = ins.hid[h][0]
@@ -450,6 +449,15 @@ def r18_importacao_por_hora_2030(mc, c, d, ins, n=500):
     return P
 
 
+def numeros_intercambio(X) -> dict:
+    """Intercâmbio observado em 2022–2025 (interc > 0 = exportação do NE), para o texto."""
+    g = X[X.ano.between(2022, 2025)]
+    liq = g.groupby("ano").interc.sum() / 1e6             # exportação líquida (TWh)
+    pct = 100 * (g.interc < 0).groupby(g.ano).mean()      # % das horas com importação
+    return {"export_liq_2022_TWh": float(liq.loc[2022]), "export_liq_2025_TWh": float(liq.loc[2025]),
+            "pct_horas_import_min": float(pct.min()), "pct_horas_import_max": float(pct.max())}
+
+
 def main() -> None:
     import yaml
     c = yaml.safe_load(open(CONFIG / "cenarios.yaml", encoding="utf-8"))
@@ -480,6 +488,7 @@ def main() -> None:
             "v3_noite_rel": float(dv.wind_speed3_100m.loc[[0, 1, 2, 3, 4, 22, 23]].mean()), "v3_meiodia_rel": float(dv.wind_speed3_100m.loc[[11, 12, 13]].mean()),
             "imp_hist_pct_madrugada": float(ih.loc[1:4].mean().mean()), "imp_hist_pct_meiodia": float(ih.loc[9:12].mean().mean()),
             "imp_hist_pct_17h": float(ih.loc[17].mean()),
+            **numeros_intercambio(X),
             "n_usinas_eol": int(out["mapa"].loc["EOL", "size"]), "cap_eol_mapa_MW": float(out["mapa"].loc["EOL", "sum"]),
             "n_usinas_sol": int(out["mapa"].loc["SOL", "size"]), "cap_sol_mapa_MW": float(out["mapa"].loc["SOL", "sum"]),
             **{f"semana_{k}": v for k, v in out["semana"].items()}}

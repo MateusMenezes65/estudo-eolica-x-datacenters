@@ -42,11 +42,36 @@ def test_hidraulica_conserva_energia_diaria(ctx):
     sd = mc.sortear(ins, 10, 7, 3)
     base, cfe, _, h = mc.series(ins, sd, np.arange(10), c)
     x = mc.hidraulica(ins, h, -(base + cfe * 34288), "regra_historica")
-    rel = np.abs(x.mean(1) / ins.hid[h].mean(1) - 1)
-    assert rel.max() < 0.01                       # energia anual conservada a menos de 1%
+    Ed = ins.hid[h].reshape(10, 365, 24).mean(2)
+    assert np.abs(x.reshape(10, 365, 24).mean(2) - Ed).max() < 0.1   # energia de cada dia conservada (MWmed)
     assert (x >= ins.hmin[h] - 1e-6).all() and (x <= ins.hmax[h] + 1e-6).all()
     plana = mc.hidraulica(ins, h, -(base + cfe * 34288), "plana")
     assert np.allclose(plana.mean(1), ins.hid[h].mean(1))
+
+
+def test_residuos_recentrados_e_niveis_do_cenario(ctx):
+    mc, ins, c, d = ctx
+    sd = mc.sortear(ins, 300, 7, 11)
+    r = ins.res[sd["dias"]].reshape(300, 8760, 4) - sd["centro"]
+    assert np.abs(r.mean(axis=(0, 1))).max() < 5e-4          # resíduo sorteado com média ~0 em cada série
+    k = mc.componentes(ins, sd, np.arange(300), c)
+    assert np.allclose(k["L"].mean(1), c["carga"]["L_gross_sem_dc_MWmed"]["valor"])   # nível anual = cenário
+    assert np.allclose(k["MMGD"].mean(1), c["mmgd"]["media_2030_MWmed"]["valor"])
+    assert (k["MMGD"] >= 0).all() and (k["cfe"] >= 0).all() and (k["cfe"] <= 1).all()
+    assert abs(k["cfe"].mean() / ins.B0[sd["w"]].mean() - 1) < 2e-3   # resíduo não desloca o CF médio
+
+
+def test_backcast_metricas_observadas():
+    import pandas as pd
+    from src.sim.backcast import niveis_observados
+    g = pd.DataFrame({"hid": [100.0] * 4, "ter": [0.0] * 4, "eol_bal": [200.0] * 4, "sol_central": [0.0] * 4,
+                      "interc": [50.0, -100.0, -300.0, 150.0], "MMGD": [10.0] * 4, "ger_eol_fc": [100.0] * 4,
+                      "pot_eol_fc": [100.0, 120.0, 100.0, 100.0], "ger_sol_fc": [1.0] * 4, "pot_sol_fc": [1.0] * 4})
+    nv = niveis_observados(g)
+    assert nv["obs_horas"] == 2 and np.isclose(nv["obs_TWh"], 400 / 1e6) and nv["obs_pico_MW"] == 300
+    assert np.isclose(nv["L_gross"], 300 - (-50) + 10)        # carga líquida = geração − intercâmbio
+    assert np.isclose(nv["eol_pot"], 105 * 2)                 # potencial levado à frota inteira (×2)
+    assert np.isclose(nv["corte_eol_em_horas_de_importacao_TWh"], 20 * 2 / 1e6)
 
 
 def test_max_run():

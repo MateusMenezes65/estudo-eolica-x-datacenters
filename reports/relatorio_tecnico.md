@@ -1,8 +1,9 @@
 # Relatório técnico — Data centers e expansão eólica no balanço horário do Nordeste (2030)
 
 Documento de apresentação do projeto, passo a passo. Gerado por `python -m src.report.tecnico` em
-2026-11-13 01:34 UTC, a partir das tabelas produzidas pelo pipeline.
-Todos os números citados vêm de arquivos em `reports/` e `config/`.
+2026-11-16 02:06 UTC, a partir das tabelas produzidas pelo pipeline.
+Os números citados vêm de arquivos em `reports/` e `config/`; os poucos valores de análises exploratórias
+trazem a decisão de `docs/decisoes.md` em que estão registrados.
 
 ## Sumário executivo
 
@@ -21,25 +22,29 @@ compensaria esse consumo?
    diferentes, para medir a incerteza.
 
 **Principais resultados (2030, eólica base).**
-- **Importação.** A importação média vai de **3,0 TWh/ano** sem
-  novos data centers para **5,4 TWh/ano** com a carga de data
+- **Importação.** A importação média vai de **2,8 TWh/ano** sem
+  novos data centers para **5,0 TWh/ano** com a carga de data
   centers projetada oficialmente (2.098 MWmed).
-  - No mesmo clima, o acréscimo é de +2,4 TWh e
-    +465 horas com importação por ano.
+  - No mesmo clima, o acréscimo é de +2,3 TWh e
+    +448 horas com importação por ano.
   - O acréscimo aparece em 100% dos cenários climáticos simulados.
 - **Quando a importação acontece.** No fim da tarde (pico às 18h, quando a solar cai) e de madrugada.
   Ao meio-dia ela é praticamente nula.
 - **Compensação eólica.** Compensar em **energia anual** exigiria
   4,6 GW eólicos a mais. Compensar a **importação
-  anual** exigiria 10,6 GW,
+  anual** exigiria 10,5 GW,
   2,3
   vezes mais.
 - **Excedente.** O NE continua fortemente exportador (excedente de
-  ~74 TWh/ano). 87%
+  ~76 TWh/ano). 88%
   da energia dos data centers cairia em horas de excedente regional.
 - **Clima e hipóteses.** O clima do ano pesa tanto quanto a escolha de cenário. Os resultados também são
   sensíveis à carga de data centers, que a projeção oficial revisou de 716
   para 2.098 MWmed em oito meses, e à operação hidráulica.
+- **Quanto confiar.** Rodado com os níveis observados de 2022–2025, o simulador erra a importação anual
+  entre -30% e +7% (seção 7.4). O nível absoluto
+  de 2030 carrega um erro dessa ordem; o efeito dos data centers, medido por diferença pareada, varia
+  menos.
 
 ## 1. Contexto, pergunta e escopo
 
@@ -213,6 +218,8 @@ não há horário de verão desde 2019).
 | Slides da 2ª RQ do PLAN só por download manual (HTTP 403) | rastreabilidade | download manual registrado no manifesto; valores lidos dos rótulos dos gráficos | documentado |
 | Dados de ERA5 sem ciclo noturno do vento (jato noturno) | o vento explica menos o padrão diário | hora como feature; resíduos com ciclo diário preservado | perfil diário do CF reproduzido |
 | Sem limite de importação documentado para o NE | não há como medir risco de suprimento | reportar só horas acima de 6/8/10 GW (sensibilidade) | nenhuma afirmação de risco de déficit |
+| Carga global de 2025: 13.623 MWmed na API do ONS e 13.445 no PLAN; a carga líquida da API também supera a do balanço a partir de 2025-T3 | forma (API) e nível (PLAN) vêm de conceitos ligeiramente diferentes | manter o nível do PLAN; nível da API como sensibilidade | +0,30 TWh na importação média |
+| CF solar potencial agregado acima de 0,85 em 228 horas (ago–out/2026) | poderia ser capacidade defasada | investigado: o potencial passa da capacidade em menos de 1% das horas-usina; mantido sem recorte | nenhum na importação (horas de excedente) |
 
 ### 4.3 Carga e MMGD
 
@@ -281,8 +288,9 @@ constante de data centers absorveria energia.
 ![Figura 10 — Corte eólico médio por hora × mês em 2025, separado por motivo.](figures/r06_corte_eolico_hora_mes_2025.png)
 
 **Consequência para a modelagem.** O CF eólico *observado* deixou de refletir o vento (Figura 11).
-- **Correlação.** A correlação entre vento³ e CF observado caiu de 0,87 (2022) para 0,58 (2025), enquanto
-  com o CF *potencial* (geração + corte apurado) ela fica em 0,85–0,89.
+- **Correlação.** A correlação entre vento³ e CF observado caiu de 0,87 (2022) para
+  0,58 (2025), enquanto com o CF *potencial* (geração + corte apurado) ela fica em
+  0,85–0,88.
 - **Alvo.** Por isso o alvo dos modelos eólicos é o **CF potencial**: queremos o recurso físico, e o corte
   é justamente uma das saídas que o balanço deve revelar, não um dado de entrada.
 - **Por que não a geração de referência.** O ONS publica uma "geração de referência", mas ela não serve
@@ -292,7 +300,8 @@ constante de data centers absorveria energia.
 ![Figura 11 — CF eólico observado e potencial contra o vento ERA5 a 100 m, em 2022 e em 2025.](figures/q6_cf_vento.png)
 
 **Frota mais eficiente.** O CF potencial médio subiu de 0,42 (2024) para 0,48 (2025). A análise por faixa
-de vento mostrou duas causas: 2025 foi mais ventoso, e a frota nova tem curva de potência 5–10% maior.
+de vento mostrou duas causas: 2025 foi mais ventoso, e a frota nova tem curva de potência 5–10% maior
+(decisão 20).
 Por isso os modelos que projetam 2030 são treinados só na frota recente (2024-07 em diante), e o simulador
 determinístico aplica um **fator de frota** por ano (1,05–1,09 para 2022–2024; ~1,00 para 2025).
 
@@ -307,8 +316,9 @@ o ciclo diário.
 
 ### 4.5 Balanço, intercâmbio e importação
 
-O NE foi exportador líquido em todo o período, de 34 TWh em 2022 a 56 TWh em 2025. Ainda assim importou
-em 7–14% das horas (Figura 13).
+O NE foi exportador líquido em todo o período, de 33 TWh em 2022 a
+55 TWh em 2025. Ainda assim importou em
+7–14% das horas (Figura 13).
 - **Horários.** As importações históricas concentram-se de madrugada
   (~16% das horas entre 1h e 4h) e às 17h
   (~18%), e são raras ao meio-dia (~6%)
@@ -322,10 +332,12 @@ em 7–14% das horas (Figura 13).
 
 ### 4.6 Clima de longo prazo
 
-**Os anos com dados não são típicos.** A série ERA5 de 1995–2025 mostra que 2022–2024, os anos com
-dados de operação, estão entre os menos ventosos (Figura 15).
-- **Variação entre anos.** O CF eólico potencial que a frota atual teria em cada ano varia de 0,39
-  (2009) a 0,52 (2012).
+**Os anos com dados ficam abaixo da média de vento.** Pelo CF eólico que a frota atual teria em cada ano
+da série ERA5 de 1995–2025 (Figura 15), 2022 é o 4º ano menos ventoso de 31,
+2024 o 8º e 2023 o 14º; 2025 é o 22º. A média
+de 2022–2025 é 0,448, contra 0,460 nos 31 anos.
+- **Variação entre anos.** O CF eólico potencial que a frota atual teria em cada ano varia de
+  0,39 (2009) a 0,52 (2012).
 - **Risco.** Calibrar só em 2022–2025 subestimaria anos ventosos e não mostraria anos muito fracos.
 - **Consequência.** Por isso o Monte Carlo usa os 31 anos.
 
@@ -549,7 +561,7 @@ Os cenários combinam três eixos de data centers × eólica:
 
 | Dimensão | Cenário | Valor em 2030 | Definição |
 |---|---|---|---|
-| Data centers | sem_dc | 0 | nenhum data center novo de Rede Básica |
+| Data centers | sem_dc | 0 | contrafactual sem nenhum data center de Rede Básica (inclusive os que entram desde 2026) |
 |  | conservador | 1.886 MWmed | só contratos assinados (2ª RQ) |
 |  | central | 2.098 MWmed | 2ª RQ do PLAN: 100% contratos + 50% pareceres favoráveis |
 |  | alto | 2.753 MWmed | contratos + 100% dos pareceres + anúncios com MW (em rampa) |
@@ -642,6 +654,11 @@ flowchart TB
   **juntas** e de épocas do ano parecidas (±14 dias). Isso preserva a autocorrelação e a dependência
   entre carga, vento e sol (por exemplo, um dia nublado reduz a solar e a MMGD ao mesmo tempo). O tamanho
   do bloco foi testado: 3 e 14 dias dão o mesmo resultado.
+- **Resíduos recentrados.** Os erros fora da amostra não têm média zero. De cada série subtrai-se a média
+  esperada sob o próprio sorteio (CF eólico -0,0055; CF solar -0,0042; carga
+  +0,0019; MMGD -0,0042), e as formas de carga e MMGD voltam a ter média 1 em cada
+  sorteio. Os resíduos repõem variabilidade horária sem deslocar o nível anual. Sem essa correção a
+  importação média seria +0,38 TWh diferente.
 - **Ano hidrológico** (2022–2025): define a energia hidráulica diária e a térmica.
 - **Números aleatórios comuns.** O mesmo sorteio é aplicado a todos os cenários, de modo que as diferenças
   entre cenários são **pareadas**: medem o efeito do cenário no mesmo clima.
@@ -651,8 +668,9 @@ flowchart TB
   (correlação ~0,7). Repetir o despacho de um ano qualquer, sem essa resposta, quebraria a dependência
   entre clima e despacho.
 - **Como.** A regra mantém a energia diária do ano hidrológico sorteado e redistribui a geração dentro do
-  dia seguindo a carga líquida simulada, com o coeficiente medido em cada ano (0,27–0,43), dentro dos
-  mínimos e máximos mensais históricos (Figura 23).
+  dia seguindo a carga líquida simulada, com o coeficiente medido em cada ano
+  (0,27–0,43), dentro dos mínimos e máximos mensais históricos (Figura 23). O
+  coeficiente foi estimado sobre a geração observada, já com corte.
 - **Sensibilidades.** As alternativas (despacho histórico sem resposta, hidráulica plana) aparecem como
   sensibilidades.
 
@@ -667,19 +685,53 @@ no fim da tarde e em noites de pouco vento.
 ### 7.3 Convergência
 
 Foram usados 2.000 sorteios (semente 20261112). De 1.500 para 2.000 sorteios, a média
-da importação anual mudou 0,25% e o P95,
-0,45% (Figura 25).
+da importação anual mudou 0,28% e o P95,
+0,20% (Figura 25).
 
 | Sorteios | Média (TWh) | P95 (TWh) |
 |---|---|---|
-| 100 | 5,284 | 8,449 |
-| 250 | 5,431 | 9,010 |
-| 500 | 5,411 | 9,677 |
-| 1.000 | 5,378 | 9,855 |
-| 1.500 | 5,366 | 9,852 |
-| 2.000 | 5,379 | 9,896 |
+| 100 | 4,950 | 8,078 |
+| 250 | 5,088 | 8,509 |
+| 500 | 5,068 | 9,129 |
+| 1.000 | 5,037 | 9,395 |
+| 1.500 | 5,023 | 9,394 |
+| 2.000 | 5,037 | 9,413 |
 
 ![Figura 25 — Convergência do Monte Carlo (média e P95 da importação anual).](figures/mc2_convergencia.png)
+
+### 7.4 Validação retrospectiva: o simulador reproduz o passado?
+
+**Teste.** Antes de usar o simulador para 2030, ele foi rodado para cada ano de 2022–2025 com o clima, o
+ano hidrotérmico e os **níveis observados** daquele ano (carga coerente com o balanço, MMGD, energia
+eólica e solar potenciais). Só os resíduos são sorteados (300 sorteios). Se as formas horárias e a
+regra hidráulica estiverem certas, a importação simulada deve ficar próxima da observada (Figura 26).
+
+| Ano | Importação observada (TWh) | Simulada, regra emulada (erro) | Simulada, despacho hidráulico observado (erro) | Pico observado (GW) | Pico simulado, regra (GW) | Pico simulado, despacho observado (GW) | Corte eólico em horas de importação (TWh) |
+|---|---|---|---|---|---|---|---|
+| 2022 | 1,47 | 1,53 (+4%) | 1,99 (+35%) | 7,1 | 5,9 | 7,1 | 0,00 |
+| 2023 | 2,39 | 2,55 (+7%) | 2,84 (+19%) | 7,2 | 7,2 | 8,3 | 0,07 |
+| 2024 | 3,32 | 2,51 (-24%) | 2,99 (-10%) | 7,6 | 7,0 | 8,9 | 0,02 |
+| 2025 | 1,58 | 1,11 (-30%) | 1,32 (-17%) | 7,9 | 7,3 | 8,8 | 0,37 |
+
+- **Erro da importação anual.** Com a regra emulada (caso central), de
+  -30% a +7%, erro absoluto médio de
+  16%. Com o despacho hidráulico observado no próprio ano, de
+  -17% a +35%, erro absoluto médio de
+  20%. Nenhuma convenção é melhor em todos os anos.
+- **O erro muda ao longo dos anos.** Com a regra, vai de +4% em 2022 a
+  -30% em 2025.
+  - Em 2025, 0,37 TWh de corte eólico
+    ocorreram em horas de importação (restrições de rede). O simulador usa a geração potencial e não
+    representa esses cortes.
+  - Em 2024 esse corte foi de 0,02 TWh,
+    então a subestimação daquele ano tem outra origem, não identificada.
+- **Picos.** Com a regra, o pico simulado difere do observado em -1,1 a
+  -0,0 GW.
+- **Leitura.** O nível absoluto da importação de 2030 carrega um erro estrutural dessa ordem, comparável
+  ao efeito de trocar a convenção hidráulica. As diferenças pareadas entre cenários usam o mesmo sorteio
+  nos dois lados e variam menos (seção 8.6).
+
+![Figura 26 — Validação retrospectiva: importação anual observada em 2022–2025 e simulada com os níveis do próprio ano, nas duas convenções hidráulicas (barras de erro: P5–P95 dos sorteios de resíduos).](figures/mc4_backcast.png)
 
 ## 8. Resultados
 
@@ -687,25 +739,25 @@ da importação anual mudou 0,25% e o P95,
 
 | DC | L_DC (MWmed) | Importação TWh/ano [P5–P95] | Horas com importação | P95 horário (MW) | Pico (MW) | Excedente (TWh) | Excedente > 21 GW (TWh) |
 |---|---|---|---|---|---|---|---|
-| sem_dc | 0 | 3,0 [0,9–6,2] | 909 | 2.714 | 10.228 | 90 | 3,2 |
-| conservador | 1.886 | 5,1 [1,9–9,5] | 1.321 | 4.542 | 12.114 | 76 | 1,9 |
-| central | 2.098 | 5,4 [2,0–9,9] | 1.374 | 4.752 | 12.326 | 74 | 1,8 |
-| alto | 2.753 | 6,3 [2,6–11,4] | 1.548 | 5.401 | 12.981 | 69 | 1,4 |
+| sem_dc | 0 | 2,8 [0,8–5,8] | 860 | 2.484 | 10.014 | 92 | 3,4 |
+| conservador | 1.886 | 4,8 [1,7–9,0] | 1.258 | 4.291 | 11.900 | 78 | 2,1 |
+| central | 2.098 | 5,0 [1,8–9,4] | 1.309 | 4.501 | 12.112 | 76 | 1,9 |
+| alto | 2.753 | 5,9 [2,3–10,8] | 1.477 | 5.149 | 12.768 | 71 | 1,6 |
 
 Importação média (TWh/ano) por cenário de data centers × eólica:
 
 | DC \ eólica | baixa (32,3 GW) | base (34,3 GW) | alta (39,4 GW) |
 |---|---|---|---|
-| sem_dc | 3,4 | 3,0 | 2,2 |
-| conservador | 5,8 | 5,1 | 3,8 |
-| central | 6,1 | 5,4 | 4,0 |
-| alto | 7,2 | 6,3 | 4,7 |
+| sem_dc | 3,2 | 2,8 | 2,0 |
+| conservador | 5,4 | 4,8 | 3,5 |
+| central | 5,8 | 5,0 | 3,7 |
+| alto | 6,8 | 5,9 | 4,4 |
 
-As faixas P5–P95 são largas (Figura 26): o mesmo cenário central pode resultar em
-2,0 ou 9,9
+As faixas P5–P95 são largas (Figura 27): o mesmo cenário central pode resultar em
+1,8 ou 9,4
 TWh conforme o clima e a hidrologia. As curvas de cenários diferentes, porém, ficam claramente separadas.
 
-![Figura 26 — Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica.](figures/mc1_distribuicao_importacao.png)
+![Figura 27 — Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica.](figures/mc1_distribuicao_importacao.png)
 
 ### 8.2 O efeito dos data centers
 
@@ -713,126 +765,143 @@ Comparando cada sorteio consigo mesmo (diferença pareada):
 
 | DC | eólica | Δ importação TWh [P5–P95] | Δ horas com importação |
 |---|---|---|---|
-| conservador | baixa | 2,4 [1,2–3,7] | 470 |
-| conservador | base | 2,1 [1,0–3,4] | 412 |
-| conservador | alta | 1,6 [0,6–2,8] | 310 |
-| central | baixa | 2,7 [1,3–4,2] | 530 |
-| central | base | 2,4 [1,1–3,8] | 465 |
-| central | alta | 1,8 [0,7–3,1] | 349 |
-| alto | baixa | 3,8 [2,0–5,7] | 728 |
-| alto | base | 3,3 [1,6–5,3] | 639 |
-| alto | alta | 2,5 [1,1–4,3] | 478 |
+| conservador | baixa | 2,3 [1,1–3,6] | 453 |
+| conservador | base | 2,0 [0,9–3,3] | 397 |
+| conservador | alta | 1,5 [0,6–2,6] | 299 |
+| central | baixa | 2,6 [1,3–4,0] | 512 |
+| central | base | 2,3 [1,0–3,7] | 448 |
+| central | alta | 1,7 [0,7–3,0] | 337 |
+| alto | baixa | 3,6 [1,8–5,6] | 704 |
+| alto | base | 3,2 [1,5–5,1] | 616 |
+| alto | alta | 2,4 [1,0–4,2] | 461 |
 
-- **Sempre positivo.** O efeito é positivo em 100% dos sorteios (Figura 27, esquerda).
+- **Sempre positivo.** O efeito é positivo em 100% dos sorteios (Figura 28, esquerda).
 - **Depende da eólica.** É maior com eólica baixa: menos vento noturno significa mais horas sem
   cobertura.
-- **Peso do clima.** A importação anual por ano meteorológico (Figura 27, direita) varia muito: anos de
-  pouco vento, como 2009, levam a importação central a ~11 TWh, e anos de muito vento, como 2012, a
-  ~1,5 TWh.
+- **Peso do clima.** A importação anual por ano meteorológico (Figura 28, direita) varia muito: o ano de
+  menos vento (2009) leva a importação central a ~10
+  TWh, e o de mais vento (2012), a ~1,2 TWh.
 - **Decomposição da variância.** O ano meteorológico explica 77% da variância
   da importação anual; o ano hidrológico, 21%; e os resíduos,
   2%.
 
-![Figura 27 — Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado.](figures/r16_efeito_pareado_e_anos_meteorologicos.png)
+![Figura 28 — Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado.](figures/r16_efeito_pareado_e_anos_meteorologicos.png)
 
 ### 8.3 Quando a importação acontece
 
-Em 2030, com o cenário central, a probabilidade de uma hora importar chega a 37% às
-18h, contra 25% sem data centers. De madrugada fica em ~21%
-e ao meio-dia é praticamente zero (Figura 28). É o padrão histórico da seção 4.5, ampliado: a carga
+Em 2030, com o cenário central, a probabilidade de uma hora importar chega a 36% às
+18h, contra 24% sem data centers. De madrugada fica em ~20%
+e ao meio-dia é praticamente zero (Figura 29). É o padrão histórico da seção 4.5, ampliado: a carga
 flat dos data centers "transborda" para as horas em que a geração renovável é menor que a carga.
 
-![Figura 28 — 2030: percentual de horas com importação por hora do dia e CF eólico médio por hora.](figures/r18_importacao_por_hora_2030.png)
+![Figura 29 — 2030: percentual de horas com importação por hora do dia e CF eólico médio por hora.](figures/r18_importacao_por_hora_2030.png)
 
 ### 8.4 Quanto de eólica compensaria
 
 | DC | eólica | ΔW energia (GW) | ΔW importação anual (GW) [P5–P95] | ΔW horas (GW) | razão | DC em horas de excedente |
 |---|---|---|---|---|---|---|
-| conservador | baixa | 4,2 | 8,9 [7,5–10,6] | 6,4 | 2,2× | 86% |
-| conservador | base | 4,2 | 9,5 [7,8–11,3] | 6,9 | 2,3× | 87% |
-| conservador | alta | 4,2 | 10,8 [8,8–13,0] | 7,9 | 2,6× | 91% |
-| central | baixa | 4,6 | 10,0 [8,3–11,9] | 7,2 | 2,2× | 85% |
-| central | base | 4,6 | 10,6 [8,8–12,7] | 7,7 | 2,3× | 87% |
-| central | alta | 4,6 | 12,1 [9,9–14,5] | 8,8 | 2,6× | 90% |
-| alto | baixa | 6,1 | 13,4 [11,0–16,1] | 9,5 | 2,2× | 84% |
-| alto | base | 6,1 | 14,2 [11,6–17,0] | 10,1 | 2,3× | 86% |
-| alto | alta | 6,1 | 16,2 [13,1–19,6] | 11,7 | 2,7× | 90% |
+| conservador | baixa | 4,1 | 8,9 [7,4–10,5] | 6,4 | 2,2× | 86% |
+| conservador | base | 4,1 | 9,4 [7,8–11,2] | 6,8 | 2,3× | 88% |
+| conservador | alta | 4,1 | 10,7 [8,8–12,8] | 7,9 | 2,6× | 91% |
+| central | baixa | 4,6 | 9,9 [8,2–11,8] | 7,2 | 2,2× | 86% |
+| central | base | 4,6 | 10,5 [8,7–12,5] | 7,6 | 2,3× | 88% |
+| central | alta | 4,6 | 12,0 [9,8–14,3] | 8,8 | 2,6× | 91% |
+| alto | baixa | 6,0 | 13,2 [10,9–15,8] | 9,5 | 2,2× | 85% |
+| alto | base | 6,0 | 14,0 [11,5–16,9] | 10,1 | 2,3× | 87% |
+| alto | alta | 6,0 | 16,0 [13,0–19,2] | 11,6 | 2,7× | 90% |
 
-A Figura 29 mostra a curva de importação em função da eólica adicional.
+A Figura 30 mostra a curva de importação em função da eólica adicional.
 - **Retornos decrescentes.** Cada GW a mais reduz a importação cada vez menos, porque as horas de
   importação que restam são as de vento fraco.
 - **Compensação em energia não basta.** Compensar a energia anual
-  (4,6 GW) ainda deixa ~4,1 TWh de
-  importação, contra 3,0 TWh sem data centers (curva com 300 sorteios comuns).
-- **Compensação temporal.** Igualar a importação exige ~10,6 GW.
+  (4,6 GW) ainda deixa ~3,9 TWh de
+  importação, contra 2,8 TWh sem data centers (curva com 300 sorteios comuns).
+- **Compensação temporal.** Igualar a importação exige ~10,5 GW.
 - **Frota maior, razão maior.** A razão entre os dois critérios fica entre 2,2 e 2,7 e cresce com a frota.
 
 Essa é a resposta quantitativa à regra de "separar compensação energética de compensação temporal".
 
-![Figura 29 — Importação média em 2030 em função da capacidade eólica adicional.](figures/r17_curva_compensacao_eolica.png)
+![Figura 30 — Importação média em 2030 em função da capacidade eólica adicional.](figures/r17_curva_compensacao_eolica.png)
 
 ### 8.5 Excedente e limites de intercâmbio
 
-- **Exportação.** O NE segue exportando ~74 TWh/ano no
+- **Exportação.** O NE segue exportando ~76 TWh/ano no
   cenário central. Os data centers reduzem o excedente acima do limite de exportação de 21 GW de
-  3,2 para
-  1,8 TWh/ano.
+  3,4 para
+  1,9 TWh/ano.
 - **Importação.** Não há limite documentado, então reportamos a exposição (horas acima de cada patamar e
   fração dos anos com pelo menos uma hora acima). Não é probabilidade de déficit.
 
 | DC (eólica base) | > 6 GW | > 8 GW | > 10 GW |
 |---|---|---|---|
-| sem_dc | 142 h / 99% | 42 h / 92% | 7 h / 60% |
-| conservador | 305 h / 100% | 134 h / 99% | 39 h / 91% |
-| central | 328 h / 100% | 149 h / 99% | 46 h / 93% |
-| alto | 404 h / 100% | 199 h / 100% | 71 h / 97% |
+| sem_dc | 126 h / 99% | 35 h / 90% | 5 h / 54% |
+| conservador | 280 h / 100% | 119 h / 99% | 32 h / 89% |
+| central | 301 h / 100% | 132 h / 99% | 38 h / 91% |
+| alto | 374 h / 100% | 179 h / 100% | 61 h / 96% |
+
+**Como ler a tabela.**
+- O maior fluxo de importação observado em 2022–2025 foi de 7,9 GW, e
+  fluxo não é capacidade.
+- Nos níveis históricos, a regra emulada não superestima os picos (seção 7.4).
+- Os picos de 2030 passam desse patamar já sem data centers (10,0
+  GW em média). Isso vem do crescimento da carga com a térmica mantida no despacho histórico:
+  540–771 MWmed de média anual e máximo horário de
+  3,7 GW. O redespacho térmico ou hidráulico que ocorreria nessas horas
+  não é representado.
+- A tabela mede quanto da necessidade simulada passaria de cada patamar se nada mais respondesse.
 
 ### 8.6 Sensibilidades
 
 | Caso (DC central, eólica base) | Importação média (TWh) | Δ vs. referência | Efeito pareado dos DC (TWh) |
 |---|---|---|---|
-| referencia | 5,47 | 0,00 | 2,40 |
-| sem_dc | 3,07 | -2,40 | 0,00 |
-| carga -5% | 4,38 | -1,09 | 2,03 |
-| carga +5% | 6,74 | 1,27 | 2,82 |
-| MMGD baixa | 5,62 | 0,15 | 2,48 |
-| MMGD alta | 5,38 | -0,09 | 2,36 |
-| hidraulica plana | 7,72 | 2,25 | 2,98 |
-| hidraulica historica sorteada (sem resposta) | 6,40 | 0,93 | 2,61 |
-| DC com atraso de 12 meses | 3,89 | -1,59 | 0,82 |
-| base PDE 2035 | 5,35 | -0,13 | 2,36 |
-| eolica baixa | 6,23 | 0,76 | 2,72 |
-| eolica alta | 4,07 | -1,40 | 1,81 |
-| sem residuos (perfis suavizados) | 4,86 | -0,61 | 2,21 |
-| blocos de 3 dias | 5,48 | 0,01 | 2,40 |
-| blocos de 14 dias | 5,45 | -0,02 | 2,40 |
-| anos meteorológicos 2010-2025 | 4,96 | -0,51 | 2,22 |
+| referencia | 5,13 | 0,00 | 2,28 |
+| sem_dc | 2,85 | -2,28 | 0,00 |
+| carga -5% | 4,09 | -1,03 | 1,92 |
+| carga +5% | 6,33 | 1,21 | 2,68 |
+| MMGD baixa | 5,26 | 0,13 | 2,35 |
+| MMGD alta | 5,05 | -0,08 | 2,24 |
+| hidraulica plana | 7,26 | 2,13 | 2,85 |
+| hidraulica historica sorteada (sem resposta) | 6,00 | 0,87 | 2,48 |
+| DC com atraso de 12 meses | 3,62 | -1,51 | 0,77 |
+| base PDE 2035 | 5,01 | -0,12 | 2,24 |
+| eolica baixa | 5,85 | 0,73 | 2,59 |
+| eolica alta | 3,79 | -1,34 | 1,71 |
+| sem residuos (perfis suavizados) | 4,90 | -0,23 | 2,22 |
+| residuos sem recentrar | 5,51 | 0,38 | 2,41 |
+| nivel de carga pela API do ONS | 5,43 | 0,30 | 2,38 |
+| blocos de 3 dias | 5,12 | -0,01 | 2,28 |
+| blocos de 14 dias | 5,12 | -0,01 | 2,28 |
+| anos meteorológicos 2010-2025 | 4,64 | -0,49 | 2,10 |
 
-**Leitura** (Figura 30).
+**Leitura** (Figura 31).
 - **Nível absoluto.** A importação depende bastante das hipóteses de hidráulica, de nível de carga e de
   atraso dos data centers.
 - **Efeito dos data centers.** O efeito pareado fica positivo e na mesma ordem em todas as hipóteses
-  (+1,8 a +3,0 TWh), exceto com 12 meses de atraso, em que a carga de 2030 seria a de 2029 (813 MWmed).
+  (+1,7 a +2,8 TWh), exceto com 12 meses de atraso, em que a carga de 2030 seria a
+  de 2029 (813 MWmed).
 
-![Figura 30 — Sensibilidades univariadas: variação da importação média em relação ao caso de referência.](figures/mc3_sensibilidades.png)
+![Figura 31 — Sensibilidades univariadas: variação da importação média em relação ao caso de referência.](figures/mc3_sensibilidades.png)
 
 ## 9. Conclusões
 
 1. **A carga de data centers aumenta a importação.** Com a projeção oficial vigente (2,1 GWmed), a
-   necessidade de importação do NE em 2030 aumenta ~2,4 TWh/ano e
-   ~465 horas/ano com eólica base. O aumento aparece em
+   necessidade de importação do NE em 2030 aumenta ~2,3 TWh/ano e
+   ~448 horas/ano com eólica base. O aumento aparece em
    todos os climas simulados, mas não muda o caráter exportador da região.
 2. **O problema é temporal, não de energia.** A importação adicional concentra-se no fim da tarde e à
    noite. A eólica compensa a energia anual com ~4,6 GW,
-   mas compensar a importação exige ~10,6 GW.
+   mas compensar a importação exige ~10,5 GW.
    Isso sugere que armazenamento ou flexibilidade (deslocar carga, baterias, hidráulica) seriam
    complementos naturais. O custo dessas alternativas não foi avaliado.
-3. **A carga de data centers aproveitaria excedente.** 87%
+3. **A carga de data centers aproveitaria excedente.** 88%
    da energia dos data centers cairia em horas de excedente regional. Isso reduz o excedente acima do
    limite de exportação. Transformar isso em "corte evitado" exige análise de rede, fora do escopo.
 4. **O clima pesa tanto quanto a decisão.** A variabilidade entre anos é da mesma ordem que a diferença
    entre cenários. Por isso os resultados devem ser comunicados como distribuições e diferenças pareadas,
    não como um número único.
+5. **O efeito é mais confiável que o nível.** A validação retrospectiva mostra erro de dezenas de por
+   cento no nível anual da importação. O efeito pareado dos data centers fica entre +1,7 e
+   +2,8 TWh/ano em todas as hipóteses testadas, exceto o atraso.
 
 ## 10. Limitações e robustez
 
@@ -840,20 +909,29 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 
 | Variável | Por que é incerta | Velocidade de mudança | Efeito estimado (importação, caso central) | O que acompanhar |
 |---|---|---|---|---|
-| Carga de data centers | a projeção oficial para 2030 foi de 716 → 1.291 → 2.098 MWmed em ~8 meses | muito rápida (a cada revisão quadrimestral) | atraso de 12 meses: -1,6 TWh; cenário alto: +1,0 TWh | próximas revisões do PLAN; pareceres e contratos do ONS |
-| Despacho hidráulico | depende da hidrologia do São Francisco e da operação do ONS; só 4 anos de dados horários | anual (hidrologia) e por política operativa | hidráulica plana: +2,2 TWh; histórico sem resposta: +0,9 TWh | série longa de vazões (P2 #13) |
-| Nível da carga | crescimento econômico, clima, eletrificação | anual | ±5%: -1,1 / +1,3 TWh | revisões do PLAN |
-| Expansão eólica | SIGA sem datas; cortes elevados desestimulam novos projetos | anual | baixa: +0,8; alta: -1,4 TWh | leilões, outorgas, fase no SIGA |
+| Carga de data centers | a projeção oficial para 2030 foi de 716 → 1.291 → 2.098 MWmed em ~8 meses | muito rápida (a cada revisão quadrimestral) | atraso de 12 meses: -1,5 TWh; cenário alto: +0,9 TWh | próximas revisões do PLAN; pareceres e contratos do ONS |
+| Despacho hidráulico | depende da hidrologia do São Francisco e da operação do ONS; só 4 anos de dados horários | anual (hidrologia) e por política operativa | hidráulica plana: +2,1 TWh; histórico sem resposta: +0,9 TWh | série longa de vazões (P2 #13) |
+| Nível da carga | crescimento econômico, clima, eletrificação | anual | ±5%: -1,0 / +1,2 TWh | revisões do PLAN |
+| Expansão eólica | SIGA sem datas; cortes elevados desestimulam novos projetos | anual | baixa: +0,7; alta: -1,3 TWh | leilões, outorgas, fase no SIGA |
 | Regime de cortes | taxa de horas com corte de 7% para 69% em 3 anos; calibração do classificador instável | rápida | não entra no balanço (o estudo mede excedente, não corte) | dados mensais de constrained-off |
 | Clima do ano | variabilidade interanual do vento (ex.: 2009 fraco, 2012 forte) | não previsível no horizonte | explica 77% da variância da importação anual | tratado no Monte Carlo (31 anos) |
-| MMGD | duas estimativas do ONS; crescimento acelerado | anual | faixa 1.939–2.718 MWmed: -0,1 a +0,2 TWh | PLAN; ANEEL |
+| MMGD | duas estimativas do ONS; crescimento acelerado | anual | faixa 1.939–2.718 MWmed: -0,1 a +0,1 TWh | PLAN; ANEEL |
 | Limites de intercâmbio | importação sem limite documentado; exportação depende de obras até 2030 | por obra | não quantificado como risco | PAR/PEL do ONS, PDE |
 
 **Limitações de método.**
-- **Rede.** Não há representação da rede: excedente regional ≠ corte, e importação ≠ déficit.
-- **Despacho.** A hidráulica segue uma regra emulada, não uma otimização; a térmica é histórica; a
-  hidrologia é amostrada em só 4 anos.
+- **Rede.** Não há representação da rede: excedente regional ≠ corte, e importação ≠ déficit. Cortes por
+  restrição de rede em horas de importação aumentam a importação real e ficam de fora.
+- **Erro do simulador.** Nos anos observados, a importação anual simulada difere da real em dezenas de
+  por cento, com sinal que muda de ano para ano (seção 7.4).
+- **Despacho.** A hidráulica segue uma regra emulada, não uma otimização, estimada sobre a geração já
+  cortada; a térmica é histórica; a hidrologia é amostrada em só 4 anos.
+- **Nível de carga.** A forma vem da API do ONS e o nível, do PLAN; em 2025 a API fica
+  1,3% acima.
 - **Data centers.** A carga é flat e igual à média anual; não há rampas dentro de 2030.
+- **Cenário alto.** O projeto CDV_ACESSOS (266 MWmed) é um direito de acesso com processo oficial
+  e pode já estar entre os pareceres favoráveis da 2ª RQ; nesse caso seria contado duas vezes.
+- **Backtesting solar.** O modelo de curto prazo da solar prevê o CF observado, com corte; o eólico prevê
+  o potencial.
 - **Funções de transferência.** Partem da frota atual e do ERA5, que suaviza o jato noturno. Os resíduos
   vêm de 18 meses.
 - **Cenários eólicos.** São hipóteses de fase, não um cronograma.
@@ -861,11 +939,11 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 
 ## 11. Reprodutibilidade e engenharia
 
-- **Execução.** `python -m src.pipeline` refaz tudo a partir de `data/raw` em ~20 min. A reexecução
-  completa reproduziu os resultados com diferença zero.
+- **Execução.** `python -m src.pipeline` refaz tudo a partir de `data/raw` em ~20 min. Sementes fixas
+  tornam os sorteios reprodutíveis (há teste automatizado).
 - **Ambiente.** Python 3.14.1; dependências fixadas em `requirements.lock.txt`; sementes 20261111
   (modelos) e 20261112 (Monte Carlo).
-- **Testes.** 27 testes automatizados (`pytest`):
+- **Testes.** 29 testes automatizados (`pytest`):
   - unidades e fuso horário;
   - agregação 30 min → hora;
   - fechamento do balanço;
@@ -874,15 +952,17 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
   - extração do PDE e do PLAN;
   - cenários-limite do simulador;
   - reprodutibilidade dos sorteios;
-  - conservação da energia hidráulica.
-- **Rastreabilidade.** Manifesto com SHA-256 de cada arquivo bruto; `docs/decisoes.md` com 37 decisões
+  - conservação da energia hidráulica;
+  - recentramento dos resíduos e níveis anuais do sorteio;
+  - métricas da validação retrospectiva.
+- **Rastreabilidade.** Manifesto com SHA-256 de cada arquivo bruto; `docs/decisoes.md` com 47 decisões
   numeradas (técnicas e do usuário); `STATUS.md` com o estado do projeto.
 - **Versionamento.** Git local com commits por etapa. Dados não são versionados, só código, configuração
   e tabelas de resultado.
 
 ## 12. Decisões tomadas com o usuário
 
-- **Carga base.** Carga líquida de MMGD da API do ONS, com a MMGD tratada como série própria.
+- **Carga base.** Forma horária pela carga da API do ONS, com a MMGD tratada como série própria.
 - **Data centers.** Caso-base sem novos data centers; cenários pela projeção oficial e pelo inventário. O
   cenário alto inclui todos os pareceres e anúncios com MW.
 - **Nível de carga e MMGD de 2030.** Ambos pela 2ª RQ do PLAN 2026–2030; PDE 2035 como sensibilidade.

@@ -3,12 +3,17 @@
 Uso: python -m src.sim.montecarlo [--n 2000] [--bloco 7] [--semente 20261112]
 Pré-requisitos: src.sim.sinteticos (perfis, resíduos, pool hidrotérmico).
 Saídas: reports/mc/*.csv e reports/figures/mc*.png
+Validação contra a importação observada de 2022–2025: src.sim.backcast.
 
 Cada sorteio d = (ano meteorológico w ∈ 1995–2025, ano hidrotérmico h ∈ 2022–2025,
 sequência de blocos de resíduos). Os resíduos fora da amostra das quatro séries (carga,
 MMGD, CF eólico, CF solar) são reamostrados JUNTOS, em blocos de `bloco` dias iniciados à
 00h, escolhidos na janela 2024-07..2025-12 entre dias com dia do ano a ±14 dias do dia-alvo
 (preserva ciclo diário, sazonalidade, autocorrelação e dependência entre séries).
+Os resíduos são RECENTRADOS: subtrai-se de cada série a média esperada sob o próprio esquema
+de sorteio, e as formas de carga e MMGD são renormalizadas para média 1 em cada sorteio. Assim
+os resíduos devolvem variabilidade horária sem deslocar o nível anual, que vem dos cenários
+(carga, MMGD) e das funções de transferência (CF). Ver docs/decisoes.md, decisão 38.
 Os MESMOS sorteios são usados em todos os cenários (números aleatórios comuns), de modo que
 as diferenças entre cenários são pareadas. A incerteza amostrada é só a climática e
 operacional (clima, resíduos, hidrologia/despacho histórico); as escolhas de cenário
@@ -50,8 +55,11 @@ class Insumos:
         self.hid = H.pivot(index="t", columns="ano_hidro", values="hid")[self.anos_h].to_numpy().T
         self.ter = H.pivot(index="t", columns="ano_hidro", values="ter")[self.anos_h].to_numpy().T
         # regra de despacho hidráulico emulada: beta intradiário e limites mensais por ano
-        F = pd.read_parquet(PROCESSED / "ne_features_h.parquet", columns=["t", "ano", "L_net", "eol_bal", "sol_central", "hid"])
+        F = pd.read_parquet(PROCESSED / "ne_features_h.parquet", columns=["t", "ano", "L_net", "L_gross", "eol_bal", "sol_central", "hid", "interc"])
         F = F[F.ano.isin(self.anos_h)].set_index("t")
+        # referências históricas citadas nos relatórios (fluxo não é capacidade; decisão 26)
+        self.import_max_hist_MW = float((-F.interc).max())
+        self.L_gross_api_2025 = float(F.L_gross[F.ano == 2025].mean())
         F["nl"] = F.L_net - F.eol_bal - F.sol_central
         self.beta, self.hmin, self.hmax = [], [], []
         mes30 = pd.date_range("2030-01-01", "2030-12-31 23:00", freq="h").month.to_numpy() - 1
@@ -74,44 +82,78 @@ class Insumos:
         self.doy_pool = dias.day_of_year.to_numpy()
 
 
-def sortear(ins: Insumos, n: int, bloco: int, semente: int) -> dict:
-    """Sorteios reprodutíveis: ano meteorológico, ano hidrotérmico e dias de resíduo (n × 365)."""
-    rng = np.random.default_rng(semente)
+def candidatos(ins: Insumos, bloco: int):
+    """Para cada bloco do ano-alvo: (dia inicial k, nº de dias L, inícios candidatos no pool)."""
     nd = len(ins.dia_ok)
     starts_ok = np.array([ins.dia_ok[j:j + bloco].all() and j + bloco <= nd for j in range(nd)])
-    w = rng.integers(0, len(ins.anos), n)
-    h = rng.integers(0, len(ins.anos_h), n)
-    dias = np.empty((n, 365), dtype=int)
     for k in range(0, 365, bloco):
         doy_alvo = k + 1
         dist = np.abs(((ins.doy_pool - doy_alvo) + 182) % 365 - 182)
-        cand = np.flatnonzero(starts_ok & (dist <= JANELA_DOY))
+        yield k, min(bloco, 365 - k), np.flatnonzero(starts_ok & (dist <= JANELA_DOY))
+
+
+def centro_residuos(ins: Insumos, bloco: int) -> np.ndarray:
+    """Média esperada de cada série de resíduos sob o esquema de sorteio (vetor de 4).
+
+    Os resíduos fora da amostra não têm média zero, e o sorteio por época do ano pesa os meses
+    de forma desigual (jan–jun só existe em 2025 no pool). Subtrair este vetor faz com que o
+    valor esperado do resíduo sorteado seja exatamente zero em cada série.
+    """
+    dm = ins.res.mean(axis=1)                             # média diária (ndias, 4)
+    tot = np.zeros(dm.shape[1])
+    for _, L, cand in candidatos(ins, bloco):
+        tot += sum(dm[cand + i] for i in range(L)).mean(axis=0)
+    return tot / 365
+
+
+def sortear(ins: Insumos, n: int, bloco: int, semente: int) -> dict:
+    """Sorteios reprodutíveis: ano meteorológico, ano hidrotérmico e dias de resíduo (n × 365)."""
+    rng = np.random.default_rng(semente)
+    w = rng.integers(0, len(ins.anos), n)
+    h = rng.integers(0, len(ins.anos_h), n)
+    dias = np.empty((n, 365), dtype=int)
+    for k, L, cand in candidatos(ins, bloco):
         j = rng.choice(cand, n)
-        L = min(bloco, 365 - k)
         dias[:, k:k + L] = j[:, None] + np.arange(L)[None, :]
-    return {"w": w, "h": h, "dias": dias, "bloco": bloco, "semente": semente}
+    return {"w": w, "h": h, "dias": dias, "bloco": bloco, "semente": semente,
+            "centro": centro_residuos(ins, bloco)}
 
 
-def series(ins: Insumos, sd: dict, idx: np.ndarray, c: dict, opc: dict | None = None):
-    """Séries horárias (len(idx) × 8760) de um lote de sorteios."""
+def componentes(ins: Insumos, sd: dict, idx: np.ndarray, c: dict, opc: dict | None = None) -> dict:
+    """Componentes horários (len(idx) × 8760) de um lote de sorteios: carga bruta e MMGD (MW),
+    CF eólico e solar, térmica (MW) e ano hidrotérmico.
+
+    Opções: `sem_residuo` (perfis suavizados), `residuo_bruto` (resíduos sem recentrar nem
+    renormalizar; só para medir o efeito da correção), `L_gross` e `MMGD` (níveis em MWmed).
+    """
     opc = opc or {}
     r = ins.res[sd["dias"][idx]].reshape(len(idx), 8760, 4)
     if opc.get("sem_residuo"):
         r = np.zeros_like(r)
+    elif not opc.get("residuo_bruto"):
+        r = r - sd["centro"]                              # valor esperado zero em cada série
     w, h = sd["w"][idx], sd["h"][idx]
     Lbar = opc.get("L_gross", c["carga"]["L_gross_sem_dc_MWmed"]["valor"])
     Mbar = opc.get("MMGD", c["mmgd"]["media_2030_MWmed"]["valor"])
-    L = (ins.A0[w] + r[..., 0]) * Lbar
-    M = np.clip(ins.E0[w] + r[..., 1], 0, None) * Mbar
+    L = ins.A0[w] + r[..., 0]
+    M = np.clip(ins.E0[w] + r[..., 1], 0, None)
+    if not opc.get("residuo_bruto"):                      # o nível anual vem do cenário
+        L = L / L.mean(axis=1, keepdims=True)
+        M = M / M.mean(axis=1, keepdims=True)
     cfe_raw = ins.B0[w] + r[..., 2]
     cfs_raw = ins.C0[w] + r[..., 3]
     clip = {"cfe_energia_ajustada_%": float(100 * (np.abs(cfe_raw - np.clip(cfe_raw, 0, 1)).sum() / np.clip(cfe_raw, 0, 1).sum())),
             "cfs_energia_ajustada_%": float(100 * (np.abs(cfs_raw - np.clip(cfs_raw, 0, 1)).sum() / np.clip(cfs_raw, 0, 1).sum()))}
-    cfe = np.clip(cfe_raw, 0, 1)
-    cfs = np.clip(cfs_raw, 0, 1)
-    cap_sol = c["solar"]["capacidade_2030_MW"]["valor"]
-    base = ins.ter[h] + cfs * cap_sol - (L - M)          # margem sem hidráulica, eólica e DC
-    return base, cfe, clip, h
+    return {"L": L * Lbar, "MMGD": M * Mbar, "cfe": np.clip(cfe_raw, 0, 1), "cfs": np.clip(cfs_raw, 0, 1),
+            "ter": ins.ter[h], "h": h, "clip": clip}
+
+
+def series(ins: Insumos, sd: dict, idx: np.ndarray, c: dict, opc: dict | None = None):
+    """Margem sem hidráulica, eólica e DC (`base`), CF eólico, ajuste do limite [0, 1] e ano hidrotérmico."""
+    k = componentes(ins, sd, idx, c, opc)
+    cap_sol = (opc or {}).get("cap_sol", c["solar"]["capacidade_2030_MW"]["valor"])
+    base = k["ter"] + k["cfs"] * cap_sol - (k["L"] - k["MMGD"])
+    return base, k["cfe"], k["clip"], k["h"]
 
 
 def hidraulica(ins: Insumos, h: np.ndarray, nl: np.ndarray, modo: str) -> np.ndarray:
@@ -120,7 +162,9 @@ def hidraulica(ins: Insumos, h: np.ndarray, nl: np.ndarray, modo: str) -> np.nda
     - "regra_historica" (central): energia diária do ano hidrotérmico h; forma intradiária
       = média diária + beta_h × desvio intradiário da carga líquida simulada `nl` (carga −
       MMGD − eólica − solar − térmica), limitada ao mín./máx. mensal histórico de h e
-      reajustada para conservar a energia diária. beta_h estimado no próprio ano (0,27–0,43).
+      reajustada até conservar a energia diária. beta_h é estimado no próprio ano (0,27–0,43)
+      sobre a carga líquida observada, isto é, com a geração já cortada; descontar ou não a
+      térmica muda beta em menos de 0,005.
     - "historico_sorteado": série horária observada do ano h (sem resposta ao clima sorteado).
     - "plana": energia anual do ano h distribuída de forma constante (pessimista).
     """
@@ -134,8 +178,16 @@ def hidraulica(ins: Insumos, h: np.ndarray, nl: np.ndarray, modo: str) -> np.nda
     dev = nl.reshape(n, 365, 24) - nl.reshape(n, 365, 24).mean(axis=2, keepdims=True)
     lo, hi = ins.hmin[h].reshape(n, 365, 24), ins.hmax[h].reshape(n, 365, 24)
     x = np.clip(Ed + ins.beta[h][:, None, None] * dev, lo, hi)
-    for _ in range(3):
-        x = np.clip(x + (Ed - x.mean(axis=2, keepdims=True)), lo, hi)
+    # devolve a energia diária cortada pelos limites às horas que ainda têm folga; a energia
+    # diária está sempre dentro dos limites mensais do próprio ano, então a correção converge
+    for _ in range(30):
+        falta = Ed - x.mean(axis=2, keepdims=True)        # MWmed do dia ainda não alocados
+        pend = np.abs(falta[..., 0]) > 0.05               # dias que ainda não fecham (n, 365)
+        if not pend.any():
+            break
+        xp, fp, lop, hip = x[pend], falta[pend], lo[pend], hi[pend]
+        livre = np.where(fp > 0, xp < hip - 1e-9, xp > lop + 1e-9)
+        x[pend] = np.clip(xp + np.where(livre, fp * 24 / np.maximum(livre.sum(axis=1, keepdims=True), 1), 0.0), lop, hip)
     return x.reshape(n, 8760)
 
 
@@ -272,6 +324,12 @@ def main(argv=None) -> None:
     C["var_p95_%"] = 100 * C.p95_TWh.pct_change()
     C.round(4).to_csv(OUT / "mc_convergencia.csv", index=False)
 
+    # por ano meteorológico: CF médio dos perfis (frota atual) e importação média (central, base)
+    pd.DataFrame({"ano_clima": ins.anos, "cf_eol": ins.B0.mean(axis=1), "cf_sol": ins.C0.mean(axis=1),
+                  "importacao_central_base_TWh": g.groupby("ano_clima").importacao_TWh.mean().reindex(ins.anos).to_numpy(),
+                  "n_sorteios": g.groupby("ano_clima").size().reindex(ins.anos).to_numpy()}
+                 ).round(4).to_csv(OUT / "mc_ano_clima.csv", index=False)
+
     # diferenças pareadas contra sem_dc
     base = D[D.cenario_dc == "sem_dc"].set_index(["sorteio", "cenario_eolico"])
     P = []
@@ -322,7 +380,13 @@ def main(argv=None) -> None:
     with open(OUT / "mc_config.json", "w", encoding="utf-8") as f:
         json.dump({"n": a.n, "n_sens": a.n_sens, "bloco_dias": a.bloco, "semente": a.semente,
                    "janela_doy_dias": JANELA_DOY, "anos_clima": [int(x) for x in ins.anos],
-                   "anos_hidro": [int(x) for x in ins.anos_h]}, f, indent=1)
+                   "anos_hidro": [int(x) for x in ins.anos_h],
+                   "beta_hidro": {int(y): round(float(b), 4) for y, b in zip(ins.anos_h, ins.beta)},
+                   "centro_residuos": dict(zip(["A0", "E0", "B0", "C0"], [round(float(x), 6) for x in sd["centro"]])),
+                   "import_max_hist_MW": round(ins.import_max_hist_MW, 1),
+                   "termica_hist_media_MWmed": {int(y): round(float(v), 1) for y, v in zip(ins.anos_h, ins.ter.mean(axis=1))},
+                   "termica_hist_max_MW": round(float(ins.ter.max()), 1),
+                   "L_gross_api_2025_MWmed": round(ins.L_gross_api_2025, 1)}, f, indent=1)
     print(pd.read_csv(OUT / "mc_resumo.csv").query("metrica=='importacao_TWh'").to_string())
     print(C.round(3).to_string())
     print(json.dumps(inc, indent=1, ensure_ascii=False))
@@ -337,6 +401,9 @@ def sensibilidades(ins, c, d, a):
     of = pd.read_csv("config/dc_trajetoria_oficial_ne.csv")
     dc2029 = float(of[(of.estudo == "2a RQ PLAN 2026-2030") & (of.ano == 2029) & (of.componente == "total")].mwmed.iat[0])
     ldc_c = l_dc_2030("central", d)[0]
+    # a carga global de 2025 na API do ONS (fonte da forma horária) é maior que a do PLAN (fonte do nível)
+    pl = pd.read_csv("config/plan_2rq_ne.csv")
+    plan25 = float(pl[(pl.variavel == "carga_global") & (pl.ano == 2025)].mwmed.iat[0])
     casos = {
         "referencia": {}, "sem_dc": {"ldc": 0.0},
         "carga -5%": {"opc": {"L_gross": Lb * 0.95}}, "carga +5%": {"opc": {"L_gross": Lb * 1.05}},
@@ -349,6 +416,8 @@ def sensibilidades(ins, c, d, a):
                           "ldc_sem": -pde["desconto_dc_embutido_MWmed"]},
         "eolica baixa": {"w": "baixa"}, "eolica alta": {"w": "alta"},
         "sem residuos (perfis suavizados)": {"opc": {"sem_residuo": True}},
+        "residuos sem recentrar": {"opc": {"residuo_bruto": True}},
+        "nivel de carga pela API do ONS": {"opc": {"L_gross": Lb * ins.L_gross_api_2025 / plan25}},
     }
     rows = []
     for nome, k in casos.items():

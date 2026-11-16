@@ -1,6 +1,7 @@
 # Cenários de carga incremental de data centers no subsistema NE (L_DC)
-# Decisão do usuário (2026-11-11): caso-base = PDE 2035 referência puro (L_DC = 0);
-# cenários de DC reproduzem a projeção oficial e o inventário documentado.
+# Decisões do usuário: cenários de DC reproduzem a projeção oficial e o inventário documentado
+# (2026-11-11); caso-base = carga do NE na 2ª RQ do PLAN 2026-2030 SEM a carga de DC de Rede
+# Básica da mesma projeção, L_DC = 0 (2026-11-12, decisão 29; substitui o PDE 2035 como base).
 # Valores oficiais: config/dc_trajetoria_oficial_ne.csv; projetos: config/data_centers_ne.csv.
 # Parâmetros marcados `hipotese` são HIPÓTESES DE CENÁRIO (regra 1), não fatos observados.
 
@@ -17,7 +18,9 @@ perfil_horario: flat   # o PDE e o PLAN tratam grandes cargas como flat (PDE, Bo
 
 cenarios:
   sem_dc:
-    descricao: caso-base = PDE 2035 referência (DC já embutidos na carga do PDE; L_DC = 0)
+    descricao: >-
+      caso-base = carga do NE da 2ª RQ do PLAN sem nenhum DC de Rede Básica (18.278 − 2.098 =
+      16.180 MWmed; L_DC = 0). Contrafactual: retira também os DC que entram a partir de 2026.
     componentes: []
   conservador:
     descricao: só contratos assinados da 2ª RQ (100%)
@@ -30,7 +33,12 @@ cenarios:
   alto:
     descricao: >-
       contratos 100% + pareceres 100% + projetos M3 do inventário com MW publicado
-      e sem processo de acesso conhecido (aceito pelo usuário em 2026-11-11).
+      e sem contrato ou parecer identificado na 2ª RQ (aceito pelo usuário em 2026-11-11).
+    possivel_sobreposicao: >-
+      CDV_ACESSOS é um direito de acesso comprado e tem processo oficial (Portaria
+      2.835/2024). Não foi possível verificar se já está entre os pareceres favoráveis da
+      2ª RQ; se estiver, o cenário alto o conta duas vezes (266 MWmed em 2030, cerca de 10%
+      do cenário). Sem ele o cenário alto seria de 2.487 MWmed. Decisão pendente do usuário.
     componentes:
       - {fonte: oficial, componente: contratos_assinados, peso: 1.0}
       - {fonte: oficial, componente: pareceres_favoraveis_50pct, peso: 2.0}   # 50% -> 100%

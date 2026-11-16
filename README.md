@@ -135,6 +135,12 @@ Resultados: `reports/dia2_modelos_cenarios.md`, `reports/models/`, `reports/sim/
 .venv/Scripts/python.exe -m src.sim.montecarlo --n 2000
 ```
 
+Validação retrospectiva do simulador contra a importação observada em 2022–2025:
+
+```bash
+.venv/Scripts/python.exe -m src.sim.backcast
+```
+
 ```bash
 .venv/Scripts/python.exe -m src.report.final
 ```
@@ -142,7 +148,7 @@ Resultados: `reports/dia2_modelos_cenarios.md`, `reports/models/`, `reports/sim/
 ## Pipeline completo a partir de `data/raw`
 
 Roda, em ordem, integração, auditoria, PDE, features, clima, backtesting, cortes, simulador
-determinístico, perfis sintéticos, Monte Carlo e relatório (cerca de 20 min):
+determinístico, perfis sintéticos, Monte Carlo, validação retrospectiva e relatórios (cerca de 20 min):
 
 ```bash
 .venv/Scripts/python.exe -m src.pipeline
@@ -172,14 +178,18 @@ grandes (> 50 MB por conjunto) foram feitos com autorização do usuário.
 
 | Caminho | Conteúdo |
 | --- | --- |
-| `config/` | fontes (`sources_*.yaml`), pontos meteorológicos, calendário NE, população UF |
+| `config/` | fontes (`sources_*.yaml`), pontos meteorológicos, calendário NE, população UF, cenários de 2030 (`cenarios*.yaml`), inventário e trajetória oficial de data centers, valores do PDE e do PLAN |
 | `src/collect/` | coletores (ONS CKAN e API de carga, ANEEL, EPE, IBGE, Open-Meteo, calendário) e manifesto |
 | `src/ingest/` | leitores padronizados (tipos, fuso, agregação 30 min → hora) |
 | `src/build/` | base horária integrada do NE (`data/interim/ne_hourly.parquet`) |
 | `src/audit/` | relatório de qualidade, tabelas e figuras |
+| `src/features/` | base analítica horária e clima 1995–2026 com pesos fixos da frota |
+| `src/models/` | backtesting de curto prazo, funções de transferência e classificador de cortes |
+| `src/sim/` | simulador determinístico, perfis sintéticos, Monte Carlo e validação retrospectiva |
+| `src/report/` | relatório final, relatório técnico, figuras didáticas e versão HTML |
 | `tests/` | testes de unidades, tempo, junções e balanço |
 | `docs/` | plano orientador, manifesto, decisões |
-| `reports/` | `quality/relatorio_qualidade.md`, `tables/`, `figures/` |
+| `reports/` | `relatorio_tecnico.md` (base para apresentação), `relatorio_final.md`, `quality/relatorio_qualidade.md`, `mc/`, `sim/`, `models/`, `tables/`, `figures/` |
 
 ## Convenções principais
 
