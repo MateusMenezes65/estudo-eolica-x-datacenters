@@ -18,11 +18,25 @@ git clone https://github.com/MateusMenezes65/estudo-eolica-x-datacenters.git
 ```
 
 O repositório contém código, configuração, manifesto de fontes, tabelas de
-resultado, figuras e relatórios (`reports/`). **Os dados brutos e
-intermediários (`data/`, cerca de 1,1 GB) não são versionados**: para rodar o
-pipeline, recrie o ambiente (seção abaixo) e baixe as bases com os comandos de
-coleta. Para apenas ler os resultados, basta abrir
-`reports/relatorio_final.md` e `reports/relatorio_tecnico.md`.
+resultado, figuras e relatórios (`reports/`). Para apenas ler os resultados,
+abra no navegador `reports/site/final/index.html` ou
+`reports/site/tecnico/index.html` (ou leia os `.md` em `reports/`).
+
+**Dados (`data/`, cerca de 1,2 GB):** não ficam no Git (há arquivos acima de
+100 MB). Estão como anexos da Release
+[`dados-2026-11-16`](https://github.com/MateusMenezes65/estudo-eolica-x-datacenters/releases/tag/dados-2026-11-16):
+`data-raw.zip`, `data-interim.zip`, `data-processed.zip` e `SHA256SUMS.txt`.
+Baixe-os para `dist/dados/` (ignorada pelo Git) e restaure na raiz do projeto:
+
+```bash
+python -m src.tools.pacote_dados extrair dist/dados
+```
+
+Só `data-raw.zip` é indispensável; o restante é regenerado por
+`python -m src.pipeline`. Alternativa sem a Release: baixar as bases das
+fontes originais com os comandos de coleta abaixo. Para publicar uma nova
+versão dos dados, gere os pacotes com
+`python -m src.tools.pacote_dados empacotar` e crie outra Release.
 
 ## Ambiente
 
