@@ -1074,6 +1074,8 @@ JMLR ou DOI) em 2026-11-12; o texto não reproduz o conteúdo delas:
 - Open-Meteo (ERA5).
 - Portarias SNTEP/MME e imprensa setorial, citadas por projeto em `config/data_centers_ne.csv`.
 """
+    from src.report import anexo_anos
+    txt = txt.rstrip("\n") + "\n" + anexo_anos.markdown()      # anexo 2026–2029 (simulador); 2030 inalterado
     (REPORTS / "relatorio_tecnico.md").write_text(txt, encoding="utf-8")
     faltando = [arq for _, arq, _ in FIGURAS if not (REPORTS / "figures" / arq).exists()]
     assert not faltando, faltando

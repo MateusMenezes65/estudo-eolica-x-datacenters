@@ -78,9 +78,12 @@ def profiles(X: pd.DataFrame, y: int, c: dict, ff: pd.DataFrame, mmgd_MWmed: flo
 
 
 def l_dc_2030(cen: str, d: dict, ano: int = 2030) -> tuple[float, pd.DataFrame]:
-    """Carga incremental média de DC em 2030 (MWmed) e sua decomposição."""
+    """Carga incremental média de DC no ano `ano` (padrão 2030), em MWmed, e sua decomposição."""
     of = pd.read_csv(CONFIG / "dc_trajetoria_oficial_ne.csv")
     of = of[(of.estudo == "2a RQ PLAN 2026-2030") & (of.ano == ano)].set_index("componente").mwmed
+    if "pareceres_favoraveis_50pct" not in of and {"total", "contratos_assinados"} <= set(of.index):
+        # 2026: rótulo ilegível no slide 71; parecer (já a 50%) = total − contratos (112 − 98)
+        of["pareceres_favoraveis_50pct"] = of["total"] - of["contratos_assinados"]
     inv = pd.read_csv(CONFIG / "data_centers_ne.csv").set_index("id")
     pi = d["parametros_inventario"]
     parts = []

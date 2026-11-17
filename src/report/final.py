@@ -588,6 +588,8 @@ MMGD); EPE, PDE 2035; ONS/EPE/CCEE, notas e workshop do PLAN 2026–2030; IBGE/S
   está no README.
 - **Rastreabilidade:** decisões e hipóteses em `docs/decisoes.md`; estado em `STATUS.md`.
 """
+    from src.report import anexo_anos
+    txt = txt.rstrip("\n") + "\n" + anexo_anos.markdown()      # anexo 2026–2029 (simulador); 2030 inalterado
     (REPORTS / "relatorio_final.md").write_text(txt, encoding="utf-8")
     print("reports/relatorio_final.md")
 

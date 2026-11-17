@@ -2,7 +2,10 @@
 
 Uso: python -m src.pipeline [--desde etapa] [--ate etapa]
 Etapas, em ordem: integracao, auditoria, pde, features, clima, backtest, cortes,
-deterministico, sinteticos, montecarlo, backcast, relatorio, figuras, tecnico.
+deterministico, sinteticos, montecarlo, backcast, trajetorias, anos, backtest2026, relatorio,
+figuras, tecnico, html_final, html_tecnico, simulador.
+As etapas trajetorias, anos, backtest2026 e simulador alimentam só o simulador interativo
+(2026–2030) e o anexo dos relatórios; não alteram os resultados de 2030.
 A coleta (src.collect.*) não faz parte: ver README. Cada etapa é um módulo independente,
 sem estado oculto; as saídas intermediárias ficam em data/interim e data/processed.
 """
@@ -25,9 +28,15 @@ ETAPAS = [
     ("sinteticos", "src.sim.sinteticos", ["--refazer-residuos"]),
     ("montecarlo", "src.sim.montecarlo", []),
     ("backcast", "src.sim.backcast", []),
+    ("trajetorias", "src.sim.trajetorias", []),
+    ("anos", "src.sim.anos", []),
+    ("backtest2026", "src.sim.backtest_2026", []),
     ("relatorio", "src.report.final", []),
     ("figuras", "src.report.figuras_didaticas", []),
     ("tecnico", "src.report.tecnico", []),
+    ("html_final", "src.report.html", ["--doc", "final"]),
+    ("html_tecnico", "src.report.html", ["--doc", "tecnico"]),
+    ("simulador", "src.report.simulador", []),
 ]
 
 

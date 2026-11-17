@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador interativo — balanço horário do Nordeste, 2026–2030</title>
+<!-- Gerado por python -m src.report.simulador (modelo: src/report/simulador_app.html; dados: dados.js). -->
+<style>
+.viz-root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface-1: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10); --wash: rgba(11,11,11,0.04);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+  --pos: #2a78d6; --pos-end: #0d366b; --neg: #e34948; --neg-end: #8c1d1d; --mid: #f0efec;
+  --ok: #006300; --crit: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface-1: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --wash: rgba(255,255,255,0.05);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    --pos: #3987e5; --pos-end: #b7d3f6; --neg: #e66767; --neg-end: #f6c2c2; --mid: #383835;
+    --ok: #0ca30c; --crit: #e66767;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface-1: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --wash: rgba(255,255,255,0.05);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+  --pos: #3987e5; --pos-end: #b7d3f6; --neg: #e66767; --neg-end: #f6c2c2; --mid: #383835;
+  --ok: #0ca30c; --crit: #e66767;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #f9f9f7; }
+@media (prefers-color-scheme: dark) { body { background: #0d0d0d; } }
+.viz-root { background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 20px 20px 48px; }
+h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+h2 { font-size: 15px; font-weight: 600; margin: 0 0 2px; }
+.sub { color: var(--ink2); margin: 0 0 14px; max-width: 980px; }
+.nota { color: var(--muted); font-size: 12px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 12px 0; }
+.card header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.card header p { margin: 0; color: var(--ink2); font-size: 12.5px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid2 > .card { margin: 0; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+/* filtros: uma linha acima de tudo o que escopam */
+.controles { position: static; background: var(--page); padding: 10px 0; border-bottom: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; }
+@media (min-width: 1100px) and (min-height: 760px) { .controles { position: sticky; top: 0; z-index: 5; } }
+.ctl { display: flex; flex-direction: column; gap: 4px; }
+.ctl > label, .ctl > .lab { font-size: 11.5px; color: var(--ink2); font-weight: 600; letter-spacing: .01em; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface-1); }
+.seg button { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 13px; padding: 5px 10px; cursor: pointer; line-height: 1.2; text-align: left; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button small { display: block; color: var(--muted); font-size: 11px; }
+.seg button:hover { background: var(--wash); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface-1); }
+.seg button[aria-pressed="true"] small { color: var(--surface-1); opacity: .75; }
+.ano-ctl { min-width: 250px; }
+.ano-ctl input[type=range] { width: 100%; accent-color: var(--ink); }
+.ticks { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); padding: 0 2px; }
+.ticks span.on { color: var(--ink); font-weight: 600; }
+select, .btn { font: inherit; font-size: 13px; color: var(--ink); background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; }
+.btn { cursor: pointer; font-weight: 600; }
+.btn:hover { background: var(--wash); }
+.btn.prim { background: var(--ink); color: var(--surface-1); border-color: var(--ink); }
+.sorteio-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.premissas { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+.chip { background: var(--surface-1); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; color: var(--ink2); }
+.chip b { color: var(--ink); font-weight: 600; }
+.chip i { font-style: normal; color: var(--muted); font-size: 11px; }
+.kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 10px 0; }
+@media (max-width: 1000px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+.tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.tile .k { font-size: 12px; color: var(--ink2); }
+.tile .v { font-size: 24px; font-weight: 600; margin: 2px 0; }
+.tile .v small { font-size: 13px; font-weight: 500; color: var(--ink2); }
+.tile .d { font-size: 11.5px; color: var(--muted); }
+.tile canvas { width: 100%; height: 14px; display: block; margin-top: 4px; }
+canvas.ch { width: 100%; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink2); margin: 6px 0 0; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 12px; height: 10px; border-radius: 2px; display: inline-block; }
+.legend .ln { width: 16px; height: 2px; border-radius: 1px; display: inline-block; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.tbl th, .tbl td { padding: 5px 8px; border-bottom: 1px solid var(--grid); text-align: right; }
+.tbl th:first-child, .tbl td:first-child { text-align: left; }
+.tbl thead th { color: var(--ink2); font-weight: 600; border-bottom: 1px solid var(--axis); vertical-align: bottom; }
+.tbl tbody tr:hover { background: var(--wash); }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--surface-1); color: var(--ink); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); min-width: 170px; display: none; font-variant-numeric: tabular-nums; }
+.tip .t { color: var(--ink2); margin-bottom: 4px; }
+.tip .r { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.tip .r span:first-child { display: inline-flex; align-items: center; gap: 6px; color: var(--ink2); }
+.tip .r b { font-weight: 600; color: var(--ink); }
+.tip .ln { width: 12px; height: 2px; display: inline-block; border-radius: 1px; }
+.janela { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--ink2); }
+.status { font-size: 12px; }
+.status.ok { color: var(--ok); }
+.status.fail { color: var(--crit); }
+.carregando { padding: 60px 0; text-align: center; color: var(--ink2); }
+details summary { cursor: pointer; color: var(--ink2); font-weight: 600; }
+.metodo p, .metodo li { color: var(--ink2); font-size: 13px; max-width: 1000px; }
+.aviso { border-left: 3px solid var(--axis); padding: 2px 10px; color: var(--ink2); font-size: 12.5px; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="viz-root">
+<div class="wrap">
+  <h1>Simulador interativo — balanço horário do Nordeste, 2026–2030</h1>
+  <p class="sub">Margem horária <b>M(t) = G<sub>NE</sub>(t) − [L<sub>base</sub>(t) + L<sub>DC</sub>(t)]</b> do subsistema Nordeste para um ano sorteado:
+    acima de zero há excedente regional; abaixo, necessidade de importação do restante do SIN (não é déficit de suprimento).
+    Escolha o ano, os cenários eólico e de data centers e sorteie anos de clima e de hidrologia. Os resultados do estudo são os de 2030;
+    2026–2029 usam as trajetórias do anexo do relatório.</p>
+
+  <div id="app" hidden>
+  <div class="controles" role="group" aria-label="Escolhas do simulador">
+    <div class="ctl ano-ctl">
+      <label for="ano">Ano <span id="anoVal"></span></label>
+      <input id="ano" type="range" min="2026" max="2030" step="1" value="2030">
+      <div class="ticks" id="anoTicks"></div>
+    </div>
+    <div class="ctl"><span class="lab">Cenário eólico</span><div class="seg" id="segW"></div></div>
+    <div class="ctl"><span class="lab">Data centers (carga incremental)</span><div class="seg" id="segDC"></div></div>
+    <div class="ctl"><span class="lab">Hidráulica</span><div class="seg" id="segH"></div></div>
+    <div class="ctl">
+      <span class="lab">Sorteio de clima e hidrologia</span>
+      <div class="sorteio-row">
+        <button class="btn prim" id="btnSort" title="Sorteia ano meteorológico, ano hidrotérmico e blocos de resíduos">🎲 Resortear</button>
+        <label class="nota" for="selW">clima</label><select id="selW" aria-label="Ano meteorológico"></select>
+        <label class="nota" for="selH">hidrologia</label><select id="selH" aria-label="Ano hidrotérmico"></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="premissas" id="premissas"></div>
+  <div class="kpis" id="kpis"></div>
+
+  <section class="card">
+    <header>
+      <div><h2>Balanço horário M(t) ao longo do ano</h2>
+        <p id="subM"></p></div>
+      <div class="janela">
+        <span>Janela</span>
+        <div class="seg" id="segJan"></div>
+        <button class="btn" id="btnPico">ir ao pico de importação</button>
+      </div>
+    </header>
+    <canvas class="ch" id="cvOver" height="80" aria-label="Ano inteiro: faixa de M por coluna; arraste para escolher a janela"></canvas>
+    <canvas class="ch" id="cvDet" height="270" aria-label="M(t) horário na janela escolhida"></canvas>
+    <div class="legend"><span><i class="sw" style="background:var(--pos)"></i>excedente (M &gt; 0)</span>
+      <span><i class="sw" style="background:var(--neg)"></i>importação (M &lt; 0)</span>
+      <span class="nota">Clique ou arraste na faixa superior para mover a janela; setas ← → também movem.</span></div>
+  </section>
+
+  <section class="card">
+    <header><div><h2>Composição na janela: geração por fonte × carga</h2>
+      <p>Geração empilhada (hidráulica, térmica, eólica, solar centralizada, MMGD) e carga bruta + data centers. A distância entre o topo e a linha é M(t).</p></div></header>
+    <canvas class="ch" id="cvComp" height="230" aria-label="Geração empilhada por fonte e carga na janela"></canvas>
+    <div class="legend" id="legComp"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <header><div><h2>Mapa de calor: dia × hora</h2><p>Cada célula é uma hora do ano. Clique para levar a janela àquela semana.</p></div></header>
+      <canvas class="ch" id="cvHeat" height="230" aria-label="Mapa de calor de M por dia e hora"></canvas>
+      <canvas class="ch" id="cvHeatLeg" height="48" aria-label="Escala de cores do mapa de calor"></canvas>
+    </section>
+    <section class="card">
+      <header><div><h2>Por mês</h2><p>Barras: sorteio atual. Traço: faixa P5–P95 do Monte Carlo (<span class="mcn"></span> sorteios) no mesmo ano e cenários; ponto: mediana.</p></div></header>
+      <canvas class="ch" id="cvMesImp" height="150" aria-label="Importação por mês"></canvas>
+      <canvas class="ch" id="cvMesExc" height="150" aria-label="Excedente por mês"></canvas>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="card">
+      <header><div><h2>Importação anual: onde cai este sorteio</h2><p id="subDist"></p></div></header>
+      <canvas class="ch" id="cvDist" height="190" aria-label="Distribuição da importação anual por cenário de data centers"></canvas>
+      <div class="legend"><span><i class="sw" style="background:var(--grid)"></i>P5–P95</span><span><i class="sw" style="background:var(--axis)"></i>P25–P75</span>
+        <span><i class="ln" style="background:var(--ink)"></i>mediana</span><span><i class="sw" style="background:var(--s2);border-radius:50%"></i>sorteio atual</span></div>
+    </section>
+    <section class="card">
+      <header><div><h2>Trajetória 2026–2030</h2><p id="subTraj"></p></div></header>
+      <canvas class="ch" id="cvTraj" height="190" aria-label="Importação anual por ano"></canvas>
+      <div class="legend"><span><i class="ln" style="background:var(--s1)"></i>cenário de DC escolhido (mediana e P5–P95)</span>
+        <span><i class="ln" style="background:var(--muted)"></i>sem DC (mediana)</span></div>
+    </section>
+  </div>
+
+  <section class="card" id="bt" hidden>
+    <header><div><h2>Backtest de 2026 (jan–out, dados observados até 31/10)</h2>
+      <p>Simulador com os níveis de cenário de 2026 (DC central, eólica base) contra o balanço observado do ONS, nas horas em que o balanço fecha.</p></div></header>
+    <div class="aviso" id="btAviso"></div>
+    <div style="overflow-x:auto"><table class="tbl" id="btTab"></table></div>
+    <p class="nota" id="btNota"></p>
+    <h2 style="margin-top:14px">M(t) na janela: observado × simulado</h2>
+    <canvas class="ch" id="cvBt" height="240" aria-label="M observado e simulado na janela"></canvas>
+    <div class="legend"><span><i class="ln" style="background:var(--s1)"></i>observado (intercâmbio + cortes)</span>
+      <span><i class="ln" style="background:var(--s2)"></i>B: clima e hidrologia de 2026</span>
+      <span><i class="ln" style="background:var(--muted)"></i>sorteio atual</span></div>
+    <div class="grid2" style="margin-top:12px">
+      <div><h2>Importação por mês (TWh)</h2><canvas class="ch" id="cvBtMesImp" height="170" aria-label="Importação mensal observada e simulada"></canvas></div>
+      <div><h2>Excedente potencial por mês (TWh)</h2><canvas class="ch" id="cvBtMesExc" height="170" aria-label="Excedente mensal observado e simulado"></canvas></div>
+    </div>
+    <div class="legend"><span><i class="sw" style="background:var(--grid)"></i>A: cenário 2026, clima sorteado (P5–P95)</span>
+      <span><i class="ln" style="background:var(--muted)"></i>A: mediana</span>
+      <span><i class="ln" style="background:var(--s2)"></i>B: clima e hidrologia de 2026</span>
+      <span><i class="ln" style="background:var(--s1)"></i>observado</span></div>
+    <h2 style="margin-top:14px">De onde vem a diferença de nível (B × observado, médias nas horas válidas)</h2>
+    <div style="overflow-x:auto"><table class="tbl" id="btComp"></table></div>
+  </section>
+
+  <section class="card">
+    <header><div><h2>Tabela do sorteio atual</h2><p>Os mesmos números dos gráficos, por mês.</p></div>
+      <button class="btn" id="btnCsv">Baixar CSV horário do sorteio</button></header>
+    <div style="overflow-x:auto"><table class="tbl" id="tabMes"></table></div>
+  </section>
+
+  <section class="card metodo">
+    <details>
+      <summary>Como o simulador calcula e o que ele não diz</summary>
+      <ul>
+        <li><b>Mesmo método do Monte Carlo de 2030</b> (<code>src/sim/montecarlo.py</code>): carga bruta e MMGD = forma horária do ano meteorológico × nível do cenário;
+          eólica e solar = CF potencial (frota atual, função de transferência sobre o ERA5) × capacidade do cenário; resíduos fora da amostra sorteados juntos em blocos de 7 dias;
+          térmica no despacho histórico do ano hidrotérmico; hidráulica pela regra emulada (energia diária do ano hidrotérmico, forma intradiária que acompanha a carga líquida, limites mensais históricos).</li>
+        <li><b>Níveis por ano</b>: carga sem DC e MMGD da 2ª Revisão Quadrimestral do PLAN 2026–2030; solar e eólica do SIGA (operação + construção com entrada uniforme em 2027–2029);
+          eólica alta soma a expansão indicativa do PDE 2035 no ano; data centers pela 2ª RQ (conservador = contratos; central = contratos + 50% dos pareceres; alto = contratos + pareceres + inventário M3). 2030 = valores do estudo.</li>
+        <li><b>2028 é bissexto</b>: 29/02 repete o clima, os perfis e a hidrologia de 28/02; a energia anual soma 8.784 horas.</li>
+        <li><b>Leitura</b>: margem negativa é necessidade de importação, não déficit; excedente regional não é corte evitado (não há rede representada); a térmica não é redespachada.
+          O nível absoluto da importação tem erro de dezenas de por cento (validação retrospectiva 2022–2025 e backtest de 2026); as diferenças entre cenários no mesmo sorteio são mais robustas.</li>
+        <li><b>Sorteios da página</b> usam um gerador próprio (semente na URL); as faixas P5–P95 vêm dos <span class="mcn"></span> sorteios do Monte Carlo de cada ano (<code>src/sim/anos.py</code>).</li>
+      </ul>
+    </details>
+    <p class="status" id="verif">Autoverificação do motor: calculando…</p>
+  </section>
+  </div>
+  <div class="carregando" id="carregando">Carregando insumos horários…</div>
+</div>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+<script src="dados.js"></script>
+<script>
+'use strict';
+const D = window.SIM_DADOS;
+const $ = (id) => document.getElementById(id);
+const fmt = (d) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const F0 = fmt(0), F1 = fmt(1), F2 = fmt(2);
+const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const ROT_DC = { sem_dc: 'sem DC', conservador: 'conservador', central: 'central', alto: 'alto' };
+const ROT_H = { regra_historica: 'regra emulada', historico_sorteado: 'despacho histórico', plana: 'plana' };
+const JANELAS = [['1 semana', 168], ['2 semanas', 336], ['1 mês', 744], ['3 meses', 2208], ['ano', 99999]];
+const NEG_MAX = 10000, POS_MAX = 25000;   // escala fixa do mapa de calor (MW)
+const I = {};                             // insumos decodificados
+let S = null;                             // estado
+let R = null;                             // resultado do sorteio atual
+let BT = null;                            // backtest decodificado
+
+// ------------------------------------------------------------------ decodificação
+function b64bytes(s) { const b = atob(s); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+async function gunzip(u8) {
+  const st = new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return await new Response(st).arrayBuffer();
+}
+async function decodificar(e) {
+  const d = new Int32Array(await gunzip(b64bytes(e.b64)));
+  const [nr, nc] = e.forma, rows = [];
+  for (let r = 0; r < nr; r++) {
+    const out = new Float64Array(nc); let acc = 0; const o = r * nc;
+    for (let j = 0; j < nc; j++) { acc += d[o + j]; out[j] = acc * e.escala; }
+    rows.push(out);
+  }
+  return rows;
+}
+
+// ------------------------------------------------------------------ utilidades numéricas
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function percentil(arr, p) {             // igual ao numpy (interpolação linear)
+  const a = Float64Array.from(arr).sort(); const n = a.length; if (!n) return NaN;
+  const pos = (n - 1) * p / 100, lo = Math.floor(pos), hi = Math.ceil(pos);
+  return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+}
+const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+const horasAno = (y) => (isLeap(y) ? 366 : 365) * 24;
+function noAno(row, leap) {              // calendário de 365 dias → ano (29/02 repete 28/02)
+  if (!leap) return row;
+  const out = new Float64Array(8784);
+  out.set(row.subarray(0, 1416), 0); out.set(row.subarray(1392, 1416), 1416); out.set(row.subarray(1416), 1440);
+  return out;
+}
+const MES_HORA = {};
+function mesHora(y) {
+  if (MES_HORA[y]) return MES_HORA[y];
+  const nh = horasAno(y), m = new Uint8Array(nh), t0 = Date.UTC(y, 0, 1);
+  for (let i = 0; i < nh; i++) m[i] = new Date(t0 + i * 3600e3).getUTCMonth();
+  return (MES_HORA[y] = m);
+}
+const dataHora = (y, i) => new Date(Date.UTC(y, 0, 1) + i * 3600e3);
+const rotHora = (y, i) => { const d = dataHora(y, i); return `${String(d.getUTCDate()).padStart(2, '0')} ${MESES[d.getUTCMonth()]} ${y}, ${String(d.getUTCHours()).padStart(2, '0')}h`; };
+
+// ------------------------------------------------------------------ motor (espelha src/sim/montecarlo.py)
+function sortearDias(ano, rng) {
+  const nd = horasAno(ano) / 24, cand = D.candidatos[String(nd)], dias = new Int32Array(nd);
+  cand.forEach((c, k) => { const j = c[Math.floor(rng() * c.length)]; const L = Math.min(7, nd - 7 * k); for (let i = 0; i < L; i++) dias[7 * k + i] = j + i; });
+  return dias;
+}
+function sorteio(seed, ano) {
+  const rng = mulberry32(seed * 2654435761 >>> 0);
+  const w = Math.floor(rng() * D.anos_clima.length), h = Math.floor(rng() * D.anos_hidro.length);
+  return { w, h, dias: sortearDias(ano, rng) };
+}
+function hidraulica(hidp, nl, h, ano, modo) {
+  const nh = hidp.length, nd = nh / 24;
+  if (modo === 'historico_sorteado') return Float64Array.from(hidp);
+  if (modo === 'plana') { let s = 0; for (let i = 0; i < nh; i++) s += hidp[i]; return new Float64Array(nh).fill(s / nh); }
+  const beta = D.beta[h], mh = mesHora(ano), x = new Float64Array(nh);
+  const lo = new Float64Array(24), hi = new Float64Array(24);
+  for (let d = 0; d < nd; d++) {
+    const o = d * 24; let se = 0, sn = 0;
+    for (let k = 0; k < 24; k++) { se += hidp[o + k]; sn += nl[o + k]; lo[k] = D.hmin[h][mh[o + k]]; hi[k] = D.hmax[h][mh[o + k]]; }
+    const Ed = se / 24, nm = sn / 24;
+    for (let k = 0; k < 24; k++) x[o + k] = Math.min(Math.max(Ed + beta * (nl[o + k] - nm), lo[k]), hi[k]);
+    for (let it = 0; it < 30; it++) {
+      let sx = 0; for (let k = 0; k < 24; k++) sx += x[o + k];
+      const falta = Ed - sx / 24;
+      if (!(Math.abs(falta) > 0.05)) break;
+      let nl_ = 0; const livre = new Array(24);
+      for (let k = 0; k < 24; k++) { livre[k] = falta > 0 ? x[o + k] < hi[k] - 1e-9 : x[o + k] > lo[k] + 1e-9; if (livre[k]) nl_++; }
+      const inc = falta * 24 / Math.max(nl_, 1);
+      for (let k = 0; k < 24; k++) x[o + k] = Math.min(Math.max(x[o + k] + (livre[k] ? inc : 0), lo[k]), hi[k]);
+    }
+  }
+  return x;
+}
+function simular(ano, w, h, dias, cenW, modo) {
+  const A0 = I['A0_' + ano][w], nh = A0.length, leap = nh === 8784, nd = nh / 24;
+  const E0 = noAno(I.E0[w], leap), B0 = noAno(I.B0[w], leap), C0 = noAno(I.C0[w], leap);
+  const hidp = noAno(I.hid[h], leap), ter = noAno(I.ter[h], leap);
+  const c = D.centro[String(ano)], niv = D.niveis[String(ano)], res = I.res;
+  const L = new Float64Array(nh), MM = new Float64Array(nh), cfe = new Float64Array(nh), cfs = new Float64Array(nh);
+  let sL = 0, sM = 0;
+  for (let d = 0; d < nd; d++) for (let k = 0; k < 24; k++) {
+    const i = d * 24 + k, r = (dias[d] * 24 + k) * 4;
+    L[i] = A0[i] + (res[r] - c[0]); sL += L[i];
+    MM[i] = Math.max(E0[i] + (res[r + 1] - c[1]), 0); sM += MM[i];
+    cfe[i] = Math.min(Math.max(B0[i] + (res[r + 2] - c[2]), 0), 1);
+    cfs[i] = Math.min(Math.max(C0[i] + (res[r + 3] - c[3]), 0), 1);
+  }
+  const mL = sL / nh, mM = sM / nh, cap = niv.cap_eol[cenW], capS = niv.cap_sol;
+  const base = new Float64Array(nh), nl = new Float64Array(nh), eol = new Float64Array(nh), sol = new Float64Array(nh);
+  for (let i = 0; i < nh; i++) {
+    L[i] = L[i] / mL * niv.L; MM[i] = MM[i] / mM * niv.MMGD;
+    sol[i] = cfs[i] * capS; eol[i] = cfe[i] * cap;
+    base[i] = ter[i] + sol[i] - (L[i] - MM[i]);
+    nl[i] = -(base[i] + eol[i]);
+  }
+  const hid = hidraulica(hidp, nl, h, ano, modo), M0 = new Float64Array(nh);
+  for (let i = 0; i < nh; i++) M0[i] = base[i] + eol[i] + hid[i];
+  return { ano, nh, M0, L, MMGD: MM, eol, sol, hid, ter };
+}
+function metricas(M, sel) {
+  let imp = [], soma = 0, horas = 0, pico = 0, exc = 0, excL = 0, hL = 0, run = 0, best = 0, n = 0;
+  const lim = D.limite_exportacao_MW, li = D.limites_importacao_MW, hi = li.map(() => 0);
+  for (let i = 0; i < M.length; i++) {
+    if (sel && !sel[i]) continue;
+    const m = M[i], v = m < 0 ? -m : 0; n++;
+    imp.push(v); soma += v; if (m < 0) { horas++; run++; if (run > best) best = run; } else run = 0;
+    if (v > pico) pico = v; if (m > 0) exc += m; if (m > lim) { excL += m - lim; hL++; }
+    li.forEach((L, j) => { if (v > L) hi[j]++; });
+  }
+  const out = { importacao_TWh: soma / 1e6, horas_importacao: horas, importacao_p95_MW: percentil(imp, 95), importacao_pico_MW: pico,
+    maior_sequencia_importacao_h: best, excedente_TWh: exc / 1e6, excedente_acima_limite_exp_TWh: excL / 1e6, horas_acima_limite_exp: hL };
+  li.forEach((L, j) => { out[`horas_import_acima_${L / 1000}GW`] = hi[j]; });
+  return out;
+}
+const comDC = (M0, ldc) => { const M = new Float64Array(M0.length); for (let i = 0; i < M.length; i++) M[i] = M0[i] - ldc; return M; };
+
+// ------------------------------------------------------------------ cores e canvas
+const css = (v) => getComputedStyle(document.querySelector('.viz-root')).getPropertyValue(v).trim();
+function hex2rgb(h) { h = h.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255); }
+const lin = (c) => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+const delin = (c) => c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+function toOklab(hex) {
+  const [r, g, b] = hex2rgb(hex).map(lin);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
+}
+function fromOklab([L, a, b]) {
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+  const rgb = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s];
+  return rgb.map((c) => Math.round(Math.min(Math.max(delin(c), 0), 1) * 255));
+}
+let LUT = null;
+function rampa(c0, c1, c2) {             // 256 passos: neutro → polo → extremo (OKLab)
+  const a = toOklab(c0), b = toOklab(c1), e = toOklab(c2), out = [];
+  for (let i = 0; i < 256; i++) {
+    const t = i / 255, [p, q, u] = t < 0.6 ? [a, b, t / 0.6] : [b, e, (t - 0.6) / 0.4];
+    out.push(fromOklab(p.map((v, k) => v + (q[k] - v) * u)));
+  }
+  return out;
+}
+function corDiv(m) {
+  const t = m < 0 ? Math.min(-m / NEG_MAX, 1) : Math.min(m / POS_MAX, 1);
+  const c = (m < 0 ? LUT.neg : LUT.pos)[Math.round(t * 255)];
+  return c;
+}
+function prep(cv) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = +cv.getAttribute('height');
+  cv.style.height = h + 'px'; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0))), f = step0 / mag;
+  const step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag, t = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(Math.abs(v) < 1e-9 ? 0 : v);
+  return t;
+}
+const gw = (v) => F0.format(v / 1000) === '0' && v !== 0 ? F1.format(v / 1000) : (Math.abs(v) >= 10000 || v % 1000 === 0 ? F0.format(v / 1000) : F1.format(v / 1000));
+function eixoY(ctx, x0, x1, ys, fy, lab, txt) {
+  ctx.font = '11px system-ui, -apple-system, "Segoe UI", sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ys.forEach((v) => { const y = Math.round(fy(v)) + 0.5; ctx.strokeStyle = v === 0 ? css('--axis') : css('--grid'); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.fillStyle = css('--muted'); ctx.fillText(lab(v), x0 - 6, y); });
+  if (txt) { ctx.save(); ctx.textAlign = 'left'; ctx.fillStyle = css('--muted'); ctx.fillText(txt, 0, 8); ctx.restore(); }
+}
+
+// ------------------------------------------------------------------ tooltip
+const tip = $('tip');
+function mostraTip(ev, titulo, linhas) {
+  tip.replaceChildren();
+  const t = document.createElement('div'); t.className = 't'; t.textContent = titulo; tip.appendChild(t);
+  linhas.forEach(([cor, nome, valor]) => {
+    const r = document.createElement('div'); r.className = 'r';
+    const a = document.createElement('span');
+    if (cor) { const k = document.createElement('i'); k.className = 'ln'; k.style.background = cor; a.appendChild(k); }
+    a.appendChild(document.createTextNode(nome));
+    const b = document.createElement('b'); b.textContent = valor; r.append(a, b); tip.appendChild(r);
+  });
+  tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + w > window.innerWidth - 8) x = ev.clientX - w - 14;
+  if (y + h > window.innerHeight - 8) y = ev.clientY - h - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const escondeTip = () => { tip.style.display = 'none'; };
+
+// ------------------------------------------------------------------ estado e controles
+function lerHash() {
+  const p = new URLSearchParams(location.hash.slice(1)), st = {};
+  if (p.get('ano')) st.ano = +p.get('ano');
+  ['eol', 'dc', 'hid'].forEach((k) => { if (p.get(k)) st[k] = p.get(k); });
+  ['s', 'w', 'h'].forEach((k) => { if (p.get(k) !== null) st[k] = +p.get(k); });
+  return st;
+}
+function gravarHash() {
+  const p = new URLSearchParams({ ano: S.ano, eol: S.cenW, dc: S.cenDC, hid: S.hidro, s: S.seed, w: D.anos_clima[S.w], h: D.anos_hidro[S.h] });
+  history.replaceState(null, '', '#' + p.toString());
+}
+function seg(el, itens, atual, onClick) {
+  el.replaceChildren();
+  itens.forEach(([val, rot, sub]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(val === atual));
+    b.appendChild(document.createTextNode(rot));
+    if (sub) { const s = document.createElement('small'); s.textContent = sub; b.appendChild(s); }
+    b.addEventListener('click', () => onClick(val)); el.appendChild(b);
+  });
+}
+function montarControles() {
+  const niv = D.niveis[String(S.ano)];
+  $('ano').value = S.ano; $('anoVal').textContent = '— ' + S.ano + (S.ano === 2030 ? ' (referência do estudo)' : S.ano === 2026 ? ' (com backtest)' : '');
+  $('anoTicks').replaceChildren(...D.anos.map((a) => { const s = document.createElement('span'); s.textContent = a; if (a === S.ano) s.className = 'on'; return s; }));
+  seg($('segW'), D.cenarios_eolicos.map((w) => [w, w, F1.format(niv.cap_eol[w] / 1000) + ' GW']), S.cenW, (v) => { S.cenW = v; atualizar(); });
+  seg($('segDC'), D.cenarios_dc.map((c) => [c, ROT_DC[c], F0.format(niv.ldc[c]) + ' MWmed']), S.cenDC, (v) => { S.cenDC = v; atualizar(false); });
+  seg($('segH'), Object.keys(ROT_H).map((m) => [m, ROT_H[m], m === 'regra_historica' ? 'caso central' : 'sensibilidade']), S.hidro, (v) => { S.hidro = v; atualizar(); });
+  seg($('segJan'), JANELAS.map(([r, n]) => [n, r]), S.janN, (v) => { S.janN = v; ajustarJanela(); desenharJanela(); montarControles(); });
+  $('selW').value = S.w; $('selH').value = S.h;
+}
+function premissas() {
+  const niv = D.niveis[String(S.ano)], el = $('premissas'); el.replaceChildren();
+  const chip = (rot, val, tag) => { const s = document.createElement('span'); s.className = 'chip'; s.append(rot + ' ');
+    const b = document.createElement('b'); b.textContent = val; s.appendChild(b); if (tag) { const i = document.createElement('i'); i.textContent = ' · ' + tag; s.appendChild(i); } el.appendChild(s); };
+  chip('Carga sem DC', F0.format(niv.L) + ' MWmed', niv.fonte === 'config/cenarios.yaml' ? 'estudo' : '2ª RQ PLAN');
+  chip('MMGD', F0.format(niv.MMGD) + ' MWmed', '2ª RQ PLAN');
+  chip('Solar', F1.format(niv.cap_sol / 1000) + ' GW', 'SIGA');
+  chip('Eólica ' + S.cenW, F1.format(niv.cap_eol[S.cenW] / 1000) + ' GW', S.cenW === 'alta' && niv.pde_indicativa > 0 ? 'inclui ' + F1.format(niv.pde_indicativa / 1000) + ' GW indicativos do PDE' : 'SIGA');
+  chip('DC ' + ROT_DC[S.cenDC], F0.format(niv.ldc[S.cenDC]) + ' MWmed', 'flat, 2ª RQ');
+  chip('Clima', String(D.anos_clima[S.w]), 'ERA5');
+  chip('Hidrologia', String(D.anos_hidro[S.h]), ROT_H[S.hidro]);
+  chip('Sorteio', '#' + S.seed, 'resíduos em blocos de 7 dias');
+}
+
+// ------------------------------------------------------------------ cálculo
+function recalcular() {
+  const dd = sorteio(S.seed, S.ano);
+  S.dias = dd.dias;
+  R = simular(S.ano, S.w, S.h, S.dias, S.cenW, S.hidro);
+}
+function atualizar(recalc = true) {
+  if (recalc) recalcular();
+  R.ldc = D.niveis[String(S.ano)].ldc[S.cenDC];
+  R.M = comDC(R.M0, R.ldc);
+  R.met = metricas(R.M);
+  R.metDC = {}; D.cenarios_dc.forEach((c) => { R.metDC[c] = metricas(comDC(R.M0, D.niveis[String(S.ano)].ldc[c])); });
+  if (S.jan0 === null || S.jan0 + S.janN > R.nh) irPico(false);
+  ajustarJanela();
+  gravarHash(); montarControles(); premissas(); kpis(); desenharTudo();
+}
+function irPico(desenha = true) {
+  let k = 0; for (let i = 1; i < R.M.length; i++) if (R.M[i] < R.M[k]) k = i;
+  S.jan0 = Math.max(0, k - Math.floor(Math.min(S.janN, R.nh) / 2));
+  ajustarJanela(); if (desenha) desenharJanela();
+}
+function ajustarJanela() {
+  const n = Math.min(S.janN, R.nh); S.jan0 = Math.max(0, Math.min(S.jan0 ?? 0, R.nh - n)); S.jan1 = S.jan0 + n;
+}
+
+// ------------------------------------------------------------------ indicadores
+function kpis() {
+  const el = $('kpis'); el.replaceChildren();
+  const mc = D.mc.anual[String(S.ano)][S.cenDC][S.cenW], m = R.met;
+  const defs = [
+    ['Importação anual', m.importacao_TWh, 'importacao_TWh', (v) => F2.format(v), 'TWh'],
+    ['Horas com importação', m.horas_importacao, 'horas_importacao', (v) => F0.format(v), 'h'],
+    ['P95 da importação horária', m.importacao_p95_MW, 'importacao_p95_MW', (v) => F0.format(v), 'MW'],
+    ['Pico de importação', m.importacao_pico_MW, 'importacao_pico_MW', (v) => F0.format(v), 'MW'],
+    ['Excedente regional', m.excedente_TWh, 'excedente_TWh', (v) => F1.format(v), 'TWh'],
+    ['Horas acima de 21 GW de exportação', m.horas_acima_limite_exp, 'horas_acima_limite_exp', (v) => F0.format(v), 'h'],
+  ];
+  defs.forEach(([k, v, key, f, u]) => {
+    const q = mc[key], t = document.createElement('div'); t.className = 'tile';
+    const a = document.createElement('div'); a.className = 'k'; a.textContent = k;
+    const b = document.createElement('div'); b.className = 'v'; b.textContent = f(v) + ' '; const s = document.createElement('small'); s.textContent = u; b.appendChild(s);
+    const c = document.createElement('div'); c.className = 'd'; c.textContent = `Monte Carlo: ${f(q[2])} (P5–P95 ${f(q[0])}–${f(q[4])})`;
+    const cv = document.createElement('canvas'); cv.setAttribute('height', '14'); cv.setAttribute('aria-hidden', 'true');
+    t.append(a, b, c, cv); el.appendChild(t);
+    requestAnimationFrame(() => miniFaixa(cv, q, v));
+  });
+}
+function miniFaixa(cv, q, v) {
+  const { ctx, w, h } = prep(cv), lo = Math.min(q[0], v), hi = Math.max(q[4], v), pad = 6, span = hi - lo || 1;
+  const fx = (x) => pad + (x - lo) / span * (w - 2 * pad);
+  ctx.fillStyle = css('--grid'); ctx.fillRect(fx(q[0]), 5, fx(q[4]) - fx(q[0]), 4);
+  ctx.fillStyle = css('--axis'); ctx.fillRect(fx(q[1]), 4, fx(q[3]) - fx(q[1]), 6);
+  ctx.fillStyle = css('--ink'); ctx.fillRect(fx(q[2]) - 1, 2, 2, 10);
+  ctx.beginPath(); ctx.arc(fx(v), 7, 4, 0, 2 * Math.PI); ctx.fillStyle = css('--s2'); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = css('--surface-1'); ctx.stroke();
+}
+
+// ------------------------------------------------------------------ gráficos
+function desenharTudo() {
+  $('subM').textContent = `${S.ano} · eólica ${S.cenW} · DC ${ROT_DC[S.cenDC]} · clima ${D.anos_clima[S.w]} · hidrologia ${D.anos_hidro[S.h]} (${ROT_H[S.hidro]}) · ${F0.format(R.nh)} horas`;
+  desenharOverview(); desenharJanela(); desenharHeat(); desenharMeses(); desenharDist(); desenharTraj(); tabelaMes(); backtestPainel();
+}
+const PAD = { l: 44, r: 12, t: 10, b: 22 };
+function desenharOverview() {
+  const cv = $('cvOver'), { ctx, w, h } = prep(cv), M = R.M, n = M.length, x0 = PAD.l, x1 = w - PAD.r, pw = x1 - x0;
+  let mn = 0, mx = 0; for (const v of M) { if (v < mn) mn = v; if (v > mx) mx = v; }
+  const fy = (v) => 8 + (mx - v) / (mx - mn || 1) * (h - 24);
+  for (let px = 0; px < pw; px++) {
+    const i0 = Math.floor(px / pw * n), i1 = Math.max(i0 + 1, Math.floor((px + 1) / pw * n));
+    let a = Infinity, b = -Infinity; for (let i = i0; i < i1; i++) { if (M[i] < a) a = M[i]; if (M[i] > b) b = M[i]; }
+    if (b > 0) { ctx.fillStyle = css('--pos'); ctx.fillRect(x0 + px, fy(b), 1, fy(Math.max(a, 0)) - fy(b)); }
+    if (a < 0) { ctx.fillStyle = css('--neg'); ctx.fillRect(x0 + px, fy(Math.min(b, 0)), 1, fy(a) - fy(Math.min(b, 0))); }
+  }
+  ctx.strokeStyle = css('--axis'); ctx.beginPath(); ctx.moveTo(x0, Math.round(fy(0)) + 0.5); ctx.lineTo(x1, Math.round(fy(0)) + 0.5); ctx.stroke();
+  // meses
+  ctx.font = '10.5px system-ui, sans-serif'; ctx.fillStyle = css('--muted'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  const mh = mesHora(S.ano); for (let i = 0; i < n; i++) if (i === 0 || mh[i] !== mh[i - 1]) ctx.fillText(MESES[mh[i]], x0 + i / n * pw + 2, h - 3);
+  // janela
+  const a = x0 + S.jan0 / n * pw, b = x0 + S.jan1 / n * pw;
+  ctx.fillStyle = css('--wash'); ctx.fillRect(a, 2, Math.max(b - a, 2), h - 18);
+  ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.5; ctx.strokeRect(a + 0.5, 2.5, Math.max(b - a, 2) - 1, h - 19);
+}
+function desenharJanela() {
+  desenharOverviewJanela(); desenharDet(); desenharComp(); if (S.ano === 2026) desenharBt();
+}
+function desenharOverviewJanela() { desenharOverview(); }
+function eixoX(ctx, x0, x1, i0, i1, h) {
+  const n = i1 - i0, fx = (i) => x0 + (i - i0) / (n - 1 || 1) * (x1 - x0);
+  ctx.font = '10.5px system-ui, sans-serif'; ctx.fillStyle = css('--muted'); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  const passo = n <= 400 ? 24 : n <= 800 ? 72 : n <= 2300 ? 24 * 14 : null;
+  if (passo) { for (let i = i0; i < i1; i++) if (i % passo === 0) { const d = dataHora(S.ano, i); ctx.fillText(`${d.getUTCDate()} ${MESES[d.getUTCMonth()]}`, fx(i), h - 4); } }
+  else { const mh = mesHora(S.ano); for (let i = i0; i < i1; i++) if (i === 0 || mh[i] !== mh[i - 1]) ctx.fillText(MESES[mh[i]], fx(i) + 12, h - 4); }
+  return fx;
+}
+function serieLinha(ctx, arr, i0, i1, fx, fy, cor, lw = 2) {
+  ctx.beginPath(); let up = false;
+  for (let i = i0; i < i1; i++) { const v = arr[i]; if (v === null || Number.isNaN(v)) { up = false; continue; } const x = fx(i), y = fy(v); if (!up) { ctx.moveTo(x, y); up = true; } else ctx.lineTo(x, y); }
+  ctx.strokeStyle = cor; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+}
+function desenharDet() {
+  const cv = $('cvDet'), { ctx, w, h } = prep(cv), M = R.M, i0 = S.jan0, i1 = S.jan1, x0 = PAD.l, x1 = w - PAD.r;
+  let mn = 0, mx = 0; for (let i = i0; i < i1; i++) { if (M[i] < mn) mn = M[i]; if (M[i] > mx) mx = M[i]; }
+  const ys = niceTicks(mn, mx, 6), lo = Math.min(ys[0], mn), hi = Math.max(ys[ys.length - 1], mx);
+  const fy = (v) => PAD.t + (hi - v) / (hi - lo || 1) * (h - PAD.t - PAD.b);
+  eixoY(ctx, x0, x1, ys, fy, gw, 'GW');
+  const fx = eixoX(ctx, x0, x1, i0, i1, h), y0 = fy(0);
+  // limite de exportação (PDE) se visível
+  const lim = D.limite_exportacao_MW;
+  if (lim <= hi) { const y = Math.round(fy(lim)) + 0.5; ctx.strokeStyle = css('--ink2'); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+    ctx.fillStyle = css('--ink2'); ctx.textAlign = 'right'; ctx.font = '11px system-ui, sans-serif'; ctx.fillText('limite de exportação 21 GW (PDE)', x1, y - 4); }
+  for (const [lado, cor] of [[1, css('--pos')], [-1, css('--neg')]]) {
+    ctx.save(); ctx.beginPath(); if (lado > 0) ctx.rect(x0, 0, x1 - x0, y0); else ctx.rect(x0, y0, x1 - x0, h); ctx.clip();
+    ctx.beginPath(); ctx.moveTo(fx(i0), y0); for (let i = i0; i < i1; i++) ctx.lineTo(fx(i), fy(M[i])); ctx.lineTo(fx(i1 - 1), y0); ctx.closePath();
+    ctx.globalAlpha = 0.16; ctx.fillStyle = cor; ctx.fill(); ctx.globalAlpha = 1;
+    serieLinha(ctx, M, i0, i1, fx, fy, cor, i1 - i0 > 2500 ? 1 : 1.6);
+    ctx.restore();
+  }
+  ctx.strokeStyle = css('--axis'); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, Math.round(y0) + 0.5); ctx.lineTo(x1, Math.round(y0) + 0.5); ctx.stroke();
+  cv._fx = fx; cv._x0 = x0; cv._x1 = x1; cv._fy = fy;
+  if (S.hover !== null && S.hover >= i0 && S.hover < i1) cruz(ctx, fx(S.hover), PAD.t, h - PAD.b, [[fy(M[S.hover]), M[S.hover] < 0 ? css('--neg') : css('--pos')]]);
+}
+function cruz(ctx, x, yt, yb, pontos) {
+  ctx.strokeStyle = css('--ink2'); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(Math.round(x) + 0.5, yt); ctx.lineTo(Math.round(x) + 0.5, yb); ctx.stroke();
+  pontos.forEach(([y, cor]) => { ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.fillStyle = cor; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = css('--surface-1'); ctx.stroke(); });
+}
+const FONTES = [['hid', 'hidráulica', '--s1'], ['ter', 'térmica', '--s2'], ['eol', 'eólica', '--s3'], ['sol', 'solar centralizada', '--s4'], ['MMGD', 'MMGD', '--s5']];
+function desenharComp() {
+  const cv = $('cvComp'), { ctx, w, h } = prep(cv), i0 = S.jan0, i1 = S.jan1, x0 = PAD.l, x1 = w - PAD.r;
+  let mx = 0; for (let i = i0; i < i1; i++) { let s = 0; FONTES.forEach(([k]) => { s += R[k][i]; }); mx = Math.max(mx, s, R.L[i] + R.ldc); }
+  const ys = niceTicks(0, mx, 5), hi = Math.max(ys[ys.length - 1], mx), fy = (v) => PAD.t + (hi - v) / hi * (h - PAD.t - PAD.b);
+  eixoY(ctx, x0, x1, ys, fy, gw, 'GW');
+  const fx = eixoX(ctx, x0, x1, i0, i1, h), acc = new Float64Array(i1 - i0);
+  FONTES.forEach(([k, , cor]) => {
+    ctx.beginPath();
+    for (let i = i0; i < i1; i++) { const y = fy(acc[i - i0] + R[k][i]); i === i0 ? ctx.moveTo(fx(i), y) : ctx.lineTo(fx(i), y); }
+    for (let i = i1 - 1; i >= i0; i--) ctx.lineTo(fx(i), fy(acc[i - i0]));
+    ctx.closePath(); ctx.fillStyle = css(cor); ctx.globalAlpha = 0.85; ctx.fill(); ctx.globalAlpha = 1;
+    for (let i = i0; i < i1; i++) acc[i - i0] += R[k][i];
+    // separador de 1px na cor da superfície entre camadas
+    ctx.beginPath(); for (let i = i0; i < i1; i++) { const y = fy(acc[i - i0]); i === i0 ? ctx.moveTo(fx(i), y) : ctx.lineTo(fx(i), y); }
+    ctx.strokeStyle = css('--surface-1'); ctx.lineWidth = 1; ctx.stroke();
+  });
+  const dem = new Float64Array(R.nh); for (let i = i0; i < i1; i++) dem[i] = R.L[i] + R.ldc;
+  serieLinha(ctx, dem, i0, i1, fx, fy, css('--surface-1'), 4);
+  serieLinha(ctx, dem, i0, i1, fx, fy, css('--ink'), 2);
+  cv._fx = fx; cv._x0 = x0; cv._x1 = x1;
+  if (S.hover !== null && S.hover >= i0 && S.hover < i1) cruz(ctx, fx(S.hover), PAD.t, h - PAD.b, [[fy(dem[S.hover]), css('--ink')]]);
+  const leg = $('legComp'); leg.replaceChildren();
+  FONTES.forEach(([, rot, cor]) => { const s = document.createElement('span'); const k = document.createElement('i'); k.className = 'sw'; k.style.background = `var(${cor})`; s.append(k, rot); leg.appendChild(s); });
+  const s = document.createElement('span'); const k = document.createElement('i'); k.className = 'ln'; k.style.background = 'var(--ink)'; s.append(k, 'carga bruta + DC'); leg.appendChild(s);
+}
+function linhasTip(i) {
+  const L = [[null, 'M (margem)', F0.format(R.M[i]) + ' MW'], [css('--ink'), 'carga bruta + DC', F0.format(R.L[i] + R.ldc) + ' MW']];
+  FONTES.slice().reverse().forEach(([k, rot, cor]) => L.push([css(cor), rot, F0.format(R[k][i]) + ' MW']));
+  if (S.ano === 2026 && BT && i < BT.horas && BT.valida[i] === '1') L.push([css('--s1'), 'M observado (potencial)', F0.format(BT.M_obs_pot[i]) + ' MW']);
+  return L;
+}
+function hoverJanela(cv, ev) {
+  const r = cv.getBoundingClientRect(), x = ev.clientX - r.left, n = S.jan1 - S.jan0;
+  if (x < cv._x0 - 4 || x > cv._x1 + 4) { S.hover = null; escondeTip(); desenharJanela(); return; }
+  const i = Math.max(S.jan0, Math.min(S.jan1 - 1, S.jan0 + Math.round((x - cv._x0) / (cv._x1 - cv._x0) * (n - 1))));
+  S.hover = i; desenharJanela(); mostraTip(ev, rotHora(S.ano, i), linhasTip(i));
+}
+function desenharHeat() {
+  const cv = $('cvHeat'), { ctx, w, h } = prep(cv), M = R.M, nd = R.nh / 24, x0 = 34, x1 = w - 6, yb = h - 18, ch = (yb - 4) / 24, cw = (x1 - x0) / nd;
+  const img = ctx.createImageData(1, 1);
+  for (let d = 0; d < nd; d++) for (let k = 0; k < 24; k++) {
+    const c = corDiv(M[d * 24 + k]); ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+    ctx.fillRect(x0 + d * cw, 4 + (23 - k) * ch, Math.ceil(cw), Math.ceil(ch));
+  }
+  void img;
+  ctx.font = '10.5px system-ui, sans-serif'; ctx.fillStyle = css('--muted'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  [0, 6, 12, 18, 23].forEach((k) => ctx.fillText(k + 'h', x0 - 4, 4 + (23 - k + 0.5) * ch));
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; const mh = mesHora(S.ano);
+  for (let d = 0; d < nd; d++) if (d === 0 || mh[d * 24] !== mh[d * 24 - 1]) ctx.fillText(MESES[mh[d * 24]], x0 + d * cw + 2, h - 4);
+  // janela
+  const a = x0 + S.jan0 / 24 * cw, b = x0 + S.jan1 / 24 * cw; ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.5; ctx.strokeRect(a, 3, Math.max(b - a, 2), yb - 3);
+  cv._g = { x0, cw, ch, nd };
+  legendaHeat();
+}
+function legendaHeat() {
+  const cv = $('cvHeatLeg'), { ctx, w } = prep(cv), x0 = 34, x1 = w - 6, zero = x0 + (x1 - x0) * NEG_MAX / (NEG_MAX + POS_MAX);
+  for (let x = x0; x < x1; x++) { const m = x < zero ? -(zero - x) / (zero - x0) * NEG_MAX : (x - zero) / (x1 - zero) * POS_MAX; const c = corDiv(m); ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x, 4, 1, 10); }
+  ctx.font = '10.5px system-ui, sans-serif'; ctx.fillStyle = css('--muted'); ctx.textAlign = 'center';
+  [-10000, -5000, 0, 5000, 10000, 15000, 20000, 25000].forEach((v) => { const x = v < 0 ? zero - (-v / NEG_MAX) * (zero - x0) : zero + v / POS_MAX * (x1 - zero); ctx.fillRect(x, 14, 1, 3); ctx.fillText(F0.format(v / 1000), x, 28); });
+  ctx.textAlign = 'left'; ctx.fillText('← importação (GW)', x0, 44); ctx.textAlign = 'right'; ctx.fillText('excedente (GW) →', x1, 44);
+  ctx.textAlign = 'center'; ctx.fillText('M em GW (cores saturam em −10 e +25)', zero, 44);
+}
+function porMes(M, ano) {
+  const mh = mesHora(ano), imp = new Float64Array(12), exc = new Float64Array(12), hs = new Float64Array(12), n = new Float64Array(12), sm = new Float64Array(12);
+  for (let i = 0; i < M.length; i++) { const m = mh[i]; if (M[i] < 0) { imp[m] -= M[i]; hs[m]++; } else exc[m] += M[i]; sm[m] += M[i]; n[m]++; }
+  return { imp: Array.from(imp, (v) => v / 1e6), exc: Array.from(exc, (v) => v / 1e6), horas: Array.from(hs), Mmed: Array.from(sm, (v, k) => v / n[k]) };
+}
+function barrasMes(cv, vals, faixa, titulo, cor) {
+  const { ctx, w, h } = prep(cv), x0 = PAD.l, x1 = w - PAD.r, bw = (x1 - x0) / 12;
+  const mx = Math.max(...vals, ...(faixa ? faixa.p95 : [0]), 1e-6), ys = niceTicks(0, mx, 4), hi = Math.max(ys[ys.length - 1], mx);
+  const fy = (v) => 18 + (hi - v) / hi * (h - 18 - PAD.b);
+  eixoY(ctx, x0, x1, ys, fy, (v) => (hi < 1 ? F2 : F1).format(v), '');
+  ctx.fillStyle = css('--ink2'); ctx.font = '600 12px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(titulo, 0, 11);
+  const larg = Math.min(24, bw * 0.55);
+  vals.forEach((v, m) => {
+    const cx = x0 + bw * (m + 0.5), y = fy(v), yb = fy(0), r = Math.min(4, (yb - y) / 2);
+    ctx.fillStyle = cor; ctx.beginPath();
+    if (yb - y > 0.5) { ctx.moveTo(cx - larg / 2, yb); ctx.lineTo(cx - larg / 2, y + r); ctx.arcTo(cx - larg / 2, y, cx - larg / 2 + r, y, r); ctx.lineTo(cx + larg / 2 - r, y); ctx.arcTo(cx + larg / 2, y, cx + larg / 2, y + r, r); ctx.lineTo(cx + larg / 2, yb); ctx.closePath(); ctx.fill(); }
+    if (faixa) { const xb = cx + larg / 2 + 5; ctx.strokeStyle = css('--ink2'); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(xb, fy(faixa.p5[m])); ctx.lineTo(xb, fy(faixa.p95[m])); ctx.stroke();
+      ctx.beginPath(); ctx.arc(xb, fy(faixa.p50[m]), 2.5, 0, 2 * Math.PI); ctx.fillStyle = css('--ink'); ctx.fill(); }
+    ctx.fillStyle = css('--muted'); ctx.font = '10.5px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(MESES[m], cx, h - 6);
+  });
+  cv._bars = { x0, bw, vals, faixa };
+}
+function desenharMeses() {
+  const pm = porMes(R.M, S.ano); R.pm = pm;
+  const f = D.mc.mensal[String(S.ano)][S.cenDC][S.cenW];
+  barrasMes($('cvMesImp'), pm.imp, { p5: f.importacao_p5_TWh, p50: f.importacao_p50_TWh, p95: f.importacao_p95_TWh }, 'Importação (TWh)', css('--neg'));
+  barrasMes($('cvMesExc'), pm.exc, { p5: f.excedente_p5_TWh, p50: f.excedente_p50_TWh, p95: f.excedente_p95_TWh }, 'Excedente (TWh)', css('--pos'));
+}
+function desenharDist() {
+  const cv = $('cvDist'), { ctx, w, h } = prep(cv), A = D.mc.anual[String(S.ano)], x0 = 92, x1 = w - 16;
+  $('subDist').textContent = `${S.ano}, eólica ${S.cenW}: faixa do Monte Carlo (${F0.format(D.mc_n)} sorteios) por cenário de data centers e o valor deste sorteio em cada um (mesmo clima e hidrologia).`;
+  let mx = 0; D.cenarios_dc.forEach((c) => { mx = Math.max(mx, A[c][S.cenW].importacao_TWh[4], R.metDC[c].importacao_TWh); });
+  const xs = niceTicks(0, mx, 5), hi = Math.max(xs[xs.length - 1], mx), fx = (v) => x0 + v / hi * (x1 - x0), rowH = (h - 30) / D.cenarios_dc.length;
+  ctx.font = '10.5px system-ui, sans-serif'; ctx.textAlign = 'center';
+  xs.forEach((v) => { const x = Math.round(fx(v)) + 0.5; ctx.strokeStyle = css('--grid'); ctx.beginPath(); ctx.moveTo(x, 4); ctx.lineTo(x, h - 24); ctx.stroke(); ctx.fillStyle = css('--muted'); ctx.fillText(F0.format(v), x, h - 10); });
+  ctx.textAlign = 'right'; ctx.fillText('TWh/ano', x1, h - 0);
+  D.cenarios_dc.forEach((c, k) => {
+    const q = A[c][S.cenW].importacao_TWh, y = 8 + rowH * (k + 0.5), v = R.metDC[c].importacao_TWh;
+    ctx.fillStyle = css('--grid'); ctx.fillRect(fx(q[0]), y - 5, fx(q[4]) - fx(q[0]), 10);
+    ctx.fillStyle = css('--axis'); ctx.fillRect(fx(q[1]), y - 5, fx(q[3]) - fx(q[1]), 10);
+    ctx.fillStyle = css('--ink'); ctx.fillRect(fx(q[2]) - 1, y - 8, 2, 16);
+    ctx.beginPath(); ctx.arc(fx(v), y, 5, 0, 2 * Math.PI); ctx.fillStyle = css('--s2'); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = css('--surface-1'); ctx.stroke();
+    ctx.fillStyle = c === S.cenDC ? css('--ink') : css('--ink2'); ctx.font = (c === S.cenDC ? '600 ' : '') + '12px system-ui, sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(ROT_DC[c], x0 - 10, y);
+  });
+  ctx.textBaseline = 'alphabetic';
+  cv._dist = { x0, rowH, fx };
+}
+function desenharTraj() {
+  const cv = $('cvTraj'), { ctx, w, h } = prep(cv), x0 = PAD.l, x1 = w - 20, anos = D.anos;
+  $('subTraj').textContent = `Importação anual (TWh), eólica ${S.cenW}, DC ${ROT_DC[S.cenDC]}: mediana e faixa P5–P95 do Monte Carlo de cada ano.`;
+  const q = anos.map((a) => D.mc.anual[String(a)][S.cenDC][S.cenW].importacao_TWh), q0 = anos.map((a) => D.mc.anual[String(a)].sem_dc[S.cenW].importacao_TWh);
+  const mx = Math.max(...q.map((v) => v[4])), ys = niceTicks(0, mx, 5), hi = Math.max(ys[ys.length - 1], mx), fy = (v) => PAD.t + (hi - v) / hi * (h - PAD.t - PAD.b);
+  const fx = (k) => x0 + 20 + k / (anos.length - 1) * (x1 - x0 - 40);
+  eixoY(ctx, x0, x1, ys, fy, (v) => F0.format(v), 'TWh');
+  ctx.beginPath(); q.forEach((v, k) => (k ? ctx.lineTo(fx(k), fy(v[4])) : ctx.moveTo(fx(k), fy(v[4])))); for (let k = q.length - 1; k >= 0; k--) ctx.lineTo(fx(k), fy(q[k][0]));
+  ctx.closePath(); ctx.fillStyle = css('--s1'); ctx.globalAlpha = 0.12; ctx.fill(); ctx.globalAlpha = 1;
+  const linha = (arr, cor) => { ctx.beginPath(); arr.forEach((v, k) => (k ? ctx.lineTo(fx(k), fy(v[2])) : ctx.moveTo(fx(k), fy(v[2])))); ctx.strokeStyle = cor; ctx.lineWidth = 2; ctx.stroke(); };
+  linha(q0, css('--muted')); linha(q, css('--s1'));
+  anos.forEach((a, k) => {
+    ctx.beginPath(); ctx.arc(fx(k), fy(q[k][2]), a === S.ano ? 5 : 4, 0, 2 * Math.PI); ctx.fillStyle = css('--s1'); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = css('--surface-1'); ctx.stroke();
+    ctx.fillStyle = a === S.ano ? css('--ink') : css('--muted'); ctx.font = (a === S.ano ? '600 ' : '') + '11px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(String(a), fx(k), h - 5);
+  });
+  const k = anos.indexOf(S.ano); ctx.fillStyle = css('--ink2'); ctx.font = '11px system-ui, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(F1.format(q[k][2]), fx(k) + 8, fy(q[k][2]) - 6);
+  cv._traj = { fx, q, q0 };
+}
+function tabelaMes() {
+  const t = $('tabMes'), pm = R.pm; t.replaceChildren();
+  const th = document.createElement('thead'), tr = document.createElement('tr');
+  ['Mês', 'Importação (TWh)', 'Horas com importação', 'Excedente (TWh)', 'M médio (MW)'].forEach((x) => { const c = document.createElement('th'); c.textContent = x; tr.appendChild(c); });
+  th.appendChild(tr); t.appendChild(th); const tb = document.createElement('tbody');
+  const lin = (rot, a, b, c, d) => { const r = document.createElement('tr'); [rot, a, b, c, d].forEach((x) => { const td = document.createElement('td'); td.textContent = x; r.appendChild(td); }); tb.appendChild(r); return r; };
+  for (let m = 0; m < 12; m++) lin(MESES[m], F2.format(pm.imp[m]), F0.format(pm.horas[m]), F2.format(pm.exc[m]), F0.format(pm.Mmed[m]));
+  let mm = 0; for (const v of R.M) mm += v;
+  const r = lin('ano', F2.format(R.met.importacao_TWh), F0.format(R.met.horas_importacao), F2.format(R.met.excedente_TWh), F0.format(mm / R.nh)); r.style.fontWeight = '600';
+  t.appendChild(tb);
+}
+function baixarCsv() {
+  const linhas = ['t;M_MW;carga_bruta_MW;L_DC_MW;MMGD_MW;eolica_MW;solar_MW;hidraulica_MW;termica_MW'];
+  for (let i = 0; i < R.nh; i++) { const d = dataHora(S.ano, i).toISOString().slice(0, 16).replace('T', ' ');
+    linhas.push([d, R.M[i], R.L[i], R.ldc, R.MMGD[i], R.eol[i], R.sol[i], R.hid[i], R.ter[i]].map((v, k) => (k ? v.toFixed(1) : v)).join(';')); }
+  const b = new Blob(['# ' + location.hash.slice(1) + '\n' + linhas.join('\n')], { type: 'text/csv' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = `balanco_NE_${S.ano}_${S.cenW}_${S.cenDC}_clima${D.anos_clima[S.w]}_hid${D.anos_hidro[S.h]}_s${S.seed}.csv`; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ------------------------------------------------------------------ backtest 2026
+function backtestPainel() {
+  $('bt').hidden = S.ano !== 2026; if (S.ano !== 2026 || !BT) return;
+  const tb = D.backtest.tabela, idx = Object.fromEntries(tb.map((r) => [r.metrica, r])), info = D.backtest.info;
+  const sel = new Uint8Array(R.nh); for (let i = 0; i < BT.horas; i++) sel[i] = BT.valida[i] === '1' ? 1 : 0;
+  const ma = metricas(R.M, sel);
+  const imp = idx.importacao_TWh;
+  $('btAviso').textContent = `Importação observada em jan–out (horas válidas): ${F2.format(imp.observado_realizado)} TWh. ` +
+    `A (cenário 2026 com clima e hidrologia sorteados, ${F0.format(info.n_sorteios_A)} sorteios): mediana ${F2.format(imp.A_p50)} TWh, P5–P95 ${F2.format(imp.A_p5)}–${F2.format(imp.A_p95)}; o observado está no percentil ${F0.format(imp.A_percentil_do_observado_realizado)}. ` +
+    `B (clima ERA5 e hidrologia de 2026, modelos treinados só até 2025): ${F2.format(imp.B_regra_media)} TWh com a regra hidráulica emulada e ${F2.format(imp.B_despacho_obs_media)} TWh com o despacho hidráulico observado — o simulador subestima a importação de 2026, como na validação retrospectiva de 2022–2025.`;
+  const t = $('btTab'); t.replaceChildren();
+  const cols = ['Métrica (jan–out, horas válidas)', 'Observado: intercâmbio', 'Observado: potencial (+ cortes)', 'B: regra emulada (média [P5–P95])', 'B: despacho hidráulico observado', 'A: mediana [P5–P95]', 'Percentil do observado em A', 'Sorteio atual'];
+  const th = document.createElement('thead'), trh = document.createElement('tr'); cols.forEach((c) => { const x = document.createElement('th'); x.textContent = c; trh.appendChild(x); }); th.appendChild(trh); t.appendChild(th);
+  const body = document.createElement('tbody');
+  const defs = [['importacao_TWh', 'Importação (TWh)', F2], ['horas_importacao', 'Horas com importação', F0], ['importacao_p95_MW', 'P95 da importação (MW)', F0],
+    ['importacao_pico_MW', 'Pico de importação (MW)', F0], ['excedente_TWh', 'Excedente (TWh)', F1]];
+  defs.forEach(([k, rot, f]) => {
+    const r = idx[k], tr = document.createElement('tr');
+    const cel = [rot, f.format(r.observado_realizado), f.format(r.observado_potencial), `${f.format(r.B_regra_media)} [${f.format(r.B_regra_p5)}–${f.format(r.B_regra_p95)}]`,
+      f.format(r.B_despacho_obs_media), `${f.format(r.A_p50)} [${f.format(r.A_p5)}–${f.format(r.A_p95)}]`, F0.format(r.A_percentil_do_observado_potencial), f.format(ma[k])];
+    cel.forEach((x) => { const td = document.createElement('td'); td.textContent = x; tr.appendChild(td); }); body.appendChild(tr);
+  });
+  t.appendChild(body);
+  const e = info.erro_horario_B;
+  $('btNota').textContent = `Horas válidas: ${F0.format(info.horas_validas)} de ${F0.format(info.horas_periodo)} (fora: horas em que o balanço do ONS não fecha, jan–mai/2026). ` +
+    `“Potencial” soma ao intercâmbio os cortes eólicos e solares (o simulador usa geração potencial); por isso o excedente potencial supera a exportação realizada. ` +
+    `Erro horário de B sem resíduo contra o M potencial observado: viés ${F0.format(e.bias_MW)} MW, MAE ${F0.format(e.MAE_MW)} MW, correlação ${F2.format(e.corr)}, sinal de M correto em ${F0.format(e['acerto_sinal_%'])}% das horas. ` +
+    `Percentil e sorteio atual usam a importação potencial. Níveis do cenário de 2026: carga sem DC ${F0.format(info.L_gross_sem_dc_MWmed)} MWmed + DC ${F0.format(info.L_DC_MWmed)} MWmed, MMGD ${F0.format(info.MMGD_MWmed)} MWmed, eólica ${F1.format(info.cap_eol_MW / 1000)} GW, solar ${F1.format(info.cap_sol_MW / 1000)} GW.`;
+  const tc = $('btComp'); tc.replaceChildren();
+  const h2 = document.createElement('thead'), r2 = document.createElement('tr');
+  ['Parcela', 'Observado (MWmed)', 'Simulado B (MWmed)', 'Diferença (MWmed)', 'Efeito em M (MWmed)'].forEach((c) => { const x = document.createElement('th'); x.textContent = c; r2.appendChild(x); }); h2.appendChild(r2); tc.appendChild(h2);
+  const b2 = document.createElement('tbody');
+  const f0 = (v) => (v === null || v === undefined || Number.isNaN(v) ? '—' : F0.format(v));
+  D.backtest.componentes.forEach((r, k, arr) => { const tr = document.createElement('tr'); if (k === arr.length - 1) tr.style.fontWeight = '600';
+    [r.parcela, f0(r.observado_MWmed), f0(r.simulado_B_MWmed), f0(r.diferenca_MWmed), f0(r.efeito_em_M_MWmed)].forEach((x) => { const td = document.createElement('td'); td.textContent = x; tr.appendChild(td); }); b2.appendChild(tr); });
+  tc.appendChild(b2);
+  desenharBt(); desenharBtMes();
+}
+function desenharBt() {
+  if (!BT || S.ano !== 2026) return;
+  const cv = $('cvBt'), { ctx, w, h } = prep(cv), i0 = S.jan0, i1 = S.jan1, x0 = PAD.l, x1 = w - PAD.r;
+  const obs = new Float64Array(R.nh).fill(NaN), sb = new Float64Array(R.nh).fill(NaN);
+  for (let i = 0; i < BT.horas; i++) { if (BT.valida[i] === '1') obs[i] = BT.M_obs_pot[i]; sb[i] = BT.M_B[i]; }
+  let mn = 0, mx = 0; for (let i = i0; i < i1; i++) for (const v of [R.M[i], obs[i], sb[i]]) if (!Number.isNaN(v)) { if (v < mn) mn = v; if (v > mx) mx = v; }
+  const ys = niceTicks(mn, mx, 6), lo = Math.min(ys[0], mn), hi = Math.max(ys[ys.length - 1], mx), fy = (v) => PAD.t + (hi - v) / (hi - lo || 1) * (h - PAD.t - PAD.b);
+  eixoY(ctx, x0, x1, ys, fy, gw, 'GW');
+  const fx = eixoX(ctx, x0, x1, i0, i1, h);
+  serieLinha(ctx, R.M, i0, i1, fx, fy, css('--muted'), 1);
+  serieLinha(ctx, sb, i0, i1, fx, fy, css('--s2'), 2);
+  serieLinha(ctx, obs, i0, i1, fx, fy, css('--s1'), 2);
+  if (i0 >= BT.horas) { ctx.fillStyle = css('--ink2'); ctx.font = '12px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Janela fora do período observado (jan–out/2026): mova a janela para ver o backtest.', (x0 + x1) / 2, h / 2); }
+  cv._fx = fx; cv._x0 = x0; cv._x1 = x1;
+  if (S.hover !== null && S.hover >= i0 && S.hover < i1) {
+    const p = [[fy(R.M[S.hover]), css('--muted')]]; if (!Number.isNaN(sb[S.hover])) p.push([fy(sb[S.hover]), css('--s2')]); if (!Number.isNaN(obs[S.hover])) p.push([fy(obs[S.hover]), css('--s1')]);
+    cruz(ctx, fx(S.hover), PAD.t, h - PAD.b, p);
+  }
+  cv._obs = obs; cv._sb = sb;
+}
+function linhasBt(cv, i) {
+  const L = [];
+  if (!Number.isNaN(cv._obs[i])) L.push([css('--s1'), 'observado (potencial)', F0.format(cv._obs[i]) + ' MW']);
+  if (i < BT.horas) { L.push([null, 'observado (intercâmbio)', BT.valida[i] === '1' ? F0.format(BT.M_obs_real[i]) + ' MW' : 'hora anômala']); }
+  if (!Number.isNaN(cv._sb[i])) L.push([css('--s2'), 'B: clima e hidrologia de 2026', F0.format(cv._sb[i]) + ' MW']);
+  L.push([css('--muted'), 'sorteio atual', F0.format(R.M[i]) + ' MW']);
+  return L;
+}
+function desenharBtMes() {
+  const tm = D.backtest.mensal;
+  const graf = (cv, pre, unid) => {
+    const { ctx, w, h } = prep(cv), x0 = PAD.l, x1 = w - PAD.r, n = tm.length, fx = (k) => x0 + (k + 0.5) / n * (x1 - x0);
+    const vals = tm.flatMap((r) => [r[`A_${pre}_p95_TWh`], r[`B_${pre}_TWh`], r[`obs_pot_${pre}_TWh`]]), mx = Math.max(...vals);
+    const ys = niceTicks(0, mx, 4), hi = Math.max(ys[ys.length - 1], mx), fy = (v) => PAD.t + (hi - v) / hi * (h - PAD.t - PAD.b);
+    eixoY(ctx, x0, x1, ys, fy, (v) => (hi < 2 ? F2 : F0).format(v), unid);
+    ctx.beginPath(); tm.forEach((r, k) => (k ? ctx.lineTo(fx(k), fy(r[`A_${pre}_p95_TWh`])) : ctx.moveTo(fx(k), fy(r[`A_${pre}_p95_TWh`]))));
+    for (let k = n - 1; k >= 0; k--) ctx.lineTo(fx(k), fy(tm[k][`A_${pre}_p5_TWh`])); ctx.closePath(); ctx.fillStyle = css('--grid'); ctx.fill();
+    const lin = (key, cor) => { ctx.beginPath(); tm.forEach((r, k) => (k ? ctx.lineTo(fx(k), fy(r[key])) : ctx.moveTo(fx(k), fy(r[key])))); ctx.strokeStyle = cor; ctx.lineWidth = 2; ctx.stroke();
+      tm.forEach((r, k) => { ctx.beginPath(); ctx.arc(fx(k), fy(r[key]), 4, 0, 2 * Math.PI); ctx.fillStyle = cor; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = css('--surface-1'); ctx.stroke(); }); };
+    ctx.beginPath(); tm.forEach((r, k) => (k ? ctx.lineTo(fx(k), fy(r[`A_${pre}_p50_TWh`])) : ctx.moveTo(fx(k), fy(r[`A_${pre}_p50_TWh`])))); ctx.strokeStyle = css('--muted'); ctx.lineWidth = 1.5; ctx.stroke();
+    lin(`B_${pre}_TWh`, css('--s2')); lin(`obs_pot_${pre}_TWh`, css('--s1'));
+    ctx.fillStyle = css('--muted'); ctx.font = '10.5px system-ui, sans-serif'; ctx.textAlign = 'center'; tm.forEach((r, k) => ctx.fillText(MESES[r.mes - 1], fx(k), h - 6));
+    cv._mes = { fx, pre, n };
+  };
+  graf($('cvBtMesImp'), 'importacao', 'TWh'); graf($('cvBtMesExc'), 'excedente', 'TWh');
+}
+
+// ------------------------------------------------------------------ interação
+function ligarEventos() {
+  $('ano').addEventListener('input', (e) => { S.ano = +e.target.value; S.jan0 = null; atualizar(); });
+  $('btnSort').addEventListener('click', () => { S.seed++; const s = sorteio(S.seed, S.ano); S.w = s.w; S.h = s.h; atualizar(); });
+  $('selW').addEventListener('change', (e) => { S.w = +e.target.value; atualizar(); });
+  $('selH').addEventListener('change', (e) => { S.h = +e.target.value; atualizar(); });
+  $('btnPico').addEventListener('click', () => irPico());
+  $('btnCsv').addEventListener('click', baixarCsv);
+  const over = $('cvOver'); let arr = false;
+  const mover = (ev) => { const r = over.getBoundingClientRect(), x0 = PAD.l, x1 = r.width - PAD.r, f = (ev.clientX - r.left - x0) / (x1 - x0);
+    S.jan0 = Math.round(f * R.nh - (S.jan1 - S.jan0) / 2); ajustarJanela(); desenharJanela(); desenharHeat(); };
+  over.addEventListener('pointerdown', (ev) => { arr = true; over.setPointerCapture(ev.pointerId); mover(ev); });
+  over.addEventListener('pointermove', (ev) => { if (arr) mover(ev); });
+  over.addEventListener('pointerup', () => { arr = false; });
+  over.style.cursor = 'ew-resize';
+  for (const id of ['cvDet', 'cvComp']) { const cv = $(id); cv.addEventListener('pointermove', (ev) => hoverJanela(cv, ev)); cv.addEventListener('pointerleave', () => { S.hover = null; escondeTip(); desenharJanela(); }); }
+  const cb = $('cvBt');
+  cb.addEventListener('pointermove', (ev) => { const r = cb.getBoundingClientRect(), x = ev.clientX - r.left, n = S.jan1 - S.jan0;
+    if (x < cb._x0 || x > cb._x1) { escondeTip(); return; }
+    const i = S.jan0 + Math.round((x - cb._x0) / (cb._x1 - cb._x0) * (n - 1)); S.hover = i; desenharDet(); desenharComp(); desenharBt(); mostraTip(ev, rotHora(2026, i), linhasBt(cb, i)); });
+  cb.addEventListener('pointerleave', () => { S.hover = null; escondeTip(); desenharJanela(); });
+  const hc = $('cvHeat');
+  const celula = (ev) => { const r = hc.getBoundingClientRect(), g = hc._g; const d = Math.floor((ev.clientX - r.left - g.x0) / g.cw), k = 23 - Math.floor((ev.clientY - r.top - 4) / g.ch); return d >= 0 && d < g.nd && k >= 0 && k < 24 ? [d, k] : null; };
+  hc.addEventListener('pointermove', (ev) => { const c = celula(ev); if (!c) { escondeTip(); return; } const i = c[0] * 24 + c[1];
+    mostraTip(ev, rotHora(S.ano, i), [[R.M[i] < 0 ? css('--neg') : css('--pos'), R.M[i] < 0 ? 'importação' : 'excedente', F0.format(Math.abs(R.M[i])) + ' MW']]); });
+  hc.addEventListener('pointerleave', escondeTip);
+  hc.addEventListener('click', (ev) => { const c = celula(ev); if (!c) return; S.jan0 = c[0] * 24 - Math.floor((S.jan1 - S.jan0) / 2) + 12; ajustarJanela(); desenharJanela(); desenharHeat(); });
+  for (const [id, key] of [['cvMesImp', 'imp'], ['cvMesExc', 'exc']]) { const cv = $(id);
+    cv.addEventListener('pointermove', (ev) => { const r = cv.getBoundingClientRect(), b = cv._bars, m = Math.floor((ev.clientX - r.left - b.x0) / b.bw); if (m < 0 || m > 11) { escondeTip(); return; }
+      mostraTip(ev, `${MESES[m]} ${S.ano}`, [[key === 'imp' ? css('--neg') : css('--pos'), 'sorteio atual', F2.format(b.vals[m]) + ' TWh'], [css('--ink'), 'Monte Carlo: mediana', F2.format(b.faixa.p50[m]) + ' TWh'], [null, 'P5–P95', `${F2.format(b.faixa.p5[m])}–${F2.format(b.faixa.p95[m])} TWh`]]); });
+    cv.addEventListener('pointerleave', escondeTip); }
+  const dc = $('cvDist');
+  dc.addEventListener('pointermove', (ev) => { const r = dc.getBoundingClientRect(), g = dc._dist, k = Math.floor((ev.clientY - r.top - 8) / g.rowH), c = D.cenarios_dc[k]; if (!c) { escondeTip(); return; }
+    const q = D.mc.anual[String(S.ano)][c][S.cenW].importacao_TWh;
+    mostraTip(ev, `DC ${ROT_DC[c]} — ${F0.format(D.niveis[String(S.ano)].ldc[c])} MWmed`, [[css('--s2'), 'este sorteio', F2.format(R.metDC[c].importacao_TWh) + ' TWh'], [css('--ink'), 'mediana', F2.format(q[2]) + ' TWh'],
+      [null, 'P25–P75', `${F2.format(q[1])}–${F2.format(q[3])}`], [null, 'P5–P95', `${F2.format(q[0])}–${F2.format(q[4])}`]]); });
+  dc.addEventListener('pointerleave', escondeTip);
+  dc.addEventListener('click', (ev) => { const r = dc.getBoundingClientRect(), k = Math.floor((ev.clientY - r.top - 8) / dc._dist.rowH), c = D.cenarios_dc[k]; if (c) { S.cenDC = c; atualizar(false); } });
+  const tj = $('cvTraj');
+  tj.addEventListener('pointermove', (ev) => { const r = tj.getBoundingClientRect(), g = tj._traj; let k = 0, best = 1e9; D.anos.forEach((a, j) => { const d = Math.abs(ev.clientX - r.left - g.fx(j)); if (d < best) { best = d; k = j; } });
+    mostraTip(ev, `${D.anos[k]} · eólica ${S.cenW}`, [[css('--s1'), `DC ${ROT_DC[S.cenDC]}: mediana`, F2.format(g.q[k][2]) + ' TWh'], [null, 'P5–P95', `${F2.format(g.q[k][0])}–${F2.format(g.q[k][4])} TWh`], [css('--muted'), 'sem DC: mediana', F2.format(g.q0[k][2]) + ' TWh']]); });
+  tj.addEventListener('pointerleave', escondeTip);
+  tj.addEventListener('click', (ev) => { const r = tj.getBoundingClientRect(), g = tj._traj; let k = 0, best = 1e9; D.anos.forEach((a, j) => { const d = Math.abs(ev.clientX - r.left - g.fx(j)); if (d < best) { best = d; k = j; } }); S.ano = D.anos[k]; S.jan0 = null; atualizar(); });
+  for (const id of ['cvBtMesImp', 'cvBtMesExc']) { const cv = $(id);
+    cv.addEventListener('pointermove', (ev) => { const r = cv.getBoundingClientRect(), g = cv._mes; let k = 0, best = 1e9; for (let j = 0; j < g.n; j++) { const d = Math.abs(ev.clientX - r.left - g.fx(j)); if (d < best) { best = d; k = j; } }
+      const m = D.backtest.mensal[k], p = g.pre;
+      mostraTip(ev, `${MESES[m.mes - 1]} 2026 (${F0.format(m.horas_validas)} h válidas)`, [[css('--s1'), 'observado (potencial)', F2.format(m[`obs_pot_${p}_TWh`]) + ' TWh'],
+        [null, p === 'importacao' ? 'observado (intercâmbio)' : 'exportação realizada', F2.format(p === 'importacao' ? m.obs_real_importacao_TWh : m.obs_real_exportacao_TWh) + ' TWh'],
+        [css('--s2'), 'B: clima e hidrologia de 2026', F2.format(m[`B_${p}_TWh`]) + ' TWh'], [css('--muted'), 'A: mediana', F2.format(m[`A_${p}_p50_TWh`]) + ' TWh'], [null, 'A: P5–P95', `${F2.format(m[`A_${p}_p5_TWh`])}–${F2.format(m[`A_${p}_p95_TWh`])} TWh`]]); });
+    cv.addEventListener('pointerleave', escondeTip); }
+  document.addEventListener('keydown', (ev) => { if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT') return;
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { const n = S.jan1 - S.jan0; S.jan0 += (ev.key === 'ArrowRight' ? 1 : -1) * Math.max(24, Math.round(n / 2)); ajustarJanela(); desenharJanela(); desenharHeat(); } });
+  let rt = null; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { kpis(); desenharTudo(); }, 120); });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { iniciarCores(); kpis(); desenharTudo(); });
+}
+function iniciarCores() { LUT = { pos: rampa(css('--mid'), css('--pos'), css('--pos-end')), neg: rampa(css('--mid'), css('--neg'), css('--neg-end')) }; }
+
+// ------------------------------------------------------------------ autoverificação (motor JS × motor Python)
+function autoverificar() {
+  let pior = 0, ok = true;
+  const chaves = ['importacao_TWh', 'importacao_p95_MW', 'importacao_pico_MW', 'excedente_TWh', 'excedente_acima_limite_exp_TWh'];
+  const contagens = ['horas_importacao', 'maior_sequencia_importacao_h', 'horas_acima_limite_exp'];
+  D.verificacao.forEach((v) => {
+    const r = simular(v.ano, v.w, v.h, Int32Array.from(v.dias), v.cenario_eolico, v.hidro);
+    const m = metricas(comDC(r.M0, D.niveis[String(v.ano)].ldc[v.cenario_dc]));
+    chaves.forEach((k) => { const e = Math.abs(m[k] - v.esperado[k]) / Math.max(1, Math.abs(v.esperado[k])); pior = Math.max(pior, e); if (e > 1e-6) ok = false; });
+    contagens.forEach((k) => { if (Math.abs(m[k] - v.esperado[k]) > 1) ok = false; });
+  });
+  const el = $('verif');
+  el.textContent = ok ? `Autoverificação do motor: ${D.verificacao.length} casos de referência (um por ano, incluindo 2028 bissexto) iguais ao motor em Python (maior diferença relativa ${pior.toExponential(1)}).`
+    : `Autoverificação do motor FALHOU (maior diferença relativa ${pior.toExponential(1)}): os números desta página não conferem com o Python.`;
+  el.className = 'status ' + (ok ? 'ok' : 'fail');
+  return ok;
+}
+
+// ------------------------------------------------------------------ início
+async function iniciar() {
+  try {
+    const bins = D.binarios;
+    await Promise.all(Object.entries(bins).map(async ([k, e]) => { I[k] = await decodificar(e); }));
+    I.res = I.res[0];
+    const b = D.backtest;
+    BT = { horas: b.horas, valida: b.valida, M_obs_pot: (await decodificar(b.M_obs_pot))[0], M_obs_real: (await decodificar(b.M_obs_real))[0], M_B: (await decodificar(b.M_B))[0] };
+  } catch (e) {
+    $('carregando').textContent = 'Não foi possível descompactar os dados neste navegador (é preciso DecompressionStream: Chrome/Edge 80+, Firefox 113+, Safari 16.4+). ' + e;
+    return;
+  }
+  const hs = lerHash();
+  const seed = Number.isFinite(hs.s) ? hs.s : D.semente % 100000;
+  const s0 = sorteio(seed, hs.ano || 2030);
+  S = { ano: D.anos.includes(hs.ano) ? hs.ano : 2030, cenW: D.cenarios_eolicos.includes(hs.eol) ? hs.eol : 'base', cenDC: D.cenarios_dc.includes(hs.dc) ? hs.dc : 'central',
+    hidro: ROT_H[hs.hid] ? hs.hid : 'regra_historica', seed, w: s0.w, h: s0.h, janN: 336, jan0: null, jan1: null, hover: null };
+  if (Number.isFinite(hs.w) && D.anos_clima.includes(hs.w)) S.w = D.anos_clima.indexOf(hs.w);
+  if (Number.isFinite(hs.h) && D.anos_hidro.includes(hs.h)) S.h = D.anos_hidro.indexOf(hs.h);
+  $('selW').replaceChildren(...D.anos_clima.map((a, k) => { const o = document.createElement('option'); o.value = k; o.textContent = a; return o; }));
+  $('selH').replaceChildren(...D.anos_hidro.map((a, k) => { const o = document.createElement('option'); o.value = k; o.textContent = a; return o; }));
+  document.querySelectorAll('.mcn').forEach((e) => { e.textContent = F0.format(D.mc_n); });
+  $('carregando').hidden = true; $('app').hidden = false;
+  iniciarCores(); ligarEventos(); atualizar();
+  setTimeout(autoverificar, 50);
+}
+iniciar();
+</script>
+</body>
+</html>

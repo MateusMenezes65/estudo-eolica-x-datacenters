@@ -224,3 +224,45 @@ Verificação completa do projeto; correções técnicas aplicadas e resultados 
     fluxo máximo, razões de compensação e faixas de sensibilidade passam a ser lidos das tabelas.
     Valores de análises exploratórias (degrau de ~0,5 GW, curva de potência 5–10%, 878 horas)
     citam a decisão em que estão registrados. — adotada.
+
+## Simulador interativo 2026–2030 (2026-11-16)
+
+Pedido do usuário: simulador interativo com barra de anos 2026–2030, M(t) horário ao longo do ano,
+resorteio do ano de clima e do ano hidrotérmico (regra emulada) e escolha dos cenários eólico e de
+data centers de cada ano; anexo com os níveis de 2026–2029; backtest de 2026 com os dados observados.
+Os resultados e as conclusões de 2030 não mudam.
+
+47. **Níveis por ano** (`config/cenarios_anuais.yaml`, `src/sim/trajetorias.py`). Carga sem DC =
+    carga global da 2ª RQ do PLAN − DC de Rede Básica do ano (dado); MMGD = 2ª RQ (dado). Solar e
+    eólica = capacidade média do ano: operação no SIGA (em 2026 ponderada pela data de entrada) +
+    construção com entrada uniforme em 2027–2029 (frações 1/6, 1/2, 5/6; toda em 2030) — hipótese,
+    porque o SIGA não traz datas para projetos fora de operação (decisão 24). Eólica alta = base +
+    expansão indicativa acumulada do PDE no ano (0; 0; 1,7; 3,4; 5,1 GW). DC: componentes dos
+    cenários de 2030 sobre a 2ª RQ do ano; parecer de 2026 = total − contratos (112 − 98). As regras
+    reproduzem 2030 (eólica ±1 MW; solar 13.493 × 13.500 arredondado); a coluna de 2030 usa os
+    valores do estudo. — adotada.
+48. **Calendário de cada ano.** A forma de carga (A0) depende do calendário e é prevista pela mesma
+    função de transferência para 2026–2029 (refeita no calendário de 2030, difere do estudo em
+    4e-16). MMGD, CF eólico e solar e o pool hidrotérmico não usam calendário e são reaproveitados.
+    **2028 é bissexto**: 29/02 repete o clima, os perfis e o ano hidrotérmico de 28/02, e a energia
+    anual integra 8.784 horas. — adotada.
+49. **Monte Carlo por ano** (`src/sim/anos.py`): 2.000 sorteios, semente do estudo, mesmas funções
+    de `src/sim/montecarlo.py` (generalizadas para 365/366 dias sem mudar 2030). 2030 recalculado é
+    idêntico ao do estudo (24.000 linhas, diferença 0). Faixas anuais e mensais alimentam o simulador. — adotada.
+50. **Backtest de 2026** (`src/sim/backtest_2026.py`): jan–out/2026, só horas em que o balanço fecha
+    (6.418 de 7.296); níveis do cenário de 2026 com DC central. Observado "potencial" = intercâmbio +
+    cortes (conceito do simulador). (A) ex-ante, 2.000 sorteios de clima e hidrologia: a importação
+    observada (1,68 TWh) fica no percentil 78 (P5–P95 0,21–2,73). (B) clima ERA5 e hidrologia de 2026,
+    funções de transferência re-treinadas só até 2025-12-31: 0,88 TWh com a regra emulada e 1,25 TWh
+    com o despacho hidráulico observado (subestima 48% e 25%). O M médio de B é 742 MW menor que o
+    observado (eólica potencial −507, MMGD −125, carga +302, conceito de carga API × balanço −419,
+    decisão 41), o que empurraria a importação para cima; a subestimação vem da forma horária: a
+    regra emulada leva mais hidráulica às horas de importação que o despacho real, e os perfis têm
+    menos horas extremas (P95 da importação 976 × 2.305 MW). Reforça a decisão 40: nível absoluto com
+    erro de dezenas de por cento. — fato observado.
+51. **Simulador interativo** (`src/report/simulador.py` → `reports/site/simulador/`): página
+    estática, sem servidor nem dependências externas; o motor em JavaScript espelha o do Python e
+    se autoverifica contra 5 casos de referência (um por ano, inclui 2028; diferença relativa
+    ~3e-14). Insumos quantizados (1e-4 nas formas e CF; 0,1 MW na hidrotérmica). Os sorteios da
+    página usam gerador próprio (semente na URL); as faixas P5–P95 exibidas vêm do Monte Carlo da
+    decisão 49. — adotada.

@@ -1,0 +1,9 @@
+parcela,observado_MWmed,simulado_B_MWmed,diferenca_MWmed,efeito_em_M_MWmed
+carga bruta (com DC),14302.7,14000.6,-302.1,302.1
+MMGD,1820.8,1695.7,-125.1,-125.1
+eólica potencial,14851.7,14344.9,-506.8,-506.8
+solar potencial,3117.7,3119.4,1.7,1.7
+hidráulica,3917.4,3922.7,5.3,5.3
+térmica,648.5,648.5,0.0,0.0
+carga: balanço do ONS × API (decisão 41),,,,-419.3
+total = viés médio de M (B − observado),,,,-742.1

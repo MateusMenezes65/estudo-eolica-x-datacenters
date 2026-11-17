@@ -1,0 +1,35 @@
+{
+ "periodo":[
+  "2026-01-01",
+  "2026-10-31 23:00"
+ ],
+ "horas_periodo":7296,
+ "horas_validas":6418,
+ "cenario_dc":"central",
+ "L_DC_MWmed":112.0,
+ "cenario_eolico":"base",
+ "cap_eol_MW":32163.0,
+ "cap_sol_MW":11841.0,
+ "L_gross_sem_dc_MWmed":14070.0,
+ "MMGD_MWmed":1786.0,
+ "beta_hidro_2026":0.3909886384,
+ "fr_eol":1.0336376246,
+ "fr_sol":1.0008628713,
+ "kA_jan_out":0.9884788085,
+ "kE_jan_out":0.9783851024,
+ "treino_B":{
+  "A0":"2022-01-01..2025-12-31",
+  "E0":"2022-01-01..2025-12-31",
+  "B0":"2024-07-01..2025-12-31",
+  "C0":"2024-07-01..2025-12-31"
+ },
+ "n_sorteios_A":2000,
+ "n_residuos_B":300,
+ "erro_horario_B":{
+  "bias_MW":-742.1045151906,
+  "MAE_MW":1947.6449962725,
+  "RMSE_MW":2498.3321520121,
+  "corr":0.9592076944,
+  "acerto_sinal_%":97.3200373948
+ }
+}

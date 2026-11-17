@@ -1,6 +1,6 @@
 # Data centers e expansão eólica no subsistema Nordeste — balanço horário em 2030
 
-Relatório final gerado por `python -m src.report.final` em 2026-11-16 02:05 UTC.
+Relatório final gerado por `python -m src.report.final` em 2026-11-17 02:43 UTC.
 Os números vêm de tabelas versionadas em `reports/` e `config/`; os poucos valores de análises
 exploratórias trazem a decisão de `docs/decisoes.md` em que estão registrados. Os resultados de 2030 são
 **condicionais a cenários e hipóteses declarados**, não previsões. Margem negativa indica necessidade
@@ -447,3 +447,39 @@ MMGD); EPE, PDE 2035; ONS/EPE/CCEE, notas e workshop do PLAN 2026–2030; IBGE/S
 - **Execução:** `python -m src.pipeline` refaz tudo a partir de `data/raw`. A coleta dos dados brutos
   está no README.
 - **Rastreabilidade:** decisões e hipóteses em `docs/decisoes.md`; estado em `STATUS.md`.
+
+## Anexo — Níveis de cenário por ano, 2026–2029 (simulador interativo)
+
+Os resultados e as conclusões deste relatório são os de 2030. Para o simulador interativo
+(`reports/site/simulador/index.html`, gerado por `python -m src.report.simulador`), os mesmos cenários
+foram definidos para cada ano de 2026 a 2029 com as regras de `config/cenarios_anuais.yaml`
+(`python -m src.sim.trajetorias`; tabela em `reports/sim/trajetorias_2026_2030.csv`):
+
+| | 2026 | 2027 | 2028 | 2029 | 2030 (estudo) |
+|---|---:|---:|---:|---:|---:|
+| Carga sem DC (MWmed) | 14.070 | 14.663 | 15.044 | 15.551 | 16.180 |
+| MMGD (MWmed) | 1.786 | 2.019 | 2.152 | 2.274 | 2.386 |
+| Solar (MW) | 11.841 | 12.504 | 12.900 | 13.295 | 13.500 |
+| Eólica baixa (MW) | 32.163 | 32.250 | 32.250 | 32.250 | 32.250 |
+| Eólica base (MW) | 32.163 | 32.589 | 33.269 | 33.949 | 34.288 |
+| Eólica alta (MW) | 32.163 | 32.589 | 34.969 | 37.349 | 39.388 |
+| Data centers: sem DC (MWmed) | 0 | 0 | 0 | 0 | 0 |
+| Data centers: conservador (MWmed) | 98 | 254 | 542 | 716 | 1.886 |
+| Data centers: central (MWmed) | 112 | 333 | 628 | 813 | 2.098 |
+| Data centers: alto (MWmed) | 126 | 412 | 714 | 976 | 2.753 |
+
+- **Carga sem DC** (dado): carga global do NE na 2ª Revisão Quadrimestral do PLAN 2026–2030 menos a
+  carga de data centers de Rede Básica da mesma revisão no ano (ex.: 2026 = 14.182 − 112).
+- **MMGD** (dado): 2ª RQ do PLAN 2026–2030, NE, base + expansão.
+- **Solar e eólica** (hipótese): capacidade média do ano. Usinas em operação no SIGA (em 2026,
+  ponderadas pela data de entrada); a capacidade em construção entra de forma uniforme entre 2027 e
+  2029 (fração média de 17%, 50% e 83% em 2027, 2028 e 2029) e está toda em
+  operação em 2030, como no cenário do estudo. Eólica baixa = só operação; base = operação +
+  construção; alta = base + expansão indicativa acumulada do PDE 2035 no ano (0; 0; 1,7; 3,4 GW de
+  2026 a 2029), toda no NE. Em 2026 os três cenários eólicos coincidem.
+- **Data centers**: os mesmos componentes dos cenários de 2030 aplicados à 2ª RQ de cada ano
+  (conservador = contratos assinados; central = contratos + 50% dos pareceres; alto = contratos +
+  100% dos pareceres + inventário M3 com a mesma rampa). O parecer de 2026 (rótulo ilegível no slide)
+  é total − contratos = 14 MWmed.
+- 2028 é bissexto: o simulador integra 8.784 horas, com 29/02 repetindo o clima e a hidrologia de 28/02.
+- O simulador traz também um backtest de 2026 com os dados observados de janeiro a outubro.

@@ -1,0 +1,55 @@
+# Trajetórias anuais 2026–2029 para o simulador interativo (anexo do relatório)
+# Pedido do usuário (2026-11-16): avaliar os anos de 2026 a 2030 no simulador interativo, com
+# carga sem DC, MMGD, solar e os cenários eólicos e de data centers de cada ano. Os resultados
+# do estudo continuam sendo os de 2030 (config/cenarios.yaml, inalterado): para 2030 as regras
+# abaixo reproduzem exatamente os valores daquele arquivo (teste em tests/test_anos.py).
+# `tipo: dado` = valor publicado; `tipo: hipotese` = premissa de cenário (regra 1).
+
+anos: [2026, 2027, 2028, 2029, 2030]
+ano_referencia: 2030          # valores de 2030 vêm de config/cenarios.yaml e config/cenarios_dc.yaml
+
+carga:
+  regra: "carga global do NE (2ª RQ do PLAN 2026-2030, slide 79) − carga de DC de Rede Básica da mesma revisão (slide 71)"
+  tipo: dado
+  fontes: [config/plan_2rq_ne.csv, config/dc_trajetoria_oficial_ne.csv]
+
+mmgd:
+  regra: "MMGD média do NE, base + expansão (2ª RQ do PLAN 2026-2030, slide 60)"
+  tipo: dado
+  fonte: config/plan_2rq_ne.csv
+
+capacidade:
+  # SIGA (fotografia 2026-11-01): só usinas em operação têm data de entrada; projetos em
+  # construção não têm data prevista (decisão 24). Capacidade = média anual (MW), constante no ano.
+  fonte_siga: data/raw/aneel/siga/siga-empreendimentos-geracao.csv
+  ufs_subsistema_ne: [AL, BA, CE, PB, PE, PI, RN, SE]
+  operacao_2026:
+    regra: "usinas em operação ponderadas pela fração de 2026 após a data de entrada (entradas de 2026 com data no SIGA)"
+    tipo: dado
+  construcao:
+    regra: "entrada uniforme entre 2027-01-01 e 2029-12-31; média anual da fração em operação"
+    inicio: "2027-01-01"
+    fim: "2030-01-01"          # tudo em operação em 2030, como no cenário de 2030
+    tipo: hipotese
+  solar: "operação + construção × fração do ano"
+  eolica:
+    baixa: "só usinas em operação"
+    base: "operação + construção × fração do ano"
+    alta: "base + expansão indicativa eólica acumulada do PDE 2035 no ano (Figura 3-23), toda no NE"
+  pde_indicativa: {variavel: "expansao_indicativa_acumulada_eólica", escopo: SIN, cenario: referencia,
+                   fonte: config/pde2035_extraido.csv, tipo: hipotese}
+
+data_centers:
+  regra: "componentes de config/cenarios_dc.yaml aplicados à 2ª RQ do ano; inventário M3 com a mesma rampa (entrada = data da informação + 36 meses, rampa de 24 meses, utilização 0,75)"
+  parecer_2026: "total − contratos assinados (112 − 98 = 14 MWmed; rótulo ilegível no slide 71, já registrado em dc_trajetoria_oficial_ne.csv)"
+
+backtest_2026:
+  periodo: ["2026-01-01", "2026-10-31 23:00"]   # meses completos; novembro é preliminar (decisão 11)
+  cenario_dc: central                            # a carga global do PLAN de 2026 inclui os DC da 2ª RQ
+  cenario_eolico: base
+  excluir_horas_anomalas: true                    # balanço que não fecha em jan–mai/2026 (decisão 16)
+  n_sorteios_residuos: 300
+
+simulador:
+  n_sorteios_mc: 2000           # distribuições de referência por ano (mesma semente do Monte Carlo de 2030)
+  semente_navegador: 20261116   # sorteio inicial exibido na página

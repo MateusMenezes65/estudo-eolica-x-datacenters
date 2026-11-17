@@ -20,7 +20,9 @@ git clone https://github.com/MateusMenezes65/estudo-eolica-x-datacenters.git
 O repositório contém código, configuração, manifesto de fontes, tabelas de
 resultado, figuras e relatórios (`reports/`). Para apenas ler os resultados,
 abra no navegador `reports/site/final/index.html` ou
-`reports/site/tecnico/index.html` (ou leia os `.md` em `reports/`).
+`reports/site/tecnico/index.html` (ou leia os `.md` em `reports/`). Para explorar
+os anos de 2026 a 2030 hora a hora, abra `reports/site/simulador/index.html`
+(simulador interativo; ver a seção própria abaixo).
 
 **Dados (`data/`, cerca de 1,2 GB):** não ficam no Git (há arquivos acima de
 100 MB). Estão como anexos da Release
@@ -41,7 +43,9 @@ versão dos dados, gere os pacotes com
 ## Ambiente
 
 - Windows 11, Python 3.14.1 (único Python instalado; todas as dependências têm
-  wheels para 3.14 — ver `requirements.txt` e `requirements.lock.txt`).
+  wheels para 3.14 — ver `requirements.txt` e `requirements.lock.txt`). Em outra
+  máquina o projeto também roda com Python 3.13.7 e as mesmas versões fixadas
+  (`py -3.13 -m venv .venv`; testes aprovados e Monte Carlo de 2030 idêntico).
 - Ambiente virtual dentro do projeto:
 
 ```bash
@@ -175,10 +179,44 @@ Validação retrospectiva do simulador contra a importação observada em 2022�
 .venv/Scripts/python.exe -m src.report.final
 ```
 
+## Simulador interativo 2026–2030
+
+Página estática (sem servidor e sem internet): barra de anos de 2026 a 2030, M(t) horário ao
+longo do ano, resorteio do ano meteorológico e do ano hidrotérmico (regra hidráulica emulada),
+cenários eólico e de data centers de cada ano e, em 2026, backtest contra o balanço observado de
+janeiro a outubro. Abra `reports/site/simulador/index.html` no navegador (Chrome/Edge 80+,
+Firefox 113+ ou Safari 16.4+; `dados.js` precisa estar na mesma pasta). O estado fica na URL
+(`#ano=2028&eol=base&dc=central&...`), o que permite compartilhar um sorteio. Os resultados do
+estudo continuam sendo os de 2030; os níveis de 2026–2029 estão no anexo dos relatórios.
+
+Regenerar (depois do Monte Carlo de 2030):
+
+```bash
+.venv/Scripts/python.exe -m src.sim.trajetorias
+```
+
+```bash
+.venv/Scripts/python.exe -m src.sim.anos
+```
+
+```bash
+.venv/Scripts/python.exe -m src.sim.backtest_2026
+```
+
+```bash
+.venv/Scripts/python.exe -m src.report.simulador
+```
+
+Regras dos níveis por ano: `config/cenarios_anuais.yaml`; tabela em
+`reports/sim/trajetorias_2026_2030.csv`; backtest em `reports/sim/backtest_2026*.csv` e
+`reports/figures/b26_backtest_2026.png`. A página confere o próprio motor contra casos de
+referência calculados em Python (rodapé "Autoverificação do motor").
+
 ## Pipeline completo a partir de `data/raw`
 
 Roda, em ordem, integração, auditoria, PDE, features, clima, backtesting, cortes, simulador
-determinístico, perfis sintéticos, Monte Carlo, validação retrospectiva e relatórios (cerca de 20 min):
+determinístico, perfis sintéticos, Monte Carlo, validação retrospectiva, trajetórias e Monte Carlo
+de 2026–2030, backtest de 2026, relatórios (Markdown e HTML) e simulador interativo (cerca de 25 min):
 
 ```bash
 .venv/Scripts/python.exe -m src.pipeline
@@ -208,18 +246,18 @@ grandes (> 50 MB por conjunto) foram feitos com autorização do usuário.
 
 | Caminho | Conteúdo |
 | --- | --- |
-| `config/` | fontes (`sources_*.yaml`), pontos meteorológicos, calendário NE, população UF, cenários de 2030 (`cenarios*.yaml`), inventário e trajetória oficial de data centers, valores do PDE e do PLAN |
+| `config/` | fontes (`sources_*.yaml`), pontos meteorológicos, calendário NE, população UF, cenários de 2030 (`cenarios*.yaml`), regras dos anos 2026–2029 (`cenarios_anuais.yaml`), inventário e trajetória oficial de data centers, valores do PDE e do PLAN |
 | `src/collect/` | coletores (ONS CKAN e API de carga, ANEEL, EPE, IBGE, Open-Meteo, calendário) e manifesto |
 | `src/ingest/` | leitores padronizados (tipos, fuso, agregação 30 min → hora) |
 | `src/build/` | base horária integrada do NE (`data/interim/ne_hourly.parquet`) |
 | `src/audit/` | relatório de qualidade, tabelas e figuras |
 | `src/features/` | base analítica horária e clima 1995–2026 com pesos fixos da frota |
 | `src/models/` | backtesting de curto prazo, funções de transferência e classificador de cortes |
-| `src/sim/` | simulador determinístico, perfis sintéticos, Monte Carlo e validação retrospectiva |
-| `src/report/` | relatório final, relatório técnico, figuras didáticas e versão HTML |
+| `src/sim/` | simulador determinístico, perfis sintéticos, Monte Carlo, validação retrospectiva, trajetórias e Monte Carlo de 2026–2030, backtest de 2026 |
+| `src/report/` | relatório final, relatório técnico, figuras didáticas, versão HTML, anexo 2026–2029 e simulador interativo (`simulador.py` + `simulador_app.html`) |
 | `tests/` | testes de unidades, tempo, junções e balanço |
 | `docs/` | plano orientador, manifesto, decisões |
-| `reports/` | `relatorio_tecnico.md` (base para apresentação), `relatorio_final.md`, `quality/relatorio_qualidade.md`, `mc/`, `sim/`, `models/`, `tables/`, `figures/` |
+| `reports/` | `relatorio_tecnico.md` (base para apresentação), `relatorio_final.md`, `quality/relatorio_qualidade.md`, `mc/`, `sim/`, `models/`, `tables/`, `figures/`, `site/` (HTML dos relatórios e `site/simulador/`) |
 
 ## Convenções principais
 

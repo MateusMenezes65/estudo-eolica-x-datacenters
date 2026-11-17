@@ -80,16 +80,18 @@ class Insumos:
         self.res = arr                                   # (ndias, 24, 4)
         self.dia_ok = ~np.isnan(arr).any(axis=(1, 2))
         self.doy_pool = dias.day_of_year.to_numpy()
+        self.nd = 365                                    # dias do ano-alvo (2030; 366 em anos bissextos)
 
 
 def candidatos(ins: Insumos, bloco: int):
     """Para cada bloco do ano-alvo: (dia inicial k, nº de dias L, inícios candidatos no pool)."""
     nd = len(ins.dia_ok)
+    ndias = getattr(ins, "nd", 365)
     starts_ok = np.array([ins.dia_ok[j:j + bloco].all() and j + bloco <= nd for j in range(nd)])
-    for k in range(0, 365, bloco):
+    for k in range(0, ndias, bloco):
         doy_alvo = k + 1
         dist = np.abs(((ins.doy_pool - doy_alvo) + 182) % 365 - 182)
-        yield k, min(bloco, 365 - k), np.flatnonzero(starts_ok & (dist <= JANELA_DOY))
+        yield k, min(bloco, ndias - k), np.flatnonzero(starts_ok & (dist <= JANELA_DOY))
 
 
 def centro_residuos(ins: Insumos, bloco: int) -> np.ndarray:
@@ -103,7 +105,7 @@ def centro_residuos(ins: Insumos, bloco: int) -> np.ndarray:
     tot = np.zeros(dm.shape[1])
     for _, L, cand in candidatos(ins, bloco):
         tot += sum(dm[cand + i] for i in range(L)).mean(axis=0)
-    return tot / 365
+    return tot / getattr(ins, "nd", 365)
 
 
 def sortear(ins: Insumos, n: int, bloco: int, semente: int) -> dict:
@@ -111,7 +113,7 @@ def sortear(ins: Insumos, n: int, bloco: int, semente: int) -> dict:
     rng = np.random.default_rng(semente)
     w = rng.integers(0, len(ins.anos), n)
     h = rng.integers(0, len(ins.anos_h), n)
-    dias = np.empty((n, 365), dtype=int)
+    dias = np.empty((n, getattr(ins, "nd", 365)), dtype=int)
     for k, L, cand in candidatos(ins, bloco):
         j = rng.choice(cand, n)
         dias[:, k:k + L] = j[:, None] + np.arange(L)[None, :]
@@ -127,7 +129,7 @@ def componentes(ins: Insumos, sd: dict, idx: np.ndarray, c: dict, opc: dict | No
     renormalizar; só para medir o efeito da correção), `L_gross` e `MMGD` (níveis em MWmed).
     """
     opc = opc or {}
-    r = ins.res[sd["dias"][idx]].reshape(len(idx), 8760, 4)
+    r = ins.res[sd["dias"][idx]].reshape(len(idx), -1, 4)
     if opc.get("sem_residuo"):
         r = np.zeros_like(r)
     elif not opc.get("residuo_bruto"):
@@ -172,23 +174,23 @@ def hidraulica(ins: Insumos, h: np.ndarray, nl: np.ndarray, modo: str) -> np.nda
     if modo == "historico_sorteado":
         return hid
     if modo == "plana":
-        return np.repeat(hid.mean(axis=1, keepdims=True), 8760, axis=1)
-    n = len(h)
-    Ed = hid.reshape(n, 365, 24).mean(axis=2, keepdims=True)
-    dev = nl.reshape(n, 365, 24) - nl.reshape(n, 365, 24).mean(axis=2, keepdims=True)
-    lo, hi = ins.hmin[h].reshape(n, 365, 24), ins.hmax[h].reshape(n, 365, 24)
+        return np.repeat(hid.mean(axis=1, keepdims=True), hid.shape[1], axis=1)
+    n, nd = len(h), hid.shape[1] // 24
+    Ed = hid.reshape(n, nd, 24).mean(axis=2, keepdims=True)
+    dev = nl.reshape(n, nd, 24) - nl.reshape(n, nd, 24).mean(axis=2, keepdims=True)
+    lo, hi = ins.hmin[h].reshape(n, nd, 24), ins.hmax[h].reshape(n, nd, 24)
     x = np.clip(Ed + ins.beta[h][:, None, None] * dev, lo, hi)
     # devolve a energia diária cortada pelos limites às horas que ainda têm folga; a energia
     # diária está sempre dentro dos limites mensais do próprio ano, então a correção converge
     for _ in range(30):
         falta = Ed - x.mean(axis=2, keepdims=True)        # MWmed do dia ainda não alocados
-        pend = np.abs(falta[..., 0]) > 0.05               # dias que ainda não fecham (n, 365)
+        pend = np.abs(falta[..., 0]) > 0.05               # dias que ainda não fecham (n, nd)
         if not pend.any():
             break
         xp, fp, lop, hip = x[pend], falta[pend], lo[pend], hi[pend]
         livre = np.where(fp > 0, xp < hip - 1e-9, xp > lop + 1e-9)
         x[pend] = np.clip(xp + np.where(livre, fp * 24 / np.maximum(livre.sum(axis=1, keepdims=True), 1), 0.0), lop, hip)
-    return x.reshape(n, 8760)
+    return x.reshape(n, nd * 24)
 
 
 def max_run(b: np.ndarray) -> np.ndarray:
