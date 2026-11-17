@@ -298,4 +298,5 @@ emulada, e identificar se a subestimação é esperada ou vem de erro de metodol
     Causa exata não isolada (candidatas: pesos espaciais fixos da frota aplicados ao ERA5, geração
     potencial em anos de corte alto, indisponibilidades fora da GNRa). Consequência: a importação de
     2030 tende a estar subestimada. Correção possível (quantile mapping do CF eólico ou resíduos
-    condicionados ao nível previsto) não aplicada. — fato observado; correção pendente do usuário.
+    condicionados ao nível previsto) não aplicada. — fato observado; em 2026-11-17 o usuário decidiu não
+    corrigir por enquanto (limitação mantida e declarada nos relatórios).

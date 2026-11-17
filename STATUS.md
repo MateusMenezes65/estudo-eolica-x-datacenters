@@ -123,10 +123,10 @@ Todas registradas em `docs/decisoes.md` (1–53). As do usuário são: L_base = 
 
 Em 2026-11-15 o usuário manteve o CDV_ACESSOS no cenário alto (decisão 44) e a regra hidráulica emulada como caso central (decisão 45).
 
-Pendências do usuário:
-- corrigir ou não a cauda de pouco vento da eólica simulada (decisão 53; por exemplo, quantile mapping do CF ou resíduos condicionados ao nível previsto). Mudaria os resultados de 2030.
+Em 2026-11-17 o usuário adotou o β da regra hidráulica sobre a carga líquida potencial no caso central (decisão 52) e decidiu não corrigir, por enquanto, a cauda de pouco vento da eólica simulada (decisão 53). A limitação segue declarada nos relatórios: a importação de 2030 tende a estar subestimada.
 
-Em 2026-11-17 o usuário adotou o β da regra hidráulica sobre a carga líquida potencial no caso central (decisão 52).
+Pendências do usuário:
+- nenhuma decisão bloqueante. Em aberto, para quando o usuário quiser retomar: testar a correção da cauda de pouco vento (decisão 53; por exemplo, quantile mapping do CF ou resíduos condicionados ao nível previsto), primeiro como sensibilidade. Mudaria os resultados de 2030.
 
 Outras pendências, não bloqueantes: A regra de entrada da capacidade em construção nos anos 2026–2029 (uniforme em 2027–2029; decisão 47) foi escolhida por falta de datas no SIGA e pode ser trocada em `config/cenarios_anuais.yaml`.
 
