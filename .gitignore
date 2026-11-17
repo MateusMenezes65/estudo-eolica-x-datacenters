@@ -41,7 +41,7 @@ Thumbs.db
 .DS_Store
 .vscode/
 .idea/
-reports/site/
+# reports/site/ é versionado: HTML do relatório para quem não roda o pipeline
 
 # Logs de execução
 logs/
