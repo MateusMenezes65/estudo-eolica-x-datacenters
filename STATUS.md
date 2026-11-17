@@ -1,21 +1,21 @@
 # STATUS — Estudo Eólica × Data Centers (NE, 2030)
 
-Última atualização: 2026-11-17 (β da regra hidráulica sobre a carga líquida potencial adotado; resultados de 2030 regenerados) · Etapas concluídas: **Dia 1** (dados e auditoria), **Dia 2** (modelos, cenários, simulador determinístico), **Dia 3** (Monte Carlo, sensibilidades e relatório final) e o **simulador interativo** pedido pelo usuário.
+Última atualização: 2026-11-17 (β da regra hidráulica sobre a carga líquida potencial adotado; resultados de 2030 regenerados; revisão de coerência dos relatórios final e técnico) · Etapas concluídas: **Dia 1** (dados e auditoria), **Dia 2** (modelos, cenários, simulador determinístico), **Dia 3** (Monte Carlo, sensibilidades e relatório final) e o **simulador interativo** pedido pelo usuário.
 
 **Entregas:**
 - [reports/relatorio_final.md](reports/relatorio_final.md): relatório final, gerado por `python -m src.report.final`.
-- [reports/relatorio_tecnico.md](reports/relatorio_tecnico.md): relatório técnico passo a passo para o mentor, base recomendada para apresentação, com 31 figuras (18 delas didáticas, de `src/report/figuras_didaticas.py`), gerado por `python -m src.report.tecnico`.
+- [reports/relatorio_tecnico.md](reports/relatorio_tecnico.md): relatório técnico passo a passo para o mentor, base recomendada para apresentação, com 34 figuras (18 delas didáticas, de `src/report/figuras_didaticas.py`), gerado por `python -m src.report.tecnico`.
 - Versões HTML: `python -m src.report.html --doc final|tecnico`.
-- [reports/site/simulador/index.html](reports/site/simulador/index.html): simulador interativo 2026–2030 (página estática), gerado por `python -m src.report.simulador`. Os relatórios ganharam só um anexo com os níveis de 2026–2029; o restante é idêntico.
+- [reports/site/simulador/index.html](reports/site/simulador/index.html): simulador interativo 2026–2030 (página estática), gerado por `python -m src.report.simulador`. Os relatórios ganharam um anexo com os níveis de 2026–2029; o técnico também traz o backtest de 2026 e o diagnóstico da subestimação (seção 7.5), resumidos na seção 4.4 do final.
 
 Os números dos dois relatórios vêm das tabelas do pipeline; valores de análises exploratórias citam a decisão em que estão registrados.
 
 ## 1. Como reproduzir
 
-- Ambiente: Python 3.14.1 em `.venv` (`requirements.lock.txt`). Na máquina usada em 2026-11-16 só havia Python 3.13.7: `.venv` criado com ele e as mesmas versões fixadas; testes aprovados e Monte Carlo de 2030 recalculado idêntico ao do estudo.
-- `python -m src.pipeline` refaz tudo a partir de `data/raw`, em cerca de 20 min. A coleta dos dados brutos está no README.
+- Ambiente: `.venv` com as versões de `requirements.lock.txt`. A execução original usou Python 3.14.1; na máquina usada desde 2026-11-16 só há Python 3.13.7, e o `.venv` foi criado com ele e as mesmas versões fixadas (testes aprovados; Monte Carlo de 2030 recalculado idêntico ao do estudo).
+- `python -m src.pipeline` refaz tudo a partir de `data/raw`, em cerca de 25 min (Monte Carlo de 2030: ~5 min). A coleta dos dados brutos está no README.
 - Sementes: 20261111 (modelos) e 20261112 (Monte Carlo).
-- Testes: `pytest -q` (41 casos coletados; 39 funções de teste, que é o número citado no relatório técnico).
+- Testes: `pytest -q` (43 casos coletados, contando os parametrizados; o relatório técnico cita a contagem do pytest).
 - Git local com identidade só neste repositório. Nenhum dado é versionado; só código, configuração, manifesto e tabelas de resultado.
 - Remoto (2026-11-16, a pedido do usuário): repositório **privado** `github.com/MateusMenezes65/estudo-eolica-x-datacenters`, branch `master`. Colegas entram como colaboradores; instruções de clone no README. `logs/` passou a ser ignorado. `reports/site/` (HTML dos relatórios final e técnico) passou a ser versionado. Os dados seguem fora do Git e foram publicados como anexos da Release `dados-2026-11-16` (zips de `data/raw`, `data/interim` e `data/processed` + SHA256SUMS), gerados e restaurados por `python -m src.tools.pacote_dados empacotar|extrair`.
 
@@ -58,6 +58,11 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
   - Módulo `src/sim/diagnostico_importacao.py` (etapa `diagnostico` do pipeline): beta por ano sobre carga líquida realizada × potencial, validação retrospectiva com os dois, substituição de formas 2022–2026 (modelos sem o próprio ano) e efeito em 2030.
   - `src/sim/backtest_2026.py` compara o beta adotado com o anterior; `src/report/backtest_tecnico.py` gera os trechos do relatório a partir das tabelas.
 - **β adotado no caso central (2026-11-17, decisão do usuário; decisão 52).** `montecarlo.beta_regra` estima o coeficiente da regra hidráulica sobre a carga líquida potencial; o anterior virou a sensibilidade "hidraulica: beta anterior (carga liquida realizada)". Pipeline regenerado a partir do Monte Carlo (`python -m src.pipeline --desde montecarlo`): Monte Carlo de 2030, validação retrospectiva, anos 2026–2030, backtest, diagnóstico, relatórios final e técnico (Markdown e HTML) e simulador.
+- **Revisão de coerência dos relatórios (2026-11-17).** Os relatórios regenerados a partir das tabelas atuais só mudavam na data, ou seja, os números já vinham do pipeline atual. Números digitados no código conferidos contra as tabelas; figuras dependentes do β conferidas. Corrigidos e completados:
+  - relatório final: limitação da regra hidráulica desatualizada ("estimada sobre a geração já cortada"); limitação da eólica (decisão 53) incluída; backtest de 2026 e diagnóstico resumidos na seção 4.4 (figuras `mc4` e `b26` também no HTML); erro do simulador e conclusão 5 com os valores e o sentido do viés (subestimação), no lugar de "dezenas de por cento";
+  - relatório técnico: correlação da regra hidráulica calculada (0,63–0,70; antes "~0,7"), agora gravada em `reports/sim/diag_beta_hidro.csv` por `montecarlo.corr_regra`; tabela do pipeline com as etapas novas; atribuição da subestimação de 2024 atualizada; ressalva sobre a métrica do quintil de menos vento (condicionada ao observado) e P5 como evidência principal; decisão 53 registrada como limitação e nas decisões do usuário; contagem de testes pelo pytest (43, com o teste novo da correlação); ambiente Python e versionamento de `data/` via Git LFS;
+  - ambos: versão do Python (3.14.1 na execução original, 3.13.7 desde 2026-11-16).
+  - Comandos: `python -m src.pipeline --desde diagnostico`; `pytest -q` (43 aprovados).
 
 ## 3. Resultados principais (2030, eólica base)
 
@@ -82,8 +87,8 @@ Regenerados em 2026-11-17 com o β da regra hidráulica sobre a carga líquida p
   - β anterior da regra (carga já cortada): −0,15 TWh;
   - atraso de 12 meses dos DC: −1,5 TWh;
   - eólica baixa/alta: +0,7 / −1,4 TWh.
-- **Efeito dos DC nessas sensibilidades:** sempre positivo, de +1,7 a +2,9 TWh, exceto com o atraso.
-- **Confiança:** o nível absoluto carrega erro de dezenas de por cento (validação retrospectiva); o efeito pareado dos DC é o resultado mais robusto.
+- **Efeito dos DC nessas sensibilidades:** sempre positivo, de +1,7 a +2,8 TWh, exceto com o atraso.
+- **Confiança:** com os níveis observados, o simulador erra a importação anual de −20% a +8% em 2022–2025 e −33% no backtest de 2026; nos anos da frota recente o erro é sempre de subestimação, então o nível de 2030 tende a estar subestimado (decisão 53). O efeito pareado dos DC é o resultado mais robusto.
 
 **Anos intermediários (simulador; não alteram as conclusões).** Importação média, DC central e eólica base: 1,8 (2026), 2,3 (2027), 2,7 (2028), 3,1 (2029) e 5,2 TWh (2030). O salto em 2030 acompanha a carga de DC da 2ª RQ (813 → 2.098 MWmed).
 
@@ -115,7 +120,7 @@ Regenerados em 2026-11-17 com o β da regra hidráulica sobre a carga líquida p
 - Cenários eólicos sem datas do SIGA.
 - Não há limite de importação documentado.
 - Anos 2026–2029: a entrada da capacidade em construção (uniforme em 2027–2029) é hipótese; o SIGA não traz datas previstas.
-- Regra hidráulica com β inconsistente (decisão 52) e forma eólica sem as calmarias da frota recente (decisão 53): a importação de 2030 tende a estar subestimada.
+- Limitação declarada do modelo (decisão 53; correção adiada pelo usuário em 2026-11-17): a eólica simulada não tem as calmarias da frota recente (P5 horário 314–473 MW acima do observado em 2024–2026), então a importação de 2030 tende a estar subestimada. O β inconsistente da regra hidráulica (decisão 52) já foi corrigido.
 
 ## 5. Decisões
 

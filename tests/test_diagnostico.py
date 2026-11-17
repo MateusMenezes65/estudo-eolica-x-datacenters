@@ -33,6 +33,18 @@ def test_beta_adotado_recupera_o_coeficiente_e_o_anterior_exagera():
     assert beta_regra(g, potencial=False) > 0.33
 
 
+def test_correlacao_da_regra():
+    from src.sim.montecarlo import corr_regra
+    g = serie_com_corte(0.3)
+    # sem ruído na hidráulica, a resposta à carga líquida potencial é exata
+    assert corr_regra(g, potencial=True) == pytest.approx(1.0, abs=1e-12)
+    # com ruído, a correlação cai; medida sobre a carga já cortada, cai mais
+    r = np.random.default_rng(1)
+    g["hid"] = g.hid + r.normal(0, 600, len(g))
+    assert 0.5 < corr_regra(g, potencial=True) < 1.0
+    assert corr_regra(g, potencial=False) < corr_regra(g, potencial=True)
+
+
 @pytest.mark.skipif(not (PROCESSED / "ne_features_h.parquet").exists(), reason="sem dados processados")
 def test_insumos_usam_beta_adotado():
     from src.sim import montecarlo as mc

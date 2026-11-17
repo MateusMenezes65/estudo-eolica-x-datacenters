@@ -47,14 +47,13 @@ COLS_BETA = ["interc", "hid", "ter", "eol_bal", "sol_central", "ger_eol_fc", "po
              "L_net", "MMGD"]
 
 
-def beta_regra(g: pd.DataFrame, potencial: bool = True) -> float:
-    """Coeficiente da regra hidráulica emulada para um ano de dados horários observados (índice = t).
+def desvios_regra(g: pd.DataFrame, potencial: bool = True) -> tuple[pd.Series, pd.Series]:
+    """Desvios intradiários (em relação à média do dia) da carga líquida e da hidráulica, nas horas com ambos.
 
-    Regressão do desvio intradiário da hidráulica sobre o desvio intradiário da carga líquida de MMGD
-    menos eólica e solar. Caso central (decisão 52): eólica e solar POTENCIAIS (geração das usinas com FC
-    mais o corte apurado, levadas à frota inteira pela razão balanço / usinas com FC nas horas válidas),
-    que é a grandeza a que a regra é aplicada no simulador. `potencial=False` reproduz o coeficiente
-    anterior (geração realizada, já cortada; decisões 34 e 39).
+    Carga líquida = carga líquida de MMGD menos eólica e solar. Caso central (decisão 52): eólica e solar
+    POTENCIAIS (geração das usinas com FC mais o corte apurado, levadas à frota inteira pela razão
+    balanço / usinas com FC nas horas válidas), que é a grandeza a que a regra é aplicada no simulador.
+    `potencial=False` usa a geração realizada, já cortada (versão anterior; decisões 34 e 39).
     """
     if potencial:
         v = g[g[COLS_BETA].notna().all(axis=1) & (g.anomalia_balanco.fillna(1) == 0)]
@@ -67,7 +66,20 @@ def beta_regra(g: pd.DataFrame, potencial: bool = True) -> float:
     dh = g.hid - g.hid.groupby(d).transform("mean")
     dn = nl - nl.groupby(d).transform("mean")
     ok = dh.notna() & dn.notna()
-    return float(np.polyfit(dn[ok], dh[ok], 1)[0])
+    return dn[ok], dh[ok]
+
+
+def beta_regra(g: pd.DataFrame, potencial: bool = True) -> float:
+    """Coeficiente da regra hidráulica emulada para um ano de dados horários observados (índice = t):
+    regressão do desvio intradiário da hidráulica sobre o da carga líquida (ver `desvios_regra`)."""
+    dn, dh = desvios_regra(g, potencial)
+    return float(np.polyfit(dn, dh, 1)[0])
+
+
+def corr_regra(g: pd.DataFrame, potencial: bool = True) -> float:
+    """Correlação entre os desvios intradiários da hidráulica e da carga líquida (aderência da regra)."""
+    dn, dh = desvios_regra(g, potencial)
+    return float(np.corrcoef(dn, dh)[0, 1])
 
 
 class Insumos:

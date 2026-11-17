@@ -1,6 +1,6 @@
 # Data centers e expansão eólica no subsistema Nordeste — balanço horário em 2030
 
-Relatório final gerado por `python -m src.report.final` em 2026-11-17 03:28 UTC.
+Relatório final gerado por `python -m src.report.final` em 2026-11-17 04:51 UTC.
 Os números vêm de tabelas versionadas em `reports/` e `config/`; os poucos valores de análises
 exploratórias trazem a decisão de `docs/decisoes.md` em que estão registrados. Os resultados de 2030 são
 **condicionais a cenários e hipóteses declarados**, não previsões. Margem negativa indica necessidade
@@ -41,6 +41,9 @@ de importação do restante do SIN, **não** déficit de suprimento.
   importação anual entre -20% e +8% com a regra
   hidráulica do caso central (seção 4.4). O nível absoluto de 2030 carrega um erro dessa ordem; as
   diferenças pareadas entre cenários variam menos.
+  - Nos anos da frota recente (2024–2026) o erro é sempre de subestimação: a
+    eólica simulada tem poucas horas de pouco vento (limitação declarada do modelo, seção 6). O nível de
+    2030 tende, portanto, a estar **subestimado**.
 
 ## 1. Pergunta e recorte
 
@@ -190,7 +193,8 @@ o da solar a 24 h.
   - frota recente (treino até 2025-12, teste em 2026): MAE 0,044 e viés -0,014;
   - correlação horária com o observado em 2022–2025: 0,96–0,98;
   - com os resíduos, o desvio-padrão horário do sintético reproduz o observado
-    (0,184 contra 0,183 em 2025).
+    (0,184 contra 0,183 em 2025), mas não a cauda de
+    pouco vento da frota recente (seção 4.4).
 - **Diferença de nível em 2022–2023.** O CF médio sintético desses anos é maior que o observado
   (0,426 contra 0,408 em 2022). Isso reflete a frota atual,
   com curva de potência 5–10% maior nas faixas de vento alto (decisão 20).
@@ -237,8 +241,7 @@ os cenários de 2030.
   - Em 2025, 0,37 TWh de corte eólico
     ocorreram em horas de importação. O simulador usa a geração potencial e não representa esses cortes.
   - Em 2024 esse corte foi de 0,02 TWh,
-    então a subestimação daquele ano tem outra origem. O diagnóstico do relatório técnico (seção 7.5)
-    aponta a forma eólica simulada, com poucas horas de pouco vento na frota recente.
+    então a subestimação daquele ano tem outra origem: a forma eólica simulada (abaixo).
 - **Picos.** Com a regra, o pico simulado difere do observado em
   -1,1 a +0,1 GW; com o despacho observado, em
   +0,0 a +1,2 GW.
@@ -247,6 +250,27 @@ os cenários de 2030.
   nos dois lados da comparação e variam menos entre hipóteses (seção 5.2).
 
 Figura: `reports/figures/mc4_backcast.png`.
+
+**Backtest de 2026 e diagnóstico** (`src/sim/backtest_2026.py`, `src/sim/diagnostico_importacao.py`;
+detalhes na seção 7.5 do relatório técnico). O cenário de 2026 foi comparado ao balanço observado de
+janeiro a outubro, nas horas em que o balanço do ONS fecha.
+- **Ex-ante.** A importação observada (1,68 TWh) cai no percentil 74 da
+  distribuição do Monte Carlo de 2026 (P5–P95 0,21–2,90 TWh).
+- **Com o clima e a hidrologia de 2026** (modelos treinados só até 2025), o simulador dá
+  1,13 TWh (-33%).
+- **Erro de método, corrigido (decisão 52).** O coeficiente da regra hidráulica era estimado sobre a carga
+  líquida já cortada e aplicado à potencial, o que exagerava a resposta da hidráulica nos anos de corte
+  alto. Com a correção, a importação central de 2030 passou de 5,04 para
+  5,18 TWh e o efeito dos data centers, de 2,25 para 2,29 TWh.
+  As conclusões não mudam.
+- **Limitação do modelo, não corrigida (decisão 53).** A eólica simulada tem poucas horas de pouco vento
+  na frota recente: em 2024–2026, o P5 horário da eólica simulada (com os
+  resíduos) fica 314–473 MW acima do observado.
+  Usar a forma eólica observada aumenta a importação desses anos em 0,27–0,50 TWh.
+  A correção ficou para depois, por decisão do usuário; por isso a importação de 2030 tende a estar
+  subestimada.
+
+Figura: `reports/figures/b26_backtest_2026.png`.
 
 ## 5. Resultados para 2030
 
@@ -374,10 +398,20 @@ por isso difere ligeiramente da tabela 5.1.
 - **Sem rede.** Excedente regional não é corte. Não há representação da rede interna do NE, das
   restrições locais nem das restrições externas além dos limites agregados. Cortes por restrição de rede
   em horas de importação aumentam a importação real e também ficam de fora.
-- **Erro do simulador.** Nos anos observados, a importação anual simulada difere da real em dezenas de
-  por cento, com sinal que muda de ano para ano (seção 4.4).
-- **Despacho hidrotérmico.** A regra emulada não otimiza o sistema e foi estimada sobre a geração já
-  cortada; a térmica é histórica. A hidrologia do São Francisco é amostrada só em 2022–2025.
+- **Erro do simulador.** Com os níveis observados, a importação anual simulada erra de
+  -20% a +8% em 2022–2025 e
+  -33% no backtest de 2026 (seção 4.4).
+- **Eólica simulada com poucas horas de pouco vento (limitação do modelo, decisão 53).** As funções de
+  transferência preveem médias condicionais, e os resíduos, sorteados sem relação com o vento da hora,
+  repõem a variância média, mas não as calmarias da frota recente. Em 2024–2026,
+  com as funções de transferência re-treinadas sem o próprio ano, isso deixa a importação simulada
+  13% a 45% abaixo da observada, e a importação de 2030
+  tende a estar subestimada. A causa exata não foi isolada. A correção
+  (por exemplo, *quantile mapping* do CF eólico ou resíduos condicionados ao vento previsto) ficou para
+  uma etapa posterior, por decisão do usuário.
+- **Despacho hidrotérmico.** A regra emulada não otimiza o sistema; seu coeficiente é estimado sobre a
+  carga líquida potencial, a mesma a que é aplicado (decisão 52). A térmica é histórica. A hidrologia do
+  São Francisco é amostrada só em 2022–2025.
 - **Nível de carga.** A forma horária vem da API de carga do ONS e o nível, do PLAN. Em 2025 a carga
   global da API (13.623 MWmed) é 1,3% maior que a do PLAN
   (13.445). Com o nível da API, a importação média mudaria
@@ -415,8 +449,9 @@ por isso difere ligeiramente da tabela 5.1.
 4. **A incerteza climática e operacional é do mesmo tamanho que as escolhas de cenário.** Por isso os
    resultados devem ser lidos como distribuições condicionais e diferenças pareadas, não como um número
    pontual.
-5. **O efeito dos data centers é mais confiável que o nível.** A validação retrospectiva mostra erro de
-   dezenas de por cento no nível anual da importação, enquanto o efeito pareado fica entre
+5. **O efeito dos data centers é mais confiável que o nível.** Na validação retrospectiva, o nível anual
+   da importação erra de -20% a +8%, e nos anos da
+   frota recente sempre para baixo; o nível de 2030 tende a estar subestimado. O efeito pareado fica entre
    +1,7 e +2,8 TWh/ano em todas as hipóteses testadas, exceto
    o atraso.
 
@@ -445,8 +480,9 @@ MMGD); EPE, PDE 2035; ONS/EPE/CCEE, notas e workshop do PLAN 2026–2030; IBGE/S
 
 ## 9. Reprodutibilidade
 
-- **Ambiente:** Python 3.14.1; dependências em `requirements.lock.txt`; sementes 20261111 (modelos) e
-  20261112 (Monte Carlo).
+- **Ambiente:** dependências em `requirements.lock.txt`; sementes 20261111 (modelos) e
+  20261112 (Monte Carlo). Execução original com Python 3.14.1; desde 2026-11-16, Python 3.13.7
+  com as mesmas versões fixadas (Monte Carlo de 2030 idêntico com os mesmos insumos).
 - **Execução:** `python -m src.pipeline` refaz tudo a partir de `data/raw`. A coleta dos dados brutos
   está no README.
 - **Rastreabilidade:** decisões e hipóteses em `docs/decisoes.md`; estado em `STATUS.md`.

@@ -26,6 +26,8 @@ FIGS = {  # figura inserida ao fim da seção cujo título começa com a chave
                  ("q4_cortes_mensais.png", "Corte apurado (GNRa) por mês e motivo, eólica e solar.")],
     "4.2": [("s2_cf_eolico_anos_meteorologicos.png", "CF eólico potencial sintético de 2030 por ano meteorológico, com a frota atual. Em azul, os anos com dados do ONS."),
             ("mc2_convergencia.png", "Convergência do Monte Carlo: média e P95 da importação anual, DC central e eólica base.")],
+    "4.4": [("mc4_backcast.png", "Validação retrospectiva: importação anual observada em 2022–2025 e simulada com os níveis do próprio ano, nas duas convenções hidráulicas (barras: P5–P95 dos sorteios de resíduos)."),
+            ("b26_backtest_2026.png", "Backtest de 2026 (jan–out, horas válidas): importação e excedente por mês, observados e simulados (A: cenário de 2026 com clima sorteado; B: clima e hidrologia de 2026).")],
     "5.1": [("mc1_distribuicao_importacao.png", "Distribuição acumulada da importação anual em 2030 por cenário de data centers, para cada cenário eólico.")],
     "5.5": [("mc3_sensibilidades.png", "Variação da importação média anual em relação à referência (DC central, eólica base).")],
 }

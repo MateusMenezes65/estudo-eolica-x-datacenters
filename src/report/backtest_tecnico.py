@@ -35,7 +35,16 @@ def numeros(d: dict | None = None) -> dict:
     ant_, adot = [i for i in e30.index.get_level_values(0).unique()]
     erro = lambda col: 100 * (sb[col] / sb.observado_TWh - 1)
     rec = [a for a in sb.index if a >= 2024]
+    tb_beta = d["diag_beta_hidro"].set_index("ano")
+    corr = tb_beta.loc[[a for a in tb_beta.index if a <= 2025], "corr_potencial"]
+    efe_eol = sb.loc[rec, "forma eólica observada (beta adotado)"] - sb.loc[rec, "simulado, regra com beta adotado"]
     return {
+        "corr_min": corr.min(), "corr_max": corr.max(),
+        # P5 horário da eólica simulada (com resíduos) menos o observado: compara distribuições, sem condicionar
+        # às horas de pouco vento observado
+        "p5_exc_rec_min": (sb.eolica_p5_simulada_com_residuos_MW - sb.eolica_p5_observada_MW)[rec].min(),
+        "p5_exc_rec_max": (sb.eolica_p5_simulada_com_residuos_MW - sb.eolica_p5_observada_MW)[rec].max(),
+        "efe_eol_min": efe_eol.min(), "efe_eol_max": efe_eol.max(),
         "obs": tb.loc["importacao_TWh", "observado_realizado"], "A_pct": tb.loc["importacao_TWh", "A_percentil_do_observado_realizado"],
         "A_p5": tb.loc["importacao_TWh", "A_p5"], "A_p95": tb.loc["importacao_TWh", "A_p95"],
         "B_cen": tb.loc["importacao_TWh", "B_regra_media"], "B_ant": tb.loc["importacao_TWh", "B_regra_beta_anterior_media"],
@@ -214,14 +223,16 @@ As funções de transferência foram re-treinadas sem o próprio ano. A tabela m
   {f(min(efe(a) for a in rec), 2)} a {f(max(efe(a) for a in rec), 2)} TWh em {rec[0]}–{rec[-1]}; em {ant[0]} o efeito é
   {sg(efe(ant[0]), 2)} TWh. A forma da carga muda de sinal entre os anos (acaso). As formas solar e MMGD somam
   {sg(min(sm(a) for a in anos), 2)} a {sg(max(sm(a) for a in anos), 2)} TWh.
-- **O erro cresce ano a ano.** Nas horas de menos vento, a eólica simulada superestima a observada em
-  {sg(SB.loc[anos[0], 'erro_eolica_quintil_inferior_MW'], 0)} MW em {anos[0]} e
-  {sg(SB.loc[anos[-1], 'erro_eolica_quintil_inferior_MW'], 0)} MW em {anos[-1]}.
+- **O erro cresce ano a ano.** Nas horas de menos vento observado (quintil inferior), a eólica simulada
+  sem resíduos superestima a observada em {sg(SB.loc[anos[0], 'erro_eolica_quintil_inferior_MW'], 0)} MW em
+  {anos[0]} e {sg(SB.loc[anos[-1], 'erro_eolica_quintil_inferior_MW'], 0)} MW em {anos[-1]}. Parte disso é esperada
+  de qualquer modelo de média quando se escolhem as horas pelo valor observado; o que indica a limitação é o
+  crescimento ao longo dos anos e a comparação de distribuições abaixo (P5), que não depende dessa escolha.
 - **Os resíduos não corrigem a cauda.** Eles foram desenhados para repor essa variabilidade.
   - Em {lista(ant)}, repõem: +{f(min(res(a) for a in ant), 2)} a +{f(max(res(a) for a in ant), 2)} TWh,
     e o P5 da eólica simulada chega ao observado ou fica abaixo dele.
   - Em {rec[0]}–{rec[-1]}, quase nada: {sg(min(res(a) for a in rec), 2)} a {sg(max(res(a) for a in rec), 2)} TWh;
-    o P5 simulado continua acima do observado.
+    o P5 simulado continua {f(nb['p5_exc_rec_min'], 0)}–{f(nb['p5_exc_rec_max'], 0)} MW acima do observado.
   - Os resíduos são sorteados em blocos independentes do tempo meteorológico. Repõem a variância média, mas
     não a frequência de calmarias observada nos anos recentes.
   - A causa exata não foi isolada. Candidatas: os pesos espaciais fixos da frota de out/2026 aplicados ao
@@ -251,8 +262,14 @@ As funções de transferência foram re-treinadas sem o próprio ano. A tabela m
   - A limitação da forma eólica pesa mais: indica que a importação de 2030 tende a estar **subestimada**.
     Nos anos recentes, com os níveis observados, o déficit foi de {f(-max(tod(REGRA_ADOT, rec)), 0)}% a
     {f(-min(tod(REGRA_ADOT, rec)), 0)}%.
-  - O efeito pareado dos data centers também tende a crescer quando há mais horas perto de zero.
-  - Essa limitação não foi corrigida; uma correção possível está nos próximos passos (STATUS.md).
+  - O efeito pareado dos data centers provavelmente também cresceria, porque haveria mais horas com M
+    perto de zero (não testado).
+- **Tratamento adotado (decisão 53, usuário, 2026-11-17).** A correção ficou para uma etapa posterior; por
+  ora, a cauda de pouco vento é uma **limitação declarada do modelo**, e os resultados de 2030 foram
+  mantidos. Correções possíveis, a validar primeiro como sensibilidade nesta mesma bateria de testes:
+  - *quantile mapping* do CF eólico simulado para a distribuição observada da frota recente, preservando
+    a ordem das horas (e, com ela, a dependência com a carga e a solar);
+  - resíduos sorteados entre dias com CF previsto parecido, e não só da mesma época do ano.
 
 {tab(t_30)}
 {fig('r27')}"""

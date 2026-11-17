@@ -233,7 +233,7 @@ details summary { cursor: pointer; color: var(--ink2); font-weight: 600; }
           eólica alta soma a expansão indicativa do PDE 2035 no ano; data centers pela 2ª RQ (conservador = contratos; central = contratos + 50% dos pareceres; alto = contratos + pareceres + inventário M3). 2030 = valores do estudo.</li>
         <li><b>2028 é bissexto</b>: 29/02 repete o clima, os perfis e a hidrologia de 28/02; a energia anual soma 8.784 horas.</li>
         <li><b>Leitura</b>: margem negativa é necessidade de importação, não déficit; excedente regional não é corte evitado (não há rede representada); a térmica não é redespachada.
-          O nível absoluto da importação tem erro de dezenas de por cento (validação retrospectiva 2022–2025 e backtest de 2026); as diferenças entre cenários no mesmo sorteio são mais robustas.</li>
+          O nível absoluto da importação tem erro de até algumas dezenas de por cento e, nos anos da frota recente, sempre para baixo: a importação simulada tende a estar subestimada, porque a eólica simulada tem poucas horas de pouco vento (validação retrospectiva 2022–2025 e backtest de 2026; relatório técnico, seções 7.4–7.5). As diferenças entre cenários no mesmo sorteio são mais robustas.</li>
         <li><b>Sorteios da página</b> usam um gerador próprio (semente na URL); as faixas P5–P95 vêm dos <span class="mcn"></span> sorteios do Monte Carlo de cada ano (<code>src/sim/anos.py</code>).</li>
       </ul>
     </details>

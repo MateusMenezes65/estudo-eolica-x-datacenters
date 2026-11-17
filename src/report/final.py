@@ -84,6 +84,8 @@ def tornado(S: pd.DataFrame):
 
 
 def main() -> None:
+    from src.report import backtest_tecnico           # importado aqui: backtest_tecnico usa f/sg/tab deste módulo
+    nbt = backtest_tecnico.numeros()
     c = yaml.safe_load(open(CONFIG / "cenarios.yaml", encoding="utf-8"))
     cdc = yaml.safe_load(open(CONFIG / "cenarios_dc.yaml", encoding="utf-8"))
     mcc = json.load(open(MC / "mc_config.json", encoding="utf-8"))
@@ -247,6 +249,9 @@ de importação do restante do SIN, **não** déficit de suprimento.
   importação anual entre {sg(bk['regra']['erro_%'].min())}% e {sg(bk['regra']['erro_%'].max())}% com a regra
   hidráulica do caso central (seção 4.4). O nível absoluto de 2030 carrega um erro dessa ordem; as
   diferenças pareadas entre cenários variam menos.
+  - Nos anos da frota recente ({nbt['anos_rec'][0]}–{nbt['anos_rec'][-1]}) o erro é sempre de subestimação: a
+    eólica simulada tem poucas horas de pouco vento (limitação declarada do modelo, seção 6). O nível de
+    2030 tende, portanto, a estar **subestimado**.
 
 ## 1. Pergunta e recorte
 
@@ -389,7 +394,8 @@ o da solar a 24 h.
   - frota recente (treino até 2025-12, teste em 2026): MAE {f(b0.MAE.iat[-1], 3)} e viés {f(b0.vies.iat[-1], 3)};
   - correlação horária com o observado em 2022–2025: {f(vb['corr'].min(), 2)}–{f(vb['corr'].max(), 2)};
   - com os resíduos, o desvio-padrão horário do sintético reproduz o observado
-    ({f(vb.dp_sint_com_residuo_aprox.iat[-1], 3)} contra {f(vb.dp_obs.iat[-1], 3)} em 2025).
+    ({f(vb.dp_sint_com_residuo_aprox.iat[-1], 3)} contra {f(vb.dp_obs.iat[-1], 3)} em 2025), mas não a cauda de
+    pouco vento da frota recente (seção 4.4).
 - **Diferença de nível em 2022–2023.** O CF médio sintético desses anos é maior que o observado
   ({f(vb.media_sint.iat[0], 3)} contra {f(vb.media_obs.iat[0], 3)} em 2022). Isso reflete a frota atual,
   com curva de potência 5–10% maior nas faixas de vento alto (decisão 20).
@@ -431,8 +437,7 @@ os cenários de 2030.
   - Em 2025, {f(bk['regra'].loc[2025, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh de corte eólico
     ocorreram em horas de importação. O simulador usa a geração potencial e não representa esses cortes.
   - Em 2024 esse corte foi de {f(bk['regra'].loc[2024, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh,
-    então a subestimação daquele ano tem outra origem. O diagnóstico do relatório técnico (seção 7.5)
-    aponta a forma eólica simulada, com poucas horas de pouco vento na frota recente.
+    então a subestimação daquele ano tem outra origem: a forma eólica simulada (abaixo).
 - **Picos.** Com a regra, o pico simulado difere do observado em
   {sg(bk['dpico_regra'].min(), 1)} a {sg(bk['dpico_regra'].max(), 1)} GW; com o despacho observado, em
   {sg(bk['dpico_obs'].min(), 1)} a {sg(bk['dpico_obs'].max(), 1)} GW.
@@ -441,6 +446,27 @@ os cenários de 2030.
   nos dois lados da comparação e variam menos entre hipóteses (seção 5.2).
 
 Figura: `reports/figures/mc4_backcast.png`.
+
+**Backtest de 2026 e diagnóstico** (`src/sim/backtest_2026.py`, `src/sim/diagnostico_importacao.py`;
+detalhes na seção 7.5 do relatório técnico). O cenário de 2026 foi comparado ao balanço observado de
+janeiro a outubro, nas horas em que o balanço do ONS fecha.
+- **Ex-ante.** A importação observada ({f(nbt['obs'], 2)} TWh) cai no percentil {f(nbt['A_pct'], 0)} da
+  distribuição do Monte Carlo de 2026 (P5–P95 {f(nbt['A_p5'], 2)}–{f(nbt['A_p95'], 2)} TWh).
+- **Com o clima e a hidrologia de 2026** (modelos treinados só até 2025), o simulador dá
+  {f(nbt['B_cen'], 2)} TWh ({sg(100 * (nbt['B_cen'] / nbt['obs'] - 1))}%).
+- **Erro de método, corrigido (decisão 52).** O coeficiente da regra hidráulica era estimado sobre a carga
+  líquida já cortada e aplicado à potencial, o que exagerava a resposta da hidráulica nos anos de corte
+  alto. Com a correção, a importação central de 2030 passou de {f(nbt['imp30_ant'], 2)} para
+  {f(nbt['imp30'], 2)} TWh e o efeito dos data centers, de {f(nbt['dc30_ant'], 2)} para {f(nbt['dc30'], 2)} TWh.
+  As conclusões não mudam.
+- **Limitação do modelo, não corrigida (decisão 53).** A eólica simulada tem poucas horas de pouco vento
+  na frota recente: em {nbt['anos_rec'][0]}–{nbt['anos_rec'][-1]}, o P5 horário da eólica simulada (com os
+  resíduos) fica {f(nbt['p5_exc_rec_min'], 0)}–{f(nbt['p5_exc_rec_max'], 0)} MW acima do observado.
+  Usar a forma eólica observada aumenta a importação desses anos em {f(nbt['efe_eol_min'], 2)}–{f(nbt['efe_eol_max'], 2)} TWh.
+  A correção ficou para depois, por decisão do usuário; por isso a importação de 2030 tende a estar
+  subestimada.
+
+Figura: `reports/figures/b26_backtest_2026.png`.
 
 ## 5. Resultados para 2030
 
@@ -513,10 +539,20 @@ por isso difere ligeiramente da tabela 5.1.
 - **Sem rede.** Excedente regional não é corte. Não há representação da rede interna do NE, das
   restrições locais nem das restrições externas além dos limites agregados. Cortes por restrição de rede
   em horas de importação aumentam a importação real e também ficam de fora.
-- **Erro do simulador.** Nos anos observados, a importação anual simulada difere da real em dezenas de
-  por cento, com sinal que muda de ano para ano (seção 4.4).
-- **Despacho hidrotérmico.** A regra emulada não otimiza o sistema e foi estimada sobre a geração já
-  cortada; a térmica é histórica. A hidrologia do São Francisco é amostrada só em 2022–2025.
+- **Erro do simulador.** Com os níveis observados, a importação anual simulada erra de
+  {sg(bk['regra']['erro_%'].min())}% a {sg(bk['regra']['erro_%'].max())}% em 2022–2025 e
+  {sg(100 * (nbt['B_cen'] / nbt['obs'] - 1))}% no backtest de 2026 (seção 4.4).
+- **Eólica simulada com poucas horas de pouco vento (limitação do modelo, decisão 53).** As funções de
+  transferência preveem médias condicionais, e os resíduos, sorteados sem relação com o vento da hora,
+  repõem a variância média, mas não as calmarias da frota recente. Em {nbt['anos_rec'][0]}–{nbt['anos_rec'][-1]},
+  com as funções de transferência re-treinadas sem o próprio ano, isso deixa a importação simulada
+  {f(-nbt['erro_rec_max'], 0)}% a {f(-nbt['erro_rec_min'], 0)}% abaixo da observada, e a importação de 2030
+  tende a estar subestimada. A causa exata não foi isolada. A correção
+  (por exemplo, *quantile mapping* do CF eólico ou resíduos condicionados ao vento previsto) ficou para
+  uma etapa posterior, por decisão do usuário.
+- **Despacho hidrotérmico.** A regra emulada não otimiza o sistema; seu coeficiente é estimado sobre a
+  carga líquida potencial, a mesma a que é aplicado (decisão 52). A térmica é histórica. A hidrologia do
+  São Francisco é amostrada só em 2022–2025.
 - **Nível de carga.** A forma horária vem da API de carga do ONS e o nível, do PLAN. Em 2025 a carga
   global da API ({f(api25, 0)} MWmed) é {f(100 * (api25 / plan25 - 1))}% maior que a do PLAN
   ({f(plan25, 0)}). Com o nível da API, a importação média mudaria
@@ -554,8 +590,9 @@ por isso difere ligeiramente da tabela 5.1.
 4. **A incerteza climática e operacional é do mesmo tamanho que as escolhas de cenário.** Por isso os
    resultados devem ser lidos como distribuições condicionais e diferenças pareadas, não como um número
    pontual.
-5. **O efeito dos data centers é mais confiável que o nível.** A validação retrospectiva mostra erro de
-   dezenas de por cento no nível anual da importação, enquanto o efeito pareado fica entre
+5. **O efeito dos data centers é mais confiável que o nível.** Na validação retrospectiva, o nível anual
+   da importação erra de {sg(bk['regra']['erro_%'].min())}% a {sg(bk['regra']['erro_%'].max())}%, e nos anos da
+   frota recente sempre para baixo; o nível de 2030 tende a estar subestimado. O efeito pareado fica entre
    +{f(efx_outros.min(), 1)} e +{f(efx_outros.max(), 1)} TWh/ano em todas as hipóteses testadas, exceto
    o atraso.
 
@@ -584,8 +621,9 @@ MMGD); EPE, PDE 2035; ONS/EPE/CCEE, notas e workshop do PLAN 2026–2030; IBGE/S
 
 ## 9. Reprodutibilidade
 
-- **Ambiente:** Python 3.14.1; dependências em `requirements.lock.txt`; sementes 20261111 (modelos) e
-  {mcc['semente']} (Monte Carlo).
+- **Ambiente:** dependências em `requirements.lock.txt`; sementes 20261111 (modelos) e
+  {mcc['semente']} (Monte Carlo). Execução original com Python 3.14.1; desde 2026-11-16, Python 3.13.7
+  com as mesmas versões fixadas (Monte Carlo de 2030 idêntico com os mesmos insumos).
 - **Execução:** `python -m src.pipeline` refaz tudo a partir de `data/raw`. A coleta dos dados brutos
   está no README.
 - **Rastreabilidade:** decisões e hipóteses em `docs/decisoes.md`; estado em `STATUS.md`.

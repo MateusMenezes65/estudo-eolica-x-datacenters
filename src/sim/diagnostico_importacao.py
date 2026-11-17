@@ -82,7 +82,9 @@ def tabela_beta(obs: dict, X: pd.DataFrame) -> pd.DataFrame:
         rows.append({"ano": ano, "beta_realizada": mc.beta_regra(bruto, False), "beta_potencial": mc.beta_regra(bruto, True),
                      "dp_intradiario_carga_liq_realizada_MW": sd(nl_r), "dp_intradiario_carga_liq_potencial_MW": sd(nl_p),
                      "corte_eolico_%": float(100 * (g.eol_pot - g.eol_real).sum() / g.eol_pot.sum()),
-                     "corte_solar_%": float(100 * (g.sol_pot - g.sol_real).sum() / g.sol_pot.sum())})
+                     "corte_solar_%": float(100 * (g.sol_pot - g.sol_real).sum() / g.sol_pot.sum()),
+                     # colunas novas sempre ao fim (o relatório e a figura leem 'corte_eolico_%' pela posição)
+                     "corr_realizada": mc.corr_regra(bruto, False), "corr_potencial": mc.corr_regra(bruto, True)})
     return pd.DataFrame(rows)
 
 
