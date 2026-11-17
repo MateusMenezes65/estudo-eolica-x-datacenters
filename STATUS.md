@@ -15,7 +15,7 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
 - Ambiente: Python 3.14.1 em `.venv` (`requirements.lock.txt`). Na máquina usada em 2026-11-16 só havia Python 3.13.7: `.venv` criado com ele e as mesmas versões fixadas; testes aprovados e Monte Carlo de 2030 recalculado idêntico ao do estudo.
 - `python -m src.pipeline` refaz tudo a partir de `data/raw`, em cerca de 20 min. A coleta dos dados brutos está no README.
 - Sementes: 20261111 (modelos) e 20261112 (Monte Carlo).
-- Testes: `pytest -q` (41 testes).
+- Testes: `pytest -q` (41 casos coletados; 39 funções de teste, que é o número citado no relatório técnico).
 - Git local com identidade só neste repositório. Nenhum dado é versionado; só código, configuração, manifesto e tabelas de resultado.
 - Remoto (2026-11-16, a pedido do usuário): repositório **privado** `github.com/MateusMenezes65/estudo-eolica-x-datacenters`, branch `master`. Colegas entram como colaboradores; instruções de clone no README. `logs/` passou a ser ignorado. `reports/site/` (HTML dos relatórios final e técnico) passou a ser versionado. Os dados seguem fora do Git e foram publicados como anexos da Release `dados-2026-11-16` (zips de `data/raw`, `data/interim` e `data/processed` + SHA256SUMS), gerados e restaurados por `python -m src.tools.pacote_dados empacotar|extrair`.
 
