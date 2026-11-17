@@ -46,3 +46,6 @@ Thumbs.db
 # Logs de execução
 logs/
 *.log
+
+# Pacotes de dados para a Release do GitHub
+dist/
