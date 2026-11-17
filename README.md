@@ -24,21 +24,31 @@ abra no navegador `reports/site/final/index.html` ou
 os anos de 2026 a 2030 hora a hora, abra `reports/site/simulador/index.html`
 (simulador interativo; ver a seção própria abaixo).
 
-**Dados (`data/`, cerca de 1,2 GB):** não ficam no Git (há arquivos acima de
-100 MB). Estão como anexos da Release
-[`dados-2026-11-16`](https://github.com/MateusMenezes65/estudo-eolica-x-datacenters/releases/tag/dados-2026-11-16):
-`data-raw.zip`, `data-interim.zip`, `data-processed.zip` e `SHA256SUMS.txt`.
-Baixe-os para `dist/dados/` (ignorada pelo Git) e restaure na raiz do projeto:
+**Dados (`data/`, cerca de 1,2 GB):** versionados com **Git LFS** (há arquivos
+acima de 100 MB, o limite do Git no GitHub). Instale o Git LFS **antes** de
+clonar (já vem no Git for Windows; confira com `git lfs version`); assim o
+`git clone` baixa os dados reais. Sem ele, os arquivos de `data/` chegam como
+pequenos "ponteiros" de texto; nesse caso, rode na pasta do projeto:
 
 ```bash
-python -m src.tools.pacote_dados extrair dist/dados
+git lfs pull
 ```
 
-Só `data-raw.zip` é indispensável; o restante é regenerado por
-`python -m src.pipeline`. Alternativa sem a Release: baixar as bases das
-fontes originais com os comandos de coleta abaixo. Para publicar uma nova
-versão dos dados, gere os pacotes com
-`python -m src.tools.pacote_dados empacotar` e crie outra Release.
+**Windows, erro "Filename too long" no clone:** alguns arquivos do PDE têm
+caminho de até 185 caracteres. Clone numa pasta de caminho curto (por exemplo
+`C:\estudos\`) ou habilite caminhos longos no Git antes de clonar:
+
+```bash
+git config --global core.longpaths true
+```
+
+A cota gratuita de LFS do dono do repositório é de 10 GiB de download por mês
+(cada clone completo consome cerca de 1,2 GB). Alternativas que não consomem
+essa cota: os zips anexados à Release
+[`dados-2026-11-16`](https://github.com/MateusMenezes65/estudo-eolica-x-datacenters/releases/tag/dados-2026-11-16),
+restaurados com `python -m src.tools.pacote_dados extrair dist/dados`, ou a
+coleta direta das fontes com os comandos abaixo. Para clonar só o código, sem
+baixar os dados do LFS, use a variável `GIT_LFS_SKIP_SMUDGE=1` no clone.
 
 ## Ambiente
 
