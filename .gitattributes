@@ -1,0 +1,2 @@
+# Toda a pasta data/ vai para o Git LFS (arquivos grandes; ver README)
+data/** filter=lfs diff=lfs merge=lfs -text

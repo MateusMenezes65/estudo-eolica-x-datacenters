@@ -13,10 +13,8 @@ __pycache__/
 .env.*
 !.env.example
 
-# Dados (versionar apenas manifestos e receitas)
-data/raw/
-data/interim/
-data/processed/
+# Dados: versionados via Git LFS (ver .gitattributes), por decisão do usuário
+# em 2026-11-16 para o grupo baixar tudo pelo GitHub.
 
 # Artefatos grandes de modelos
 /models/
@@ -35,6 +33,7 @@ data/processed/
 !reports/models/*.csv
 !reports/sim/*.csv
 !reports/mc/*.csv
+!data/**
 
 # SO / editores
 Thumbs.db
