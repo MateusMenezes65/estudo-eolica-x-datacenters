@@ -16,7 +16,7 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
 - Sementes: 20261111 (modelos) e 20261112 (Monte Carlo).
 - Testes: `pytest -q`.
 - Git local com identidade só neste repositório. Nenhum dado é versionado; só código, configuração, manifesto e tabelas de resultado.
-- Remoto (2026-11-16, a pedido do usuário): repositório **privado** `github.com/MateusMenezes65/estudo-eolica-x-datacenters`, branch `master`. Colegas entram como colaboradores; instruções de clone no README. `logs/` passou a ser ignorado. `reports/site/` (HTML dos relatórios final e técnico) passou a ser versionado. Os dados seguem fora do Git e foram publicados como anexos da Release `dados-2026-11-16` (zips de `data/raw`, `data/interim` e `data/processed` + SHA256SUMS), gerados e restaurados por `python -m src.tools.pacote_dados empacotar|extrair`.
+- Remoto (2026-11-16, a pedido do usuário): repositório **privado** `github.com/MateusMenezes65/estudo-eolica-x-datacenters`, branch `master`. Colegas entram como colaboradores; instruções de clone no README. `logs/` passou a ser ignorado. `reports/site/` (HTML dos relatórios final e técnico) passou a ser versionado. Os dados foram publicados como anexos da Release `dados-2026-11-16` (zips de `data/raw`, `data/interim` e `data/processed` + SHA256SUMS; `python -m src.tools.pacote_dados empacotar|extrair`) e, por decisão do usuário, também versionados com **Git LFS** (`.gitattributes`: `data/**`; 484 arquivos, cerca de 1,2 GB; cota gratuita de 10 GiB de armazenamento e 10 GiB de download/mês). Isso altera a regra do AGENTS.md de não versionar bases grandes. Toda nova versão de um arquivo de `data/` consome armazenamento LFS adicional.
 
 ## 2. O que foi feito
 
