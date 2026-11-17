@@ -10,6 +10,9 @@ sequência de blocos de resíduos). Os resíduos fora da amostra das quatro sér
 MMGD, CF eólico, CF solar) são reamostrados JUNTOS, em blocos de `bloco` dias iniciados à
 00h, escolhidos na janela 2024-07..2025-12 entre dias com dia do ano a ±14 dias do dia-alvo
 (preserva ciclo diário, sazonalidade, autocorrelação e dependência entre séries).
+O coeficiente da regra hidráulica emulada é estimado sobre a carga líquida POTENCIAL (geração +
+corte), a mesma grandeza a que a regra é aplicada (decisão 52, adotada em 2026-11-17); o coeficiente
+anterior, sobre a carga líquida realizada, fica como sensibilidade.
 Os resíduos são RECENTRADOS: subtrai-se de cada série a média esperada sob o próprio esquema
 de sorteio, e as formas de carga e MMGD são renormalizadas para média 1 em cada sorteio. Assim
 os resíduos devolvem variabilidade horária sem deslocar o nível anual, que vem dos cenários
@@ -40,6 +43,33 @@ JANELA_DOY = 14
 
 
 # ------------------------------------------------------------------ insumos
+COLS_BETA = ["interc", "hid", "ter", "eol_bal", "sol_central", "ger_eol_fc", "pot_eol_fc", "ger_sol_fc", "pot_sol_fc",
+             "L_net", "MMGD"]
+
+
+def beta_regra(g: pd.DataFrame, potencial: bool = True) -> float:
+    """Coeficiente da regra hidráulica emulada para um ano de dados horários observados (índice = t).
+
+    Regressão do desvio intradiário da hidráulica sobre o desvio intradiário da carga líquida de MMGD
+    menos eólica e solar. Caso central (decisão 52): eólica e solar POTENCIAIS (geração das usinas com FC
+    mais o corte apurado, levadas à frota inteira pela razão balanço / usinas com FC nas horas válidas),
+    que é a grandeza a que a regra é aplicada no simulador. `potencial=False` reproduz o coeficiente
+    anterior (geração realizada, já cortada; decisões 34 e 39).
+    """
+    if potencial:
+        v = g[g[COLS_BETA].notna().all(axis=1) & (g.anomalia_balanco.fillna(1) == 0)]
+        fr_e = v.eol_bal.mean() / v.ger_eol_fc.mean()
+        fr_s = v.sol_central.mean() / v.ger_sol_fc.mean()
+        nl = g.L_net - g.pot_eol_fc * fr_e - g.pot_sol_fc * fr_s
+    else:
+        nl = g.L_net - g.eol_bal - g.sol_central
+    d = g.index.date
+    dh = g.hid - g.hid.groupby(d).transform("mean")
+    dn = nl - nl.groupby(d).transform("mean")
+    ok = dh.notna() & dn.notna()
+    return float(np.polyfit(dn[ok], dh[ok], 1)[0])
+
+
 class Insumos:
     def __init__(self, anos_clima=None):
         S = pd.read_parquet(PROCESSED / "sinteticos_2030.parquet")
@@ -55,23 +85,22 @@ class Insumos:
         self.hid = H.pivot(index="t", columns="ano_hidro", values="hid")[self.anos_h].to_numpy().T
         self.ter = H.pivot(index="t", columns="ano_hidro", values="ter")[self.anos_h].to_numpy().T
         # regra de despacho hidráulico emulada: beta intradiário e limites mensais por ano
-        F = pd.read_parquet(PROCESSED / "ne_features_h.parquet", columns=["t", "ano", "L_net", "L_gross", "eol_bal", "sol_central", "hid", "interc"])
+        F = pd.read_parquet(PROCESSED / "ne_features_h.parquet", columns=["t", "ano", "L_gross", "anomalia_balanco"] + COLS_BETA)
         F = F[F.ano.isin(self.anos_h)].set_index("t")
         # referências históricas citadas nos relatórios (fluxo não é capacidade; decisão 26)
         self.import_max_hist_MW = float((-F.interc).max())
         self.L_gross_api_2025 = float(F.L_gross[F.ano == 2025].mean())
-        F["nl"] = F.L_net - F.eol_bal - F.sol_central
-        self.beta, self.hmin, self.hmax = [], [], []
+        self.beta, self.beta_realizada, self.hmin, self.hmax = [], [], [], []
         mes30 = pd.date_range("2030-01-01", "2030-12-31 23:00", freq="h").month.to_numpy() - 1
         for ano in self.anos_h:
             g = F[F.ano == ano]
-            dh = g.hid - g.hid.groupby(g.index.date).transform("mean")
-            dn = g.nl - g.nl.groupby(g.index.date).transform("mean")
-            self.beta.append(np.polyfit(dn, dh, 1)[0])
+            self.beta.append(beta_regra(g, potencial=True))             # caso central (decisão 52)
+            self.beta_realizada.append(beta_regra(g, potencial=False))  # versão anterior (sensibilidade)
             mm = g.hid.groupby(g.index.month)
             self.hmin.append(mm.min().to_numpy()[mes30])
             self.hmax.append(mm.max().to_numpy()[mes30])
         self.beta, self.hmin, self.hmax = np.array(self.beta), np.array(self.hmin), np.array(self.hmax)
+        self.beta_realizada = np.array(self.beta_realizada)
         R = pd.read_parquet(PROCESSED / "residuos_pool.parquet").set_index("t")
         full = pd.date_range(R.index.min().normalize(), R.index.max().normalize() + pd.Timedelta(hours=23), freq="h")
         R = R.reindex(full)
@@ -164,9 +193,9 @@ def hidraulica(ins: Insumos, h: np.ndarray, nl: np.ndarray, modo: str) -> np.nda
     - "regra_historica" (central): energia diária do ano hidrotérmico h; forma intradiária
       = média diária + beta_h × desvio intradiário da carga líquida simulada `nl` (carga −
       MMGD − eólica − solar − térmica), limitada ao mín./máx. mensal histórico de h e
-      reajustada até conservar a energia diária. beta_h é estimado no próprio ano (0,27–0,43)
-      sobre a carga líquida observada, isto é, com a geração já cortada; descontar ou não a
-      térmica muda beta em menos de 0,005.
+      reajustada até conservar a energia diária. beta_h é estimado no próprio ano sobre a carga
+      líquida potencial (`beta_regra`, decisão 52); descontar ou não a térmica muda beta em menos
+      de 0,005.
     - "historico_sorteado": série horária observada do ano h (sem resposta ao clima sorteado).
     - "plana": energia anual do ano h distribuída de forma constante (pessimista).
     """
@@ -384,6 +413,8 @@ def main(argv=None) -> None:
                    "janela_doy_dias": JANELA_DOY, "anos_clima": [int(x) for x in ins.anos],
                    "anos_hidro": [int(x) for x in ins.anos_h],
                    "beta_hidro": {int(y): round(float(b), 4) for y, b in zip(ins.anos_h, ins.beta)},
+                   "beta_hidro_definicao": "carga liquida potencial (decisao 52)",
+                   "beta_hidro_anterior_realizada": {int(y): round(float(b), 4) for y, b in zip(ins.anos_h, ins.beta_realizada)},
                    "centro_residuos": dict(zip(["A0", "E0", "B0", "C0"], [round(float(x), 6) for x in sd["centro"]])),
                    "import_max_hist_MW": round(ins.import_max_hist_MW, 1),
                    "termica_hist_media_MWmed": {int(y): round(float(v), 1) for y, v in zip(ins.anos_h, ins.ter.mean(axis=1))},
@@ -420,11 +451,16 @@ def sensibilidades(ins, c, d, a):
         "sem residuos (perfis suavizados)": {"opc": {"sem_residuo": True}},
         "residuos sem recentrar": {"opc": {"residuo_bruto": True}},
         "nivel de carga pela API do ONS": {"opc": {"L_gross": Lb * ins.L_gross_api_2025 / plan25}},
+        "hidraulica: beta anterior (carga liquida realizada)": {"beta_realizada": True},
     }
     rows = []
     for nome, k in casos.items():
+        beta0 = ins.beta
+        if k.get("beta_realizada"):
+            ins.beta = ins.beta_realizada
         Dk, _ = simular(ins, sd, c, d, [("central", k.get("w", "base"))], opc=k.get("opc"), ldc_override=k.get("ldc"))
         D0, _ = simular(ins, sd, c, d, [("sem_dc", k.get("w", "base"))], opc=k.get("opc"), ldc_override=k.get("ldc_sem", 0.0))
+        ins.beta = beta0
         dlt = Dk.importacao_TWh.to_numpy() - D0.importacao_TWh.to_numpy()   # mesmo sorteio (pareado)
         rows.append({"caso": nome, "media_TWh": Dk.importacao_TWh.mean(), "p95_TWh": np.percentile(Dk.importacao_TWh, 95),
                      "horas_media": Dk.horas_importacao.mean(), "p95_horario_MW": Dk.importacao_p95_MW.mean(),

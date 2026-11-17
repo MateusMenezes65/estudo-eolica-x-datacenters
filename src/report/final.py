@@ -364,7 +364,8 @@ Todos os modelos são HistGradientBoosting (scikit-learn), com hiperparâmetros 
 - **Hidráulica (caso central, decidido pelo usuário).** Regra histórica emulada:
   - a energia diária é a do ano hidrológico sorteado;
   - a forma intradiária responde à carga líquida simulada com o coeficiente medido no ano
-    ({f(min(betas), 2)}–{f(max(betas), 2)}), estimado sobre a geração observada, já com corte;
+    ({f(min(betas), 2)}–{f(max(betas), 2)}), estimado sobre a carga líquida potencial (geração + corte), a
+    mesma a que a regra é aplicada (decisão 52; antes, sobre a carga já cortada);
   - a geração fica dentro dos mínimos e máximos mensais históricos, e a energia diária é conservada.
   - O despacho histórico sorteado sem resposta e a hidráulica plana entram como sensibilidades.
   - A térmica segue o histórico do ano sorteado.
@@ -430,7 +431,8 @@ os cenários de 2030.
   - Em 2025, {f(bk['regra'].loc[2025, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh de corte eólico
     ocorreram em horas de importação. O simulador usa a geração potencial e não representa esses cortes.
   - Em 2024 esse corte foi de {f(bk['regra'].loc[2024, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh,
-    então a subestimação daquele ano tem outra origem, não identificada.
+    então a subestimação daquele ano tem outra origem. O diagnóstico do relatório técnico (seção 7.5)
+    aponta a forma eólica simulada, com poucas horas de pouco vento na frota recente.
 - **Picos.** Com a regra, o pico simulado difere do observado em
   {sg(bk['dpico_regra'].min(), 1)} a {sg(bk['dpico_regra'].max(), 1)} GW; com o despacho observado, em
   {sg(bk['dpico_obs'].min(), 1)} a {sg(bk['dpico_obs'].max(), 1)} GW.
@@ -491,7 +493,7 @@ acima dele:
 **Como ler.**
 - Não há limite de importação documentado para o NE. O maior fluxo observado em 2022–2025 foi de
   {f(mcc['import_max_hist_MW'] / 1000)} GW, e fluxo não é capacidade.
-- Nos níveis históricos, a regra emulada não superestima os picos (seção 4.4).
+- Nos níveis históricos, o pico simulado com a regra emulada fica de {sg(bk['dpico_regra'].min(), 1)} a {sg(bk['dpico_regra'].max(), 1)} GW do observado (seção 4.4).
 - Os picos de 2030 ficam acima desse patamar já sem data centers ({f(pico0 / 1000)} GW em média). Isso vem
   do crescimento da carga com a térmica mantida no despacho histórico: {f(min(ter_med), 0)}–{f(max(ter_med), 0)}
   MWmed de média anual e máximo horário de {f(mcc['termica_hist_max_MW'] / 1000)} GW. O estudo não representa

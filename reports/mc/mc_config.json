@@ -44,6 +44,13 @@
   2025
  ],
  "beta_hidro": {
+  "2022": 0.4154,
+  "2023": 0.3224,
+  "2024": 0.2714,
+  "2025": 0.1669
+ },
+ "beta_hidro_definicao": "carga liquida potencial (decisao 52)",
+ "beta_hidro_anterior_realizada": {
   "2022": 0.432,
   "2023": 0.3526,
   "2024": 0.3676,

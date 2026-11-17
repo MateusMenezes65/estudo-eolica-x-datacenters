@@ -13,8 +13,8 @@ from src.paths import REPORTS
 from src.report.final import f, sg, tab
 
 SIM, MC = REPORTS / "sim", REPORTS / "mc"
-REGRA_ESTUDO = "simulado com resíduos, regra com beta do estudo"
-REGRA_CONS = "simulado com resíduos, regra com beta consistente"
+REGRA_ANT = "simulado com resíduos, regra com beta anterior"     # método anterior
+REGRA_ADOT = "simulado com resíduos, regra com beta adotado"     # método atual (decisão 52)
 
 
 def dados() -> dict:
@@ -32,19 +32,19 @@ def numeros(d: dict | None = None) -> dict:
     tb = d["backtest_2026"].set_index("metrica")
     sb = d["diag_substituicao"].set_index("ano")
     e30 = d["diag_2030_beta"].set_index(["beta", "cenario_eolico"])
-    est, cons = [i for i in e30.index.get_level_values(0).unique()]
+    ant_, adot = [i for i in e30.index.get_level_values(0).unique()]
     erro = lambda col: 100 * (sb[col] / sb.observado_TWh - 1)
     rec = [a for a in sb.index if a >= 2024]
     return {
         "obs": tb.loc["importacao_TWh", "observado_realizado"], "A_pct": tb.loc["importacao_TWh", "A_percentil_do_observado_realizado"],
         "A_p5": tb.loc["importacao_TWh", "A_p5"], "A_p95": tb.loc["importacao_TWh", "A_p95"],
-        "B_est": tb.loc["importacao_TWh", "B_regra_media"], "B_cons": tb.loc["importacao_TWh", "B_regra_beta_pot_media"],
+        "B_cen": tb.loc["importacao_TWh", "B_regra_media"], "B_ant": tb.loc["importacao_TWh", "B_regra_beta_anterior_media"],
         "B_hid": tb.loc["importacao_TWh", "B_despacho_obs_media"],
-        "erro_rec_min": erro(REGRA_CONS)[rec].min(), "erro_rec_max": erro(REGRA_CONS)[rec].max(),
-        "erro_rec_est_min": erro(REGRA_ESTUDO)[rec].min(), "erro_rec_est_max": erro(REGRA_ESTUDO)[rec].max(),
+        "erro_rec_min": erro(REGRA_ADOT)[rec].min(), "erro_rec_max": erro(REGRA_ADOT)[rec].max(),
+        "erro_rec_ant_min": erro(REGRA_ANT)[rec].min(), "erro_rec_ant_max": erro(REGRA_ANT)[rec].max(),
         "anos_rec": rec,
-        "imp30_est": e30.loc[(est, "base"), "central_media_TWh"], "imp30_cons": e30.loc[(cons, "base"), "central_media_TWh"],
-        "dc30_est": e30.loc[(est, "base"), "efeito_DC_TWh"], "dc30_cons": e30.loc[(cons, "base"), "efeito_DC_TWh"],
+        "imp30_ant": e30.loc[(ant_, "base"), "central_media_TWh"], "imp30": e30.loc[(adot, "base"), "central_media_TWh"],
+        "dc30_ant": e30.loc[(ant_, "base"), "efeito_DC_TWh"], "dc30": e30.loc[(adot, "base"), "efeito_DC_TWh"],
     }
 
 
@@ -58,13 +58,14 @@ def perfil(F) -> str:
 sorteios de 2030; à direita, a regra aplicada às parcelas observadas de 2026, o que isola o efeito da regra.
 - A regra conserva a energia de cada dia, mas a distribui como a carga líquida **potencial**, que é alta a
   noite inteira e baixa ao meio-dia. Em 2030 (jan–abr), a hidráulica emulada fica em
-  {f(v('2030', 'jan–abr', 'real', noite))} GW de 0 h a 5 h, contra {f(v('2030', 'jan–abr', 'obs', noite))} GW no
-  despacho observado dos anos hidrológicos, e em {f(v('2030', 'jan–abr', 'real', dia))} GW de 8 h a 14 h,
+  {f(v('2030', 'jan–abr', 'pot', noite))} GW de 0 h a 5 h, contra {f(v('2030', 'jan–abr', 'obs', noite))} GW no
+  despacho observado dos anos hidrológicos, e em {f(v('2030', 'jan–abr', 'pot', dia))} GW de 8 h a 14 h,
   contra {f(v('2030', 'jan–abr', 'obs', dia))} GW.
 - O despacho real concentra a hidráulica no início da noite. Em 2026 (jan–abr), de 18 h a 21 h, a hidráulica
   observada foi de {f(v('2026', 'jan–abr', 'obs', tarde))} GW; a regra entrega
-  {f(v('2026', 'jan–abr', 'real', tarde))} GW com o coeficiente do estudo e
-  {f(v('2026', 'jan–abr', 'pot', tarde))} GW com o coeficiente consistente (seção 7.5).
+  {f(v('2026', 'jan–abr', 'pot', tarde))} GW com o coeficiente adotado e
+  {f(v('2026', 'jan–abr', 'real', tarde))} GW com o anterior (seção 7.5).
+- O coeficiente adotado (decisão 52) responde menos que o anterior nos anos de corte alto.
 - A regra é uma resposta linear, sem otimização; a forma do despacho real reflete também decisões do SIN
   e restrições que o simulador não tem.
 """
@@ -86,8 +87,8 @@ def secao(F, fig) -> str:
         "Observado: intercâmbio": f(tb.loc[k, "observado_realizado"], nd),
         "Observado: potencial (+ cortes)": f(tb.loc[k, "observado_potencial"], nd),
         "A: mediana [P5–P95]": f"{f(tb.loc[k, 'A_p50'], nd)} [{f(tb.loc[k, 'A_p5'], nd)}–{f(tb.loc[k, 'A_p95'], nd)}]",
-        "B: regra, beta do estudo": f(tb.loc[k, "B_regra_media"], nd),
-        "B: regra, beta consistente": f(tb.loc[k, "B_regra_beta_pot_media"], nd),
+        "B: regra (caso central)": f(tb.loc[k, "B_regra_media"], nd),
+        "B: regra, beta anterior": f(tb.loc[k, "B_regra_beta_anterior_media"], nd),
         "B: despacho hidráulico observado": f(tb.loc[k, "B_despacho_obs_media"], nd)} for k, rot, nd in linhas])
 
     t_comp = pd.DataFrame([{"Parcela": r.parcela,
@@ -98,28 +99,28 @@ def secao(F, fig) -> str:
 
     # ---- beta
     Tb = d["diag_beta_hidro"]
-    t_beta = pd.DataFrame([{"Ano": int(r.ano), "Corte eólico (%)": f(r._6, 1), "Beta, carga líquida realizada (estudo)": f(r.beta_realizada, 2),
-                            "Beta, carga líquida potencial (consistente)": f(r.beta_potencial, 2),
+    t_beta = pd.DataFrame([{"Ano": int(r.ano), "Corte eólico (%)": f(r._6, 1), "Beta anterior (carga líquida realizada)": f(r.beta_realizada, 2),
+                            "Beta adotado (carga líquida potencial)": f(r.beta_potencial, 2),
                             "Desvio intradiário, realizada (MW)": f(r.dp_intradiario_carga_liq_realizada_MW, 0),
                             "Desvio intradiário, potencial (MW)": f(r.dp_intradiario_carga_liq_potencial_MW, 0)} for r in Tb.itertuples()])
     BK = d["diag_backcast_beta"]
     nomes = list(BK.beta.unique())
     piv = BK.pivot(index="ano", columns="beta", values=["obs_TWh", "sim_TWh", "erro_%"])
     t_bk = pd.DataFrame([{"Ano": int(a), "Observado (TWh)": f(piv.loc[a, ("obs_TWh", nomes[0])], 2),
-                          "Beta do estudo (erro)": f"{f(piv.loc[a, ('sim_TWh', nomes[0])], 2)} ({sg(piv.loc[a, ('erro_%', nomes[0])])}%)",
-                          "Beta consistente (erro)": f"{f(piv.loc[a, ('sim_TWh', nomes[1])], 2)} ({sg(piv.loc[a, ('erro_%', nomes[1])])}%)"}
+                          "Beta anterior (erro)": f"{f(piv.loc[a, ('sim_TWh', nomes[0])], 2)} ({sg(piv.loc[a, ('erro_%', nomes[0])])}%)",
+                          "Beta adotado (erro)": f"{f(piv.loc[a, ('sim_TWh', nomes[1])], 2)} ({sg(piv.loc[a, ('erro_%', nomes[1])])}%)"}
                          for a in piv.index])
 
     # ---- substituição
     SB = d["diag_substituicao"].set_index("ano")
-    casos = [(REGRA_ESTUDO, "Método do estudo (formas simuladas + resíduos, beta do estudo)"),
-             (REGRA_CONS, "Formas simuladas + resíduos, beta consistente"),
-             ("simulado, regra com beta consistente", "Formas simuladas sem resíduos, beta consistente"),
-             ("forma eólica observada (beta consistente)", "… só a forma eólica observada"),
-             ("forma da carga observada (beta consistente)", "… só a forma da carga observada"),
-             ("formas solar e MMGD observadas (beta consistente)", "… só as formas solar e MMGD observadas"),
-             ("todas as formas observadas, regra com beta do estudo", "Todas as formas observadas, beta do estudo"),
-             ("todas as formas observadas, regra com beta consistente", "Todas as formas observadas, beta consistente"),
+    casos = [(REGRA_ADOT, "Método atual (formas simuladas + resíduos, beta adotado)"),
+             (REGRA_ANT, "Método anterior (formas simuladas + resíduos, beta anterior)"),
+             ("simulado, regra com beta adotado", "Formas simuladas sem resíduos, beta adotado"),
+             ("forma eólica observada (beta adotado)", "… só a forma eólica observada"),
+             ("forma da carga observada (beta adotado)", "… só a forma da carga observada"),
+             ("formas solar e MMGD observadas (beta adotado)", "… só as formas solar e MMGD observadas"),
+             ("todas as formas observadas, regra com beta anterior", "Todas as formas observadas, beta anterior"),
+             ("todas as formas observadas, regra com beta adotado", "Todas as formas observadas, beta adotado"),
              ("simulado, despacho hidráulico observado", "Formas simuladas sem resíduos, despacho hidráulico observado")]
     anos = list(SB.index)
     cel = lambda col, a: f"{f(SB.loc[a, col], 2)} ({sg(100 * (SB.loc[a, col] / SB.loc[a, 'observado_TWh'] - 1))}%)"
@@ -130,22 +131,22 @@ def secao(F, fig) -> str:
              {"Importação (TWh, erro)": "P5 horário da eólica: observado / simulado com resíduos (MW)",
               **{str(a): f"{f(SB.loc[a, 'eolica_p5_observada_MW'], 0)} / {f(SB.loc[a, 'eolica_p5_simulada_com_residuos_MW'], 0)}" for a in anos}}]
     t_sb = pd.DataFrame(rows)
-    efe = lambda a: SB.loc[a, "forma eólica observada (beta consistente)"] - SB.loc[a, "simulado, regra com beta consistente"]
-    res = lambda a: SB.loc[a, REGRA_CONS] - SB.loc[a, "simulado, regra com beta consistente"]
+    efe = lambda a: SB.loc[a, "forma eólica observada (beta adotado)"] - SB.loc[a, "simulado, regra com beta adotado"]
+    res = lambda a: SB.loc[a, REGRA_ADOT] - SB.loc[a, "simulado, regra com beta adotado"]
     rec = nb["anos_rec"]
     ant = [a for a in anos if a not in rec]
     tod = lambda col, aa: [100 * (SB.loc[a, col] / SB.loc[a, "observado_TWh"] - 1) for a in aa]
     lista = lambda aa: ", ".join(str(a) for a in aa[:-1]) + " e " + str(aa[-1]) if len(aa) > 1 else str(aa[0])
-    sm = lambda a: SB.loc[a, "formas solar e MMGD observadas (beta consistente)"] - SB.loc[a, "simulado, regra com beta consistente"]
+    sm = lambda a: SB.loc[a, "formas solar e MMGD observadas (beta adotado)"] - SB.loc[a, "simulado, regra com beta adotado"]
 
     # ---- 2030
     E = d["diag_2030_beta"]
-    est, cons = list(E.beta.unique())
+    ant_, adot = list(E.beta.unique())
     t_30 = pd.DataFrame([{"Cenário eólico": w,
-                          "Importação, DC central: estudo (TWh)": f(E[(E.beta == est) & (E.cenario_eolico == w)].central_media_TWh.iat[0], 2),
-                          "Importação com beta consistente (TWh)": f(E[(E.beta == cons) & (E.cenario_eolico == w)].central_media_TWh.iat[0], 2),
-                          "Efeito dos DC: estudo (TWh)": f(E[(E.beta == est) & (E.cenario_eolico == w)].efeito_DC_TWh.iat[0], 2),
-                          "Efeito dos DC com beta consistente (TWh)": f(E[(E.beta == cons) & (E.cenario_eolico == w)].efeito_DC_TWh.iat[0], 2)}
+                          "Importação, DC central: beta anterior (TWh)": f(E[(E.beta == ant_) & (E.cenario_eolico == w)].central_media_TWh.iat[0], 2),
+                          "Importação, DC central: beta adotado (TWh)": f(E[(E.beta == adot) & (E.cenario_eolico == w)].central_media_TWh.iat[0], 2),
+                          "Efeito dos DC: beta anterior (TWh)": f(E[(E.beta == ant_) & (E.cenario_eolico == w)].efeito_DC_TWh.iat[0], 2),
+                          "Efeito dos DC: beta adotado (TWh)": f(E[(E.beta == adot) & (E.cenario_eolico == w)].efeito_DC_TWh.iat[0], 2)}
                          for w in ["baixa", "base", "alta"]])
     corte25 = d["bk"].set_index("ano").loc[2025, "corte_eol_em_horas_de_importacao_TWh"].iat[0]
 
@@ -160,15 +161,15 @@ O observado "potencial" soma ao intercâmbio os cortes eólicos e solares, que �
   hidrologia 2022–2025): o ano observado cai dentro da faixa?
 - **(B) clima e hidrologia conhecidos.** As funções de transferência são re-treinadas só com dados até
   2025-12-31 (fora da amostra) e aplicadas ao ERA5 de 2026. A térmica é a observada e a hidráulica segue a
-  energia diária observada de 2026, pela regra emulada ou pelo despacho real. Os níveis continuam sendo os
-  do cenário.
+  energia diária observada de 2026, pela regra emulada (coeficiente adotado e, para comparação, o anterior)
+  ou pelo despacho real. Os níveis continuam sendo os do cenário.
 
 {tab(t_bt)}
 
 - **A contém o ano observado.** A importação de {f(nb['obs'], 2)} TWh fica no percentil
   {f(nb['A_pct'], 0)} da distribuição ex-ante (P5–P95 {f(nb['A_p5'], 2)}–{f(nb['A_p95'], 2)} TWh).
-- **B subestima.** Com o clima e a hidrologia de 2026, o simulador dá {f(nb['B_est'], 2)} TWh com a regra
-  do estudo ({sg(100 * (nb['B_est'] / nb['obs'] - 1))}%). A forma horária de M é boa: correlação
+- **B subestima.** Com o clima e a hidrologia de 2026, o simulador dá {f(nb['B_cen'], 2)} TWh com a regra
+  do caso central ({sg(100 * (nb['B_cen'] / nb['obs'] - 1))}%). A forma horária de M é boa: correlação
   {f(e['corr'], 2)} e sinal certo em {f(e['acerto_sinal_%'], 0)}% das horas. Os extremos ficam curtos: o P95 da
   importação horária simulada é {f(100 * tb.loc['importacao_p95_MW', 'B_regra_media'] / tb.loc['importacao_p95_MW', 'observado_potencial'], 0)}%
   do observado.
@@ -180,14 +181,14 @@ O observado "potencial" soma ao intercâmbio os cortes eólicos e solares, que �
 {fig('b26')}
 **Esperado ou erro de metodologia?** Três testes (`src/sim/diagnostico_importacao.py`) separam as causas.
 
-**1. Inconsistência no coeficiente da regra hidráulica: erro de método, corrigível.**
-- **O problema.** O coeficiente beta é estimado sobre a carga líquida **realizada**, com a eólica e a
+**1. Inconsistência no coeficiente da regra hidráulica: erro de método, corrigido (decisão 52).**
+- **O problema.** O coeficiente beta era estimado sobre a carga líquida **realizada**, com a eólica e a
   solar já cortadas. A regra, porém, é aplicada à carga líquida **potencial** do simulador, que não tem
   corte. Com corte alto, a carga líquida potencial oscila muito mais dentro do dia. Multiplicar essa
   oscilação maior por um beta medido na oscilação menor exagera a resposta: a hidráulica vai demais para
   as horas de carga líquida alta, e a importação cai.
-- **A divergência cresce com o corte.** O beta estimado sobre a grandeza a que é aplicado (consistente)
-  fica próximo do estudo em 2022 e bem menor a partir de 2024:
+- **A correção.** Desde 2026-11-17 o caso central usa o beta estimado sobre a grandeza a que é aplicado,
+  a carga líquida potencial (adotado). Ele fica próximo do anterior em 2022 e bem menor a partir de 2024:
 
 {tab(t_beta)}
 
@@ -195,13 +196,13 @@ O observado "potencial" soma ao intercâmbio os cortes eólicos e solares, que �
 
 {tab(t_bk)}
 
-- **Efeito no backtest de 2026.** B passa de {f(nb['B_est'], 2)} para {f(nb['B_cons'], 2)} TWh (despacho
-  observado: {f(nb['B_hid'], 2)} TWh).
-- **Com as formas observadas, a regra consistente acerta.** Aplicada às parcelas observadas, a regra com
-  beta consistente erra a importação em {f(min(tod('todas as formas observadas, regra com beta consistente', rec)), 0)}% a
-  {sg(max(tod('todas as formas observadas, regra com beta consistente', rec)), 0)}% em {rec[0]}–{rec[-1]}. Com o beta
-  do estudo, erra {f(min(tod('todas as formas observadas, regra com beta do estudo', rec)), 0)}% a
-  {sg(max(tod('todas as formas observadas, regra com beta do estudo', rec)), 0)}%.
+- **Efeito no backtest de 2026.** B passa de {f(nb['B_ant'], 2)} TWh (beta anterior) para {f(nb['B_cen'], 2)} TWh
+  (despacho observado: {f(nb['B_hid'], 2)} TWh).
+- **Com as formas observadas, a regra corrigida acerta.** Aplicada às parcelas observadas, a regra com o
+  beta adotado erra a importação em {f(min(tod('todas as formas observadas, regra com beta adotado', rec)), 0)}% a
+  {sg(max(tod('todas as formas observadas, regra com beta adotado', rec)), 0)}% em {rec[0]}–{rec[-1]}. Com o beta
+  anterior, errava {f(min(tod('todas as formas observadas, regra com beta anterior', rec)), 0)}% a
+  {sg(max(tod('todas as formas observadas, regra com beta anterior', rec)), 0)}%.
 
 **2. Formas horárias: a eólica simulada tem poucas horas de pouco vento. É sistemático nos anos recentes.**
 Com os **níveis observados** de cada ano, a forma simulada de cada parcela é trocada pela observada.
@@ -225,9 +226,9 @@ As funções de transferência foram re-treinadas sem o próprio ano. A tabela m
     não a frequência de calmarias observada nos anos recentes.
   - A causa exata não foi isolada. Candidatas: os pesos espaciais fixos da frota de out/2026 aplicados ao
     ERA5; a geração potencial reconstruída em anos de corte alto; indisponibilidades que não entram na GNRa.
-- **Resultado.** Com o beta consistente e os resíduos, o simulador ainda subestima a importação em
-  {f(-max(tod(REGRA_CONS, rec)), 0)}% a {f(-min(tod(REGRA_CONS, rec)), 0)}% em {rec[0]}–{rec[-1]}. Em
-  {lista(ant)}, o erro fica entre {sg(min(tod(REGRA_CONS, ant)), 0)}% e {sg(max(tod(REGRA_CONS, ant)), 0)}%.
+- **Resultado.** Com o método atual (beta adotado e resíduos), o simulador ainda subestima a importação em
+  {f(-max(tod(REGRA_ADOT, rec)), 0)}% a {f(-min(tod(REGRA_ADOT, rec)), 0)}% em {rec[0]}–{rec[-1]}. Em
+  {lista(ant)}, o erro fica entre {sg(min(tod(REGRA_ADOT, ant)), 0)}% e {sg(max(tod(REGRA_ADOT, ant)), 0)}%.
 
 **3. O que é esperado.**
 - Um único ano não testa a distribuição: o observado de 2026 está no percentil {f(nb['A_pct'], 0)} de A.
@@ -238,20 +239,20 @@ As funções de transferência foram re-treinadas sem o próprio ano. A tabela m
 - O momento exato das calmarias de um ano não é previsível pelo ERA5 com uma função de transferência média.
 
 **Conclusão.**
-- **Erro de método (corrigível).** A inconsistência do beta é um erro. Corrigida, a regra reproduz a
-  importação quando recebe as formas observadas. O efeito cresce com o corte.
+- **Erro de método (corrigido).** A inconsistência do beta era um erro, e o efeito crescia com o corte.
+  Corrigida, a regra reproduz a importação quando recebe as formas observadas.
 - **Limitação sistemática (não é erro de código).** A maior parte da subestimação de {rec[0]}–{rec[-1]} vem da
   forma eólica simulada. Ela não representa as horas de pouco vento da frota recente, e os resíduos
   sorteados não corrigem isso. O sinal se repete em três anos seguidos, então não é acaso de 2026.
 - **Consequência para 2030.**
-  - Só com o beta consistente, a importação média (DC central, eólica base) passa de {f(nb['imp30_est'], 2)}
-    para {f(nb['imp30_cons'], 2)} TWh. O efeito dos data centers passa de {f(nb['dc30_est'], 2)} para
-    {f(nb['dc30_cons'], 2)} TWh (tabela abaixo).
+  - Com o beta adotado, a importação média (DC central, eólica base) passou de {f(nb['imp30_ant'], 2)} TWh
+    (versão anterior) para {f(nb['imp30'], 2)} TWh. O efeito dos data centers passou de {f(nb['dc30_ant'], 2)}
+    para {f(nb['dc30'], 2)} TWh (tabela abaixo; mesmos sorteios).
   - A limitação da forma eólica pesa mais: indica que a importação de 2030 tende a estar **subestimada**.
-    Nos anos recentes, com os níveis observados, o déficit foi de {f(-max(tod(REGRA_CONS, rec)), 0)}% a
-    {f(-min(tod(REGRA_CONS, rec)), 0)}%.
+    Nos anos recentes, com os níveis observados, o déficit foi de {f(-max(tod(REGRA_ADOT, rec)), 0)}% a
+    {f(-min(tod(REGRA_ADOT, rec)), 0)}%.
   - O efeito pareado dos data centers também tende a crescer quando há mais horas perto de zero.
-  - O caso central do estudo **não foi alterado**: a correção muda os resultados de 2030 e depende de decisão.
+  - Essa limitação não foi corrigida; uma correção possível está nos próximos passos (STATUS.md).
 
 {tab(t_30)}
 {fig('r27')}"""

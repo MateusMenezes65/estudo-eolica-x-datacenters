@@ -45,12 +45,12 @@ FIGURAS = [
     ("r13", "r13_classificador_cortes.png", "Classificador de cortes: frequência de horas com corte por motivo e calibração das probabilidades."),
     ("s1", "s1_importacao_cenarios_2030.png", "Simulador determinístico: importação em 2030 por cenário, média e faixa entre os anos 2022–2025."),
     ("r15", "r15_regra_hidraulica.png", "Regra hidráulica emulada no Monte Carlo, comparada ao despacho observado nas mesmas datas."),
-    ("r15b", "r15b_perfil_horario_hidraulica.png", "Perfil horário médio da hidráulica: despacho observado e regra emulada com o coeficiente do estudo e com o coeficiente consistente (seção 7.5). Esquerda: 2030 (Monte Carlo). Direita: 2026, regra aplicada às parcelas observadas."),
+    ("r15b", "r15b_perfil_horario_hidraulica.png", "Perfil horário médio da hidráulica: despacho observado e regra emulada com o coeficiente adotado (carga líquida potencial) e com o anterior (carga já cortada; seção 7.5). Esquerda: 2030 (Monte Carlo). Direita: 2026, regra aplicada às parcelas observadas."),
     ("r14", "r14_semana_simulada_2030.png", "Decomposição horária de uma semana simulada de 2030: geração por fonte, carga, data centers e importação."),
     ("mc2", "mc2_convergencia.png", "Convergência do Monte Carlo (média e P95 da importação anual)."),
     ("mc4", "mc4_backcast.png", "Validação retrospectiva: importação anual observada em 2022–2025 e simulada com os níveis do próprio ano, nas duas convenções hidráulicas (barras de erro: P5–P95 dos sorteios de resíduos)."),
     ("b26", "b26_backtest_2026.png", "Backtest de 2026 (jan–out, horas válidas): importação e excedente por mês, observados e simulados (A: cenário de 2026 com clima sorteado; B: clima e hidrologia de 2026)."),
-    ("r27", "r27_diagnostico_importacao.png", "Diagnóstico da subestimação. Esquerda: coeficiente da regra hidráulica estimado sobre a carga líquida realizada (estudo) e potencial (consistente), com o corte eólico do ano. Direita: erro da importação com os níveis observados de cada ano (* sem resíduos)."),
+    ("r27", "r27_diagnostico_importacao.png", "Diagnóstico da subestimação. Esquerda: coeficiente da regra hidráulica estimado sobre a carga líquida realizada (anterior) e potencial (adotado), com o corte eólico do ano. Direita: erro da importação com os níveis observados de cada ano (* sem resíduos)."),
     ("mc1", "mc1_distribuicao_importacao.png", "Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica."),
     ("r16", "r16_efeito_pareado_e_anos_meteorologicos.png", "Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado."),
     ("r18", "r18_importacao_por_hora_2030.png", "2030: percentual de horas com importação por hora do dia e CF eólico médio por hora."),
@@ -343,10 +343,11 @@ compensaria esse consumo?
 - **Backtest de 2026 (seção 7.5).** A importação observada de jan–out ({f(nbt['obs'], 2)} TWh) cai dentro da
   faixa ex-ante do cenário de 2026 (percentil {f(nbt['A_pct'], 0)}). Com o clima e a hidrologia reais, porém, o
   simulador a subestima. Há duas causas.
-  - Um erro de método corrigível: o coeficiente da regra hidráulica foi estimado sobre a carga líquida
-    já cortada. Corrigido, a importação de 2030 sobe de {f(nbt['imp30_est'], 2)} para {f(nbt['imp30_cons'], 2)} TWh.
-  - Uma limitação sistemática: a eólica simulada tem poucas horas de pouco vento na frota recente.
-  - Por isso, a importação de 2030 tende a estar subestimada. O caso central não foi alterado.
+  - Um erro de método, já corrigido: o coeficiente da regra hidráulica era estimado sobre a carga líquida
+    já cortada. Com a correção, a importação de 2030 (DC central, eólica base) passou de
+    {f(nbt['imp30_ant'], 2)} para {f(nbt['imp30'], 2)} TWh.
+  - Uma limitação sistemática, não corrigida: a eólica simulada tem poucas horas de pouco vento na frota
+    recente. Por isso, a importação de 2030 tende a estar subestimada.
 
 ## 1. Contexto, pergunta e escopo
 
@@ -856,7 +857,9 @@ flowchart TB
 - **Como.** A regra mantém a energia diária do ano hidrológico sorteado e redistribui a geração dentro do
   dia seguindo a carga líquida simulada, com o coeficiente medido em cada ano
   ({f(min(betas), 2)}–{f(max(betas), 2)}), dentro dos mínimos e máximos mensais históricos ({F('r15')}). O
-  coeficiente foi estimado sobre a geração observada, já com corte.
+  coeficiente é estimado sobre a carga líquida potencial (geração + corte), a mesma grandeza a que a regra
+  é aplicada (decisão 52, adotada em 2026-11-17). Antes era estimado sobre a carga já cortada; a seção 7.5
+  mostra por que isso era inconsistente.
 - **Sensibilidades.** As alternativas (despacho histórico sem resposta, hidráulica plana) aparecem como
   sensibilidades.
 {fig('r15')}{backtest_tecnico.perfil(F)}{fig('r15b')}
@@ -966,7 +969,7 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 **Como ler a tabela.**
 - O maior fluxo de importação observado em 2022–2025 foi de {f(mcc['import_max_hist_MW'] / 1000)} GW, e
   fluxo não é capacidade.
-- Nos níveis históricos, a regra emulada não superestima os picos (seção 7.4).
+- Nos níveis históricos, o pico simulado com a regra emulada fica de {sg(bk['dpico_regra'].min(), 1)} a {sg(bk['dpico_regra'].max(), 1)} GW do observado (seção 7.4).
 - Os picos de 2030 passam desse patamar já sem data centers ({f(r('sem_dc', 'base', 'importacao_pico_MW') / 1000)}
   GW em média). Isso vem do crescimento da carga com a térmica mantida no despacho histórico:
   {f(min(ter_med), 0)}–{f(max(ter_med), 0)} MWmed de média anual e máximo horário de
@@ -1021,10 +1024,9 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
   não corrigem isso (seção 7.5).
 - **Despacho.** A hidráulica segue uma regra emulada, não uma otimização; a térmica é histórica; a
   hidrologia é amostrada em só 4 anos.
-  - O coeficiente da regra foi estimado sobre a carga líquida já cortada e aplicado à potencial, uma
-    inconsistência que exagera a resposta da hidráulica.
-  - Com o coeficiente consistente, a importação de 2030 seria {f(100 * (nbt['imp30_cons'] / nbt['imp30_est'] - 1), 0)}%
-    maior (seção 7.5).
+  - O coeficiente da regra passou a ser estimado sobre a carga líquida potencial (decisão 52). Com o
+    coeficiente anterior, sobre a carga já cortada, a importação de 2030 seria
+    {f(100 * (1 - nbt['imp30_ant'] / nbt['imp30']), 0)}% menor (seção 7.5).
 - **Nível de carga.** A forma vem da API do ONS e o nível, do PLAN; em 2025 a API fica
   {f(100 * (api25 / plan25 - 1))}% acima.
 - **Data centers.** A carga é flat e igual à média anual; não há rampas dentro de 2030.
@@ -1068,7 +1070,8 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 - **Nível de carga e MMGD de 2030.** Ambos pela 2ª RQ do PLAN 2026–2030; PDE 2035 como sensibilidade.
 - **Eólica alta.** 39,4 GW, com toda a expansão indicativa do PDE alocada ao NE.
 - **Hidráulica.** Despacho histórico no determinístico; regra emulada no Monte Carlo; hidráulica plana
-  como sensibilidade.
+  como sensibilidade. Em 2026-11-17, coeficiente da regra estimado sobre a carga líquida potencial
+  (decisão 52).
 - **Clima.** ERA5 de 1995–2021 incluído para o Monte Carlo.
 
 ## 13. Referências

@@ -20,7 +20,8 @@ Simulado:
   pergunta: o ano observado cai dentro da faixa simulada?
 - (B) clima e hidrologia de 2026 conhecidos: funções de transferência re-treinadas só com dados
   até 2025-12-31 (fora da amostra) aplicadas ao ERA5 de 2026; térmica observada; hidráulica pela
-  regra emulada com a energia diária observada de 2026 (e, como comparação, o despacho observado).
+  regra emulada com a energia diária observada de 2026 e o coeficiente sobre a carga líquida
+  potencial (decisão 52); como comparação, o coeficiente anterior e o despacho observado.
   Os níveis continuam sendo os do cenário (PLAN, SIGA): o erro de B mistura o erro de nível do
   cenário com o das formas horárias. O ERA5 é reanálise (clima perfeito): limite superior.
 """
@@ -96,20 +97,13 @@ def perfis_clima_2026(t: pd.DatetimeIndex) -> pd.DataFrame:
     return P
 
 
-def beta_hidro(O: pd.DataFrame, potencial: bool = False) -> float:
-    """Coeficiente da regra emulada estimado em 2026 (dias sem hora anômala), como em mc.Insumos:
-    carga líquida de MMGD menos eólica e solar REALIZADAS (geração já cortada, decisão 39).
-    `potencial=True`: menos eólica e solar POTENCIAIS, a mesma grandeza a que a regra é aplicada
-    no simulador (diagnóstico, decisão 52)."""
-    g = O.copy()
-    g["nl"] = g.L_gross - g.MMGD - ((g.eol_pot + g.sol_pot) if potencial else (g.eol_real + g.sol_real))
-    dia = g.index.normalize()
-    ok = g.valida.groupby(dia).transform("all")
-    g = g[ok]
-    d = g.index.normalize()
-    dh = g.hid - g.hid.groupby(d).transform("mean")
-    dn = g.nl - g.nl.groupby(d).transform("mean")
-    return float(np.polyfit(dn, dh, 1)[0])
+def beta_hidro(O: pd.DataFrame, potencial: bool = True) -> float:
+    """Coeficiente da regra emulada em 2026, pela mesma função do Monte Carlo (mc.beta_regra), nas
+    horas válidas do período. Caso central: carga líquida potencial (decisão 52); `potencial=False`
+    dá o coeficiente anterior (carga líquida realizada, já cortada)."""
+    X = pd.read_parquet(PROCESSED / "ne_features_h.parquet")
+    g = X.set_index("t").reindex(O.index)[O.valida.to_numpy()]
+    return mc.beta_regra(g, potencial=potencial)
 
 
 def metricas(M: np.ndarray, sel: np.ndarray) -> dict:
@@ -155,8 +149,8 @@ def main() -> None:
     kA = float(S[jan_out].A0.mean())                       # média jan–out da forma anual (média 1), 31 anos
     E = pd.read_parquet(PROCESSED / "sinteticos_2030.parquet")
     kE = float(E[E.t.dt.month <= t[-1].month].E0.mean())
-    beta = beta_hidro(O)
-    beta_pot = beta_hidro(O, potencial=True)
+    beta = beta_hidro(O, potencial=True)            # caso central (decisão 52)
+    beta_ant = beta_hidro(O, potencial=False)       # coeficiente anterior (carga já cortada)
     hid_obs = O.hid.to_numpy()
     lim = O.hid.groupby(t.month)
     hmin = lim.transform("min").to_numpy()
@@ -195,8 +189,8 @@ def main() -> None:
     MBh0, _ = simular_B(None, "historico_sorteado")
     MBr, _ = simular_B(rs, "regra_historica")                    # com resíduos (distribuição)
     MBhr, _ = simular_B(rs, "historico_sorteado")
-    MBp0, compBp = simular_B(None, "regra_historica", beta_pot)   # beta sobre a carga líquida potencial
-    MBpr, _ = simular_B(rs, "regra_historica", beta_pot)
+    MBa0, compBa = simular_B(None, "regra_historica", beta_ant)   # coeficiente anterior
+    MBar, _ = simular_B(rs, "regra_historica", beta_ant)
 
     # ---------------- tabela principal
     mo_r = metricas(O.M_real.to_numpy(), sel)
@@ -204,7 +198,7 @@ def main() -> None:
     mb = metricas(MBr, sel)
     mbh = metricas(MBhr, sel)
     mb0 = metricas(MB0, sel)
-    mbp = metricas(MBpr, sel)
+    mba = metricas(MBar, sel)
     rows = []
     for m in ["importacao_TWh", "horas_importacao", "importacao_p95_MW", "importacao_pico_MW", "excedente_TWh", "M_medio_MW"]:
         a = DA[m].to_numpy() if m in DA else None
@@ -213,8 +207,8 @@ def main() -> None:
              "B_regra_media": float(mb[m].mean()), "B_regra_p5": float(np.percentile(mb[m], 5)),
              "B_regra_p95": float(np.percentile(mb[m], 95)),
              "B_despacho_obs_media": float(mbh[m].mean()),
-             "B_regra_beta_pot_media": float(mbp[m].mean()), "B_regra_beta_pot_p5": float(np.percentile(mbp[m], 5)),
-             "B_regra_beta_pot_p95": float(np.percentile(mbp[m], 95))}
+             "B_regra_beta_anterior_media": float(mba[m].mean()), "B_regra_beta_anterior_p5": float(np.percentile(mba[m], 5)),
+             "B_regra_beta_anterior_p95": float(np.percentile(mba[m], 95))}
         if a is not None:
             r.update({"A_p5": float(np.percentile(a, 5)), "A_p50": float(np.percentile(a, 50)),
                       "A_p95": float(np.percentile(a, 95)), "A_media": float(a.mean()),
@@ -279,12 +273,12 @@ def main() -> None:
     info = {"periodo": bt["periodo"], "horas_periodo": int(nh), "horas_validas": int(sel.sum()),
             "cenario_dc": bt["cenario_dc"], "L_DC_MWmed": ldc, "cenario_eolico": bt["cenario_eolico"],
             "cap_eol_MW": cap_e, "cap_sol_MW": cap_s, "L_gross_sem_dc_MWmed": Lbar, "MMGD_MWmed": Mbar,
-            "beta_hidro_2026": beta, "beta_hidro_2026_potencial": beta_pot, "fr_eol": O.attrs["fr_e"], "fr_sol": O.attrs["fr_s"],
+            "beta_hidro_2026": beta, "beta_hidro_2026_anterior_realizada": beta_ant, "fr_eol": O.attrs["fr_e"], "fr_sol": O.attrs["fr_s"],
             "kA_jan_out": kA, "kE_jan_out": kE, "treino_B": P.attrs["treino"], "n_sorteios_A": n,
             "n_residuos_B": nr, "erro_horario_B": erro}
     pd.Series(info, dtype=object).to_json(OUT / "backtest_2026_config.json", force_ascii=False, indent=1)
     H = pd.DataFrame({"t": t, "valida": sel, "M_obs_real": O.M_real, "M_obs_pot": O.M_pot, "corte": O.corte,
-                      "M_B": MB0[0], "M_B_despacho_obs": MBh0[0], "M_B_beta_pot": MBp0[0], "B_hid_beta_pot": compBp["hid"][0],
+                      "M_B": MB0[0], "M_B_despacho_obs": MBh0[0], "M_B_beta_anterior": MBa0[0], "B_hid_beta_anterior": compBa["hid"][0],
                       **{f"obs_{k_}": O[k_].to_numpy() for k_ in ["L_gross", "MMGD", "eol_pot", "sol_pot", "hid", "ter"]},
                       **{f"B_{k_}": v[0] for k_, v in compB.items()}})
     H.to_parquet(PROCESSED / "backtest_2026_horario.parquet")

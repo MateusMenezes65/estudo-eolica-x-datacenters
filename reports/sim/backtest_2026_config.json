@@ -12,8 +12,8 @@
  "cap_sol_MW":11841.0,
  "L_gross_sem_dc_MWmed":14070.0,
  "MMGD_MWmed":1786.0,
- "beta_hidro_2026":0.3909886384,
- "beta_hidro_2026_potencial":0.218480769,
+ "beta_hidro_2026":0.2139398831,
+ "beta_hidro_2026_anterior_realizada":0.3712835978,
  "fr_eol":1.0336376246,
  "fr_sol":1.0008628713,
  "kA_jan_out":0.9884788085,
@@ -27,10 +27,10 @@
  "n_sorteios_A":2000,
  "n_residuos_B":300,
  "erro_horario_B":{
-  "bias_MW":-742.1045151906,
-  "MAE_MW":1947.6449962725,
-  "RMSE_MW":2498.3321520121,
-  "corr":0.9592076944,
-  "acerto_sinal_%":97.3200373948
+  "bias_MW":-753.359546547,
+  "MAE_MW":1867.2637794379,
+  "RMSE_MW":2392.7421253565,
+  "corr":0.9594111514,
+  "acerto_sinal_%":97.3979432845
  }
 }

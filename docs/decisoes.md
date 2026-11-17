@@ -159,7 +159,8 @@ Formato: decisão — justificativa — status (adotada / provisória / pendente
     A variabilidade não explicada é recomposta com resíduos FORA DA AMOSTRA (validação cruzada
     mensal, janela 2024-07..2025-12), reamostrados juntos em blocos de 7 dias iniciados à 00h,
     a ±14 dias do dia do ano. CF limitado a [0, 1]: ajusta <0,1% da energia. — adotada.
-34. **Hidráulica no Monte Carlo = regra histórica emulada** (decisão do usuário, 2026-11-12):
+34. **Hidráulica no Monte Carlo = regra histórica emulada** (decisão do usuário, 2026-11-12; coeficiente
+    redefinido na decisão 52):
     energia diária do ano hidrológico sorteado (2022–2025); forma intradiária = média diária +
     beta × desvio intradiário da carga líquida simulada (beta do próprio ano: 0,27–0,43),
     limitada ao mínimo e ao máximo mensais históricos e reajustada para conservar a energia
@@ -205,8 +206,9 @@ Verificação completa do projeto; correções técnicas aplicadas e resultados 
     trimestre). A causa da divergência a partir de 2025-T3 não foi identificada nos dados
     abertos. A carga global de 2025 é 13.623 MWmed na API e 13.445 no PLAN (fonte do nível de
     2030). O nível do PLAN é mantido; o nível da API (+1,3%) entra como sensibilidade. — adotada.
-42. **Limites de importação: leitura.** A validação retrospectiva mostra que a regra emulada não
-    superestima os picos nos níveis históricos. Os picos de 2030 acima do maior fluxo observado
+42. **Limites de importação: leitura.** A validação retrospectiva mostrava que a regra emulada não
+    superestima os picos nos níveis históricos; com o β da decisão 52, o pico simulado fica de −1,1 a +0,1 GW
+    do observado. Os picos de 2030 acima do maior fluxo observado
     (7,9 GW) vêm do crescimento da carga com a térmica mantida no despacho histórico; o
     redespacho térmico não é representado. A tabela mede exposição, não risco. — adotada.
 43. **CF solar potencial agregado acima de 0,85** (228 horas, quase todas em ago–out/2026):
@@ -282,7 +284,10 @@ emulada, e identificar se a subestimação é esperada ou vem de erro de metodol
     Com ele, o erro retrospectivo cai de −24% para −18% (2024) e de −30% para −20% (2025); no backtest
     de 2026, B passa de 0,88 para 1,12 TWh; com as formas observadas, a regra consistente erra −1% a −7%
     em 2024–2026. Em 2030 (mesmos sorteios): importação central/base 5,04 → 5,18 TWh; efeito dos DC
-    2,25 → 2,29 TWh. — **caso central mantido; adoção pendente do usuário** (muda os resultados de 2030).
+    2,25 → 2,29 TWh. — **adotada pelo usuário em 2026-11-17**: o caso central do Monte Carlo (e dos anos
+    2026–2030, do backtest e do simulador) usa o beta sobre a carga líquida potencial
+    (`montecarlo.beta_regra`); o anterior fica como sensibilidade ("hidraulica: beta anterior (carga
+    liquida realizada)"). Pipeline regenerado a partir do Monte Carlo; os números de 2030 mudaram.
 53. **Forma eólica simulada: poucas horas de pouco vento na frota recente (limitação sistemática).**
     Com os níveis observados e funções de transferência re-treinadas sem o próprio ano, trocar só a
     forma eólica pela observada aumenta a importação em 0,27–0,50 TWh em 2024–2026 (−0,16 em 2022). A

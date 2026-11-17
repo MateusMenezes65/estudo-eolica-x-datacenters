@@ -1,13 +1,13 @@
 {
  "eta2": {
-  "ano_clima": 0.7663479537335768,
-  "ano_hidro": 0.21365760068485198,
-  "residuos_e_interacao": 0.019994445581571263
+  "ano_clima": 0.7332392480535428,
+  "ano_hidro": 0.2462877843825745,
+  "residuos_e_interacao": 0.020472967563882727
  },
- "iqr_amostral_central_base_TWh": 3.365517610829114,
- "amplitude_medianas_entre_cenarios_TWh": 4.642863599843814,
- "amplitude_medianas_dc_com_eolica_base_TWh": 3.071765316867864,
- "amplitude_medianas_eolica_com_dc_central_TWh": 2.0171865509337294,
+ "iqr_amostral_central_base_TWh": 3.4661791316521287,
+ "amplitude_medianas_entre_cenarios_TWh": 4.754576323891202,
+ "amplitude_medianas_dc_com_eolica_base_TWh": 3.1329458939069976,
+ "amplitude_medianas_eolica_com_dc_central_TWh": 2.099033396785972,
  "limitacao_cf_0_1_energia_%": {
   "cfe_energia_ajustada_%": 0.004202848459065498,
   "cfs_energia_ajustada_%": 0.010184477471665225
