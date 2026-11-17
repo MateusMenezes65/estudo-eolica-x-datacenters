@@ -207,6 +207,13 @@ Regenerar (depois do Monte Carlo de 2030):
 .venv/Scripts/python.exe -m src.report.simulador
 ```
 
+Diagnóstico da subestimação da importação (backtest de 2026 e validação retrospectiva; relatório
+técnico, seção 7.5):
+
+```bash
+.venv/Scripts/python.exe -m src.sim.diagnostico_importacao
+```
+
 Regras dos níveis por ano: `config/cenarios_anuais.yaml`; tabela em
 `reports/sim/trajetorias_2026_2030.csv`; backtest em `reports/sim/backtest_2026*.csv` e
 `reports/figures/b26_backtest_2026.png`. A página confere o próprio motor contra casos de

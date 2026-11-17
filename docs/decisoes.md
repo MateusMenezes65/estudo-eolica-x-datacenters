@@ -266,3 +266,31 @@ Os resultados e as conclusões de 2030 não mudam.
     ~3e-14). Insumos quantizados (1e-4 nas formas e CF; 0,1 MW na hidrotérmica). Os sorteios da
     página usam gerador próprio (semente na URL); as faixas P5–P95 exibidas vêm do Monte Carlo da
     decisão 49. — adotada.
+
+## Diagnóstico da subestimação da importação (2026-11-17)
+
+Pedido do usuário: incluir o backtest de 2026 no relatório técnico, com o perfil horário da hidráulica
+emulada, e identificar se a subestimação é esperada ou vem de erro de metodologia
+(`src/sim/diagnostico_importacao.py`; relatório técnico, seção 7.5).
+
+52. **Inconsistência no coeficiente da regra hidráulica (erro de método).** O beta da regra emulada
+    (decisões 34 e 39) é estimado sobre a carga líquida REALIZADA (eólica e solar já cortadas), mas
+    aplicado à carga líquida POTENCIAL do simulador. Com corte alto, o desvio intradiário da potencial é
+    bem maior (2025: 4,6 × 2,6 GW) e o beta exagera a resposta: leva hidráulica demais para as horas de
+    carga líquida alta e reduz a importação. O beta estimado sobre a carga líquida potencial
+    (consistente) é 0,42 / 0,32 / 0,27 / 0,17 / 0,21 em 2022–2026, contra 0,43 / 0,35 / 0,37 / 0,27 / 0,37.
+    Com ele, o erro retrospectivo cai de −24% para −18% (2024) e de −30% para −20% (2025); no backtest
+    de 2026, B passa de 0,88 para 1,12 TWh; com as formas observadas, a regra consistente erra −1% a −7%
+    em 2024–2026. Em 2030 (mesmos sorteios): importação central/base 5,04 → 5,18 TWh; efeito dos DC
+    2,25 → 2,29 TWh. — **caso central mantido; adoção pendente do usuário** (muda os resultados de 2030).
+53. **Forma eólica simulada: poucas horas de pouco vento na frota recente (limitação sistemática).**
+    Com os níveis observados e funções de transferência re-treinadas sem o próprio ano, trocar só a
+    forma eólica pela observada aumenta a importação em 0,27–0,50 TWh em 2024–2026 (−0,16 em 2022). A
+    eólica simulada superestima as horas de menos vento em +74 MW (2022) a +806 MW (2026). Os resíduos
+    sorteados repõem a cauda em 2022–2023, mas não em 2024–2026. Com beta consistente e resíduos, a
+    importação ainda fica 13% a 45% abaixo da observada em 2024–2026. Não é erro de código (com as
+    formas observadas a regra reproduz o observado) nem acaso de 2026 (o sinal se repete em três anos).
+    Causa exata não isolada (candidatas: pesos espaciais fixos da frota aplicados ao ERA5, geração
+    potencial em anos de corte alto, indisponibilidades fora da GNRa). Consequência: a importação de
+    2030 tende a estar subestimada. Correção possível (quantile mapping do CF eólico ou resíduos
+    condicionados ao nível previsto) não aplicada. — fato observado; correção pendente do usuário.

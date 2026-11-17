@@ -2,7 +2,7 @@
 
 Uso: python -m src.pipeline [--desde etapa] [--ate etapa]
 Etapas, em ordem: integracao, auditoria, pde, features, clima, backtest, cortes,
-deterministico, sinteticos, montecarlo, backcast, trajetorias, anos, backtest2026, relatorio,
+deterministico, sinteticos, montecarlo, backcast, trajetorias, anos, backtest2026, diagnostico, relatorio,
 figuras, tecnico, html_final, html_tecnico, simulador.
 As etapas trajetorias, anos, backtest2026 e simulador alimentam só o simulador interativo
 (2026–2030) e o anexo dos relatórios; não alteram os resultados de 2030.
@@ -31,6 +31,7 @@ ETAPAS = [
     ("trajetorias", "src.sim.trajetorias", []),
     ("anos", "src.sim.anos", []),
     ("backtest2026", "src.sim.backtest_2026", []),
+    ("diagnostico", "src.sim.diagnostico_importacao", []),
     ("relatorio", "src.report.final", []),
     ("figuras", "src.report.figuras_didaticas", []),
     ("tecnico", "src.report.tecnico", []),

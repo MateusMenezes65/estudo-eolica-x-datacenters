@@ -1,0 +1,7 @@
+beta,cenario_eolico,central_media_TWh,central_p5_TWh,central_p95_TWh,sem_dc_media_TWh,efeito_DC_TWh,efeito_DC_p5,efeito_DC_p95,horas_central
+estudo (beta sobre carga líquida realizada),baixa,5.7558,2.2358,10.418,3.1923,2.5636,1.2504,4.0321,1490.3375
+estudo (beta sobre carga líquida realizada),base,5.0372,1.8475,9.4126,2.7838,2.2534,1.0348,3.6887,1308.617
+estudo (beta sobre carga líquida realizada),alta,3.7139,1.1974,7.4666,2.028,1.6859,0.6774,2.9987,979.143
+beta consistente,baixa,5.9146,2.2995,10.6294,3.312,2.6025,1.2887,4.0428,1508.9845
+beta consistente,base,5.1805,1.8745,9.6108,2.8919,2.2886,1.0684,3.7104,1325.7795
+beta consistente,alta,3.8269,1.2048,7.6609,2.1135,1.7134,0.681,3.03,992.463

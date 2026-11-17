@@ -1,7 +1,7 @@
 # Relatório técnico — Data centers e expansão eólica no balanço horário do Nordeste (2030)
 
 Documento de apresentação do projeto, passo a passo. Gerado por `python -m src.report.tecnico` em
-2026-11-17 02:43 UTC, a partir das tabelas produzidas pelo pipeline.
+2026-11-17 03:10 UTC, a partir das tabelas produzidas pelo pipeline.
 Os números citados vêm de arquivos em `reports/` e `config/`; os poucos valores de análises exploratórias
 trazem a decisão de `docs/decisoes.md` em que estão registrados.
 
@@ -45,6 +45,13 @@ compensaria esse consumo?
   entre -30% e +7% (seção 7.4). O nível absoluto
   de 2030 carrega um erro dessa ordem; o efeito dos data centers, medido por diferença pareada, varia
   menos.
+- **Backtest de 2026 (seção 7.5).** A importação observada de jan–out (1,68 TWh) cai dentro da
+  faixa ex-ante do cenário de 2026 (percentil 78). Com o clima e a hidrologia reais, porém, o
+  simulador a subestima. Há duas causas.
+  - Um erro de método corrigível: o coeficiente da regra hidráulica foi estimado sobre a carga líquida
+    já cortada. Corrigido, a importação de 2030 sobe de 5,04 para 5,18 TWh.
+  - Uma limitação sistemática: a eólica simulada tem poucas horas de pouco vento na frota recente.
+  - Por isso, a importação de 2030 tende a estar subestimada. O caso central não foi alterado.
 
 ## 1. Contexto, pergunta e escopo
 
@@ -676,17 +683,33 @@ flowchart TB
 
 ![Figura 23 — Regra hidráulica emulada no Monte Carlo, comparada ao despacho observado nas mesmas datas.](figures/r15_regra_hidraulica.png)
 
-A Figura 24 mostra uma semana de 2030 decomposta, extraída de um sorteio com importação próxima da
+**Perfil horário da hidráulica emulada.** A Figura 24 mostra a média por hora do dia: à esquerda, os
+sorteios de 2030; à direita, a regra aplicada às parcelas observadas de 2026, o que isola o efeito da regra.
+- A regra conserva a energia de cada dia, mas a distribui como a carga líquida **potencial**, que é alta a
+  noite inteira e baixa ao meio-dia. Em 2030 (jan–abr), a hidráulica emulada fica em
+  5,1 GW de 0 h a 5 h, contra 4,0 GW no
+  despacho observado dos anos hidrológicos, e em 2,5 GW de 8 h a 14 h,
+  contra 3,5 GW.
+- O despacho real concentra a hidráulica no início da noite. Em 2026 (jan–abr), de 18 h a 21 h, a hidráulica
+  observada foi de 6,0 GW; a regra entrega
+  5,2 GW com o coeficiente do estudo e
+  4,7 GW com o coeficiente consistente (seção 7.5).
+- A regra é uma resposta linear, sem otimização; a forma do despacho real reflete também decisões do SIN
+  e restrições que o simulador não tem.
+
+![Figura 24 — Perfil horário médio da hidráulica: despacho observado e regra emulada com o coeficiente do estudo e com o coeficiente consistente (seção 7.5). Esquerda: 2030 (Monte Carlo). Direita: 2026, regra aplicada às parcelas observadas.](figures/r15b_perfil_horario_hidraulica.png)
+
+A Figura 25 mostra uma semana de 2030 decomposta, extraída de um sorteio com importação próxima da
 mediana: a eólica sustenta a noite, a solar e a MMGD sustentam o dia, e a importação (hachurada) aparece
 no fim da tarde e em noites de pouco vento.
 
-![Figura 24 — Decomposição horária de uma semana simulada de 2030: geração por fonte, carga, data centers e importação.](figures/r14_semana_simulada_2030.png)
+![Figura 25 — Decomposição horária de uma semana simulada de 2030: geração por fonte, carga, data centers e importação.](figures/r14_semana_simulada_2030.png)
 
 ### 7.3 Convergência
 
 Foram usados 2.000 sorteios (semente 20261112). De 1.500 para 2.000 sorteios, a média
 da importação anual mudou 0,28% e o P95,
-0,20% (Figura 25).
+0,20% (Figura 26).
 
 | Sorteios | Média (TWh) | P95 (TWh) |
 |---|---|---|
@@ -697,14 +720,14 @@ da importação anual mudou 0,28% e o P95,
 | 1.500 | 5,023 | 9,394 |
 | 2.000 | 5,037 | 9,413 |
 
-![Figura 25 — Convergência do Monte Carlo (média e P95 da importação anual).](figures/mc2_convergencia.png)
+![Figura 26 — Convergência do Monte Carlo (média e P95 da importação anual).](figures/mc2_convergencia.png)
 
 ### 7.4 Validação retrospectiva: o simulador reproduz o passado?
 
 **Teste.** Antes de usar o simulador para 2030, ele foi rodado para cada ano de 2022–2025 com o clima, o
 ano hidrotérmico e os **níveis observados** daquele ano (carga coerente com o balanço, MMGD, energia
 eólica e solar potenciais). Só os resíduos são sorteados (300 sorteios). Se as formas horárias e a
-regra hidráulica estiverem certas, a importação simulada deve ficar próxima da observada (Figura 26).
+regra hidráulica estiverem certas, a importação simulada deve ficar próxima da observada (Figura 27).
 
 | Ano | Importação observada (TWh) | Simulada, regra emulada (erro) | Simulada, despacho hidráulico observado (erro) | Pico observado (GW) | Pico simulado, regra (GW) | Pico simulado, despacho observado (GW) | Corte eólico em horas de importação (TWh) |
 |---|---|---|---|---|---|---|---|
@@ -724,14 +747,167 @@ regra hidráulica estiverem certas, a importação simulada deve ficar próxima 
     ocorreram em horas de importação (restrições de rede). O simulador usa a geração potencial e não
     representa esses cortes.
   - Em 2024 esse corte foi de 0,02 TWh,
-    então a subestimação daquele ano tem outra origem, não identificada.
+    então a subestimação daquele ano tem outra origem. A seção 7.5 a atribui ao coeficiente da regra
+    hidráulica e, principalmente, à forma da eólica simulada.
 - **Picos.** Com a regra, o pico simulado difere do observado em -1,1 a
   -0,0 GW.
 - **Leitura.** O nível absoluto da importação de 2030 carrega um erro estrutural dessa ordem, comparável
   ao efeito de trocar a convenção hidráulica. As diferenças pareadas entre cenários usam o mesmo sorteio
   nos dois lados e variam menos (seção 8.6).
 
-![Figura 26 — Validação retrospectiva: importação anual observada em 2022–2025 e simulada com os níveis do próprio ano, nas duas convenções hidráulicas (barras de erro: P5–P95 dos sorteios de resíduos).](figures/mc4_backcast.png)
+![Figura 27 — Validação retrospectiva: importação anual observada em 2022–2025 e simulada com os níveis do próprio ano, nas duas convenções hidráulicas (barras de erro: P5–P95 dos sorteios de resíduos).](figures/mc4_backcast.png)
+
+### 7.5 Backtest de 2026 e diagnóstico da subestimação
+
+**Teste.** O simulador recebe os níveis de cenário de 2026 (anexo; DC central, porque a carga do PLAN de
+2026 inclui os data centers da 2ª RQ) e é comparado ao balanço observado de janeiro a outubro, só nas
+6.418 das 7.296 horas em que o balanço do ONS fecha (decisão 16).
+O observado "potencial" soma ao intercâmbio os cortes eólicos e solares, que é o conceito do simulador.
+- **(A) ex-ante.** Os 2.000 sorteios do Monte Carlo de 2026 (clima 1995–2025,
+  hidrologia 2022–2025): o ano observado cai dentro da faixa?
+- **(B) clima e hidrologia conhecidos.** As funções de transferência são re-treinadas só com dados até
+  2025-12-31 (fora da amostra) e aplicadas ao ERA5 de 2026. A térmica é a observada e a hidráulica segue a
+  energia diária observada de 2026, pela regra emulada ou pelo despacho real. Os níveis continuam sendo os
+  do cenário.
+
+| Métrica (jan–out, horas válidas) | Observado: intercâmbio | Observado: potencial (+ cortes) | A: mediana [P5–P95] | B: regra, beta do estudo | B: regra, beta consistente | B: despacho hidráulico observado |
+|---|---|---|---|---|---|---|
+| Importação (TWh) | 1,68 | 1,67 | 0,93 [0,21–2,73] | 0,88 | 1,12 | 1,25 |
+| Horas com importação | 547 | 524 | 379 [114–801] | 459 | 527 | 498 |
+| P95 da importação horária (MW) | 2.308 | 2.305 | 555 [0–3.900] | 976 | 1.428 | 1.425 |
+| Pico de importação (MW) | 8.048 | 8.048 | 8.004 [4.922–10.027] | 6.562 | 7.380 | 9.062 |
+| Excedente (TWh) | 43,0 | 68,9 | 70,5 [60,5–82,3] | 63,1 | 63,3 | 63,4 |
+
+- **A contém o ano observado.** A importação de 1,68 TWh fica no percentil
+  78 da distribuição ex-ante (P5–P95 0,21–2,73 TWh).
+- **B subestima.** Com o clima e a hidrologia de 2026, o simulador dá 0,88 TWh com a regra
+  do estudo (-48%). A forma horária de M é boa: correlação
+  0,96 e sinal certo em 97% das horas. Os extremos ficam curtos: o P95 da
+  importação horária simulada é 42%
+  do observado.
+- **Não é o nível médio.** O M médio de B fica 742 MW abaixo do observado, o que aumentaria
+  a importação. A decomposição abaixo fecha esse viés; a parcela "carga: balanço × API" é a diferença entre
+  os dois conceitos de carga (decisão 41).
+
+| Parcela | Observado (MWmed) | Simulado B (MWmed) | Efeito em M (MWmed) |
+|---|---|---|---|
+| carga bruta (com DC) | 14.303 | 14.001 | +302 |
+| MMGD | 1.821 | 1.696 | -125 |
+| eólica potencial | 14.852 | 14.345 | -507 |
+| solar potencial | 3.118 | 3.119 | +2 |
+| hidráulica | 3.917 | 3.923 | +5 |
+| térmica | 649 | 649 | 0 |
+| carga: balanço do ONS × API (decisão 41) | — | — | -419 |
+| total = viés médio de M (B − observado) | — | — | -742 |
+
+![Figura 28 — Backtest de 2026 (jan–out, horas válidas): importação e excedente por mês, observados e simulados (A: cenário de 2026 com clima sorteado; B: clima e hidrologia de 2026).](figures/b26_backtest_2026.png)
+
+**Esperado ou erro de metodologia?** Três testes (`src/sim/diagnostico_importacao.py`) separam as causas.
+
+**1. Inconsistência no coeficiente da regra hidráulica: erro de método, corrigível.**
+- **O problema.** O coeficiente beta é estimado sobre a carga líquida **realizada**, com a eólica e a
+  solar já cortadas. A regra, porém, é aplicada à carga líquida **potencial** do simulador, que não tem
+  corte. Com corte alto, a carga líquida potencial oscila muito mais dentro do dia. Multiplicar essa
+  oscilação maior por um beta medido na oscilação menor exagera a resposta: a hidráulica vai demais para
+  as horas de carga líquida alta, e a importação cai.
+- **A divergência cresce com o corte.** O beta estimado sobre a grandeza a que é aplicado (consistente)
+  fica próximo do estudo em 2022 e bem menor a partir de 2024:
+
+| Ano | Corte eólico (%) | Beta, carga líquida realizada (estudo) | Beta, carga líquida potencial (consistente) | Desvio intradiário, realizada (MW) | Desvio intradiário, potencial (MW) |
+|---|---|---|---|---|---|
+| 2022 | 0,6 | 0,43 | 0,42 | 1.815 | 1.893 |
+| 2023 | 3,9 | 0,35 | 0,32 | 2.135 | 2.321 |
+| 2024 | 9,1 | 0,37 | 0,27 | 2.615 | 3.453 |
+| 2025 | 20,1 | 0,27 | 0,17 | 2.598 | 4.621 |
+| 2026 | 21,1 | 0,37 | 0,21 | 3.151 | 5.921 |
+
+- **Validação retrospectiva com os dois coeficientes** (mesmos sorteios da seção 7.4):
+
+| Ano | Observado (TWh) | Beta do estudo (erro) | Beta consistente (erro) |
+|---|---|---|---|
+| 2022 | 1,47 | 1,53 (+4%) | 1,55 (+5%) |
+| 2023 | 2,39 | 2,55 (+7%) | 2,58 (+8%) |
+| 2024 | 3,32 | 2,51 (-24%) | 2,73 (-18%) |
+| 2025 | 1,58 | 1,11 (-30%) | 1,27 (-20%) |
+
+- **Efeito no backtest de 2026.** B passa de 0,88 para 1,12 TWh (despacho
+  observado: 1,25 TWh).
+- **Com as formas observadas, a regra consistente acerta.** Aplicada às parcelas observadas, a regra com
+  beta consistente erra a importação em -7% a
+  -1% em 2024–2026. Com o beta
+  do estudo, erra -19% a
+  -8%.
+
+**2. Formas horárias: a eólica simulada tem poucas horas de pouco vento. É sistemático nos anos recentes.**
+Com os **níveis observados** de cada ano, a forma simulada de cada parcela é trocada pela observada.
+As funções de transferência foram re-treinadas sem o próprio ano. A tabela mostra a importação e o erro.
+
+| Importação (TWh, erro) | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|---|
+| Observado (geração potencial) | 1,62 | 2,53 | 3,52 | 1,64 | 1,73 |
+| Método do estudo (formas simuladas + resíduos, beta do estudo) | 1,42 (-13%) | 2,61 (+3%) | 2,84 (-19%) | 0,96 (-41%) | 0,74 (-57%) |
+| Formas simuladas + resíduos, beta consistente | 1,44 (-11%) | 2,65 (+5%) | 3,06 (-13%) | 1,12 (-32%) | 0,95 (-45%) |
+| Formas simuladas sem resíduos, beta consistente | 1,27 (-22%) | 2,19 (-13%) | 2,99 (-15%) | 1,05 (-36%) | 0,94 (-46%) |
+| … só a forma eólica observada | 1,11 (-32%) | 2,29 (-10%) | 3,26 (-7%) | 1,33 (-19%) | 1,44 (-17%) |
+| … só a forma da carga observada | 1,39 (-14%) | 2,15 (-15%) | 2,87 (-18%) | 1,24 (-24%) | 1,06 (-39%) |
+| … só as formas solar e MMGD observadas | 1,37 (-15%) | 2,32 (-8%) | 3,22 (-8%) | 1,10 (-33%) | 1,00 (-42%) |
+| Todas as formas observadas, beta do estudo | 1,37 (-16%) | 2,30 (-9%) | 3,25 (-8%) | 1,47 (-10%) | 1,40 (-19%) |
+| Todas as formas observadas, beta consistente | 1,39 (-15%) | 2,34 (-8%) | 3,41 (-3%) | 1,63 (-1%) | 1,61 (-7%) |
+| Formas simuladas sem resíduos, despacho hidráulico observado | 1,62 (-1%) | 2,36 (-7%) | 3,19 (-9%) | 1,10 (-33%) | 1,07 (-39%) |
+| Erro da eólica simulada no quintil de menos vento (MW) | +74 | +333 | +540 | +800 | +806 |
+| P5 horário da eólica: observado / simulado com resíduos (MW) | 3.045 / 2.856 | 3.308 / 3.144 | 2.886 / 3.263 | 4.965 / 5.279 | 4.486 / 4.959 |
+
+- **A eólica é a parcela que mais pesa.** Trocar só a forma eólica pela observada aumenta a importação em
+  0,27 a 0,50 TWh em 2024–2026; em 2022 o efeito é
+  -0,16 TWh. A forma da carga muda de sinal entre os anos (acaso). As formas solar e MMGD somam
+  +0,05 a +0,24 TWh.
+- **O erro cresce ano a ano.** Nas horas de menos vento, a eólica simulada superestima a observada em
+  +74 MW em 2022 e
+  +806 MW em 2026.
+- **Os resíduos não corrigem a cauda.** Eles foram desenhados para repor essa variabilidade.
+  - Em 2022 e 2023, repõem: +0,16 a +0,46 TWh,
+    e o P5 da eólica simulada chega ao observado ou fica abaixo dele.
+  - Em 2024–2026, quase nada: +0,00 a +0,07 TWh;
+    o P5 simulado continua acima do observado.
+  - Os resíduos são sorteados em blocos independentes do tempo meteorológico. Repõem a variância média, mas
+    não a frequência de calmarias observada nos anos recentes.
+  - A causa exata não foi isolada. Candidatas: os pesos espaciais fixos da frota de out/2026 aplicados ao
+    ERA5; a geração potencial reconstruída em anos de corte alto; indisponibilidades que não entram na GNRa.
+- **Resultado.** Com o beta consistente e os resíduos, o simulador ainda subestima a importação em
+  13% a 45% em 2024–2026. Em
+  2022 e 2023, o erro fica entre -11% e +5%.
+
+**3. O que é esperado.**
+- Um único ano não testa a distribuição: o observado de 2026 está no percentil 78 de A.
+- Cortes por restrição de rede em horas de importação não são representados. Em 2025 somaram
+  0,37 TWh.
+- A diferença entre os conceitos de carga (API × balanço) muda o nível de M, mas no sentido de aumentar a
+  importação simulada.
+- O momento exato das calmarias de um ano não é previsível pelo ERA5 com uma função de transferência média.
+
+**Conclusão.**
+- **Erro de método (corrigível).** A inconsistência do beta é um erro. Corrigida, a regra reproduz a
+  importação quando recebe as formas observadas. O efeito cresce com o corte.
+- **Limitação sistemática (não é erro de código).** A maior parte da subestimação de 2024–2026 vem da
+  forma eólica simulada. Ela não representa as horas de pouco vento da frota recente, e os resíduos
+  sorteados não corrigem isso. O sinal se repete em três anos seguidos, então não é acaso de 2026.
+- **Consequência para 2030.**
+  - Só com o beta consistente, a importação média (DC central, eólica base) passa de 5,04
+    para 5,18 TWh. O efeito dos data centers passa de 2,25 para
+    2,29 TWh (tabela abaixo).
+  - A limitação da forma eólica pesa mais: indica que a importação de 2030 tende a estar **subestimada**.
+    Nos anos recentes, com os níveis observados, o déficit foi de 13% a
+    45%.
+  - O efeito pareado dos data centers também tende a crescer quando há mais horas perto de zero.
+  - O caso central do estudo **não foi alterado**: a correção muda os resultados de 2030 e depende de decisão.
+
+| Cenário eólico | Importação, DC central: estudo (TWh) | Importação com beta consistente (TWh) | Efeito dos DC: estudo (TWh) | Efeito dos DC com beta consistente (TWh) |
+|---|---|---|---|---|
+| baixa | 5,76 | 5,91 | 2,56 | 2,60 |
+| base | 5,04 | 5,18 | 2,25 | 2,29 |
+| alta | 3,71 | 3,83 | 1,69 | 1,71 |
+
+![Figura 29 — Diagnóstico da subestimação. Esquerda: coeficiente da regra hidráulica estimado sobre a carga líquida realizada (estudo) e potencial (consistente), com o corte eólico do ano. Direita: erro da importação com os níveis observados de cada ano (* sem resíduos).](figures/r27_diagnostico_importacao.png)
 
 ## 8. Resultados
 
@@ -753,11 +929,11 @@ Importação média (TWh/ano) por cenário de data centers × eólica:
 | central | 5,8 | 5,0 | 3,7 |
 | alto | 6,8 | 5,9 | 4,4 |
 
-As faixas P5–P95 são largas (Figura 27): o mesmo cenário central pode resultar em
+As faixas P5–P95 são largas (Figura 30): o mesmo cenário central pode resultar em
 1,8 ou 9,4
 TWh conforme o clima e a hidrologia. As curvas de cenários diferentes, porém, ficam claramente separadas.
 
-![Figura 27 — Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica.](figures/mc1_distribuicao_importacao.png)
+![Figura 30 — Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica.](figures/mc1_distribuicao_importacao.png)
 
 ### 8.2 O efeito dos data centers
 
@@ -775,26 +951,26 @@ Comparando cada sorteio consigo mesmo (diferença pareada):
 | alto | base | 3,2 [1,5–5,1] | 616 |
 | alto | alta | 2,4 [1,0–4,2] | 461 |
 
-- **Sempre positivo.** O efeito é positivo em 100% dos sorteios (Figura 28, esquerda).
+- **Sempre positivo.** O efeito é positivo em 100% dos sorteios (Figura 31, esquerda).
 - **Depende da eólica.** É maior com eólica baixa: menos vento noturno significa mais horas sem
   cobertura.
-- **Peso do clima.** A importação anual por ano meteorológico (Figura 28, direita) varia muito: o ano de
+- **Peso do clima.** A importação anual por ano meteorológico (Figura 31, direita) varia muito: o ano de
   menos vento (2009) leva a importação central a ~10
   TWh, e o de mais vento (2012), a ~1,2 TWh.
 - **Decomposição da variância.** O ano meteorológico explica 77% da variância
   da importação anual; o ano hidrológico, 21%; e os resíduos,
   2%.
 
-![Figura 28 — Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado.](figures/r16_efeito_pareado_e_anos_meteorologicos.png)
+![Figura 31 — Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado.](figures/r16_efeito_pareado_e_anos_meteorologicos.png)
 
 ### 8.3 Quando a importação acontece
 
 Em 2030, com o cenário central, a probabilidade de uma hora importar chega a 36% às
 18h, contra 24% sem data centers. De madrugada fica em ~20%
-e ao meio-dia é praticamente zero (Figura 29). É o padrão histórico da seção 4.5, ampliado: a carga
+e ao meio-dia é praticamente zero (Figura 32). É o padrão histórico da seção 4.5, ampliado: a carga
 flat dos data centers "transborda" para as horas em que a geração renovável é menor que a carga.
 
-![Figura 29 — 2030: percentual de horas com importação por hora do dia e CF eólico médio por hora.](figures/r18_importacao_por_hora_2030.png)
+![Figura 32 — 2030: percentual de horas com importação por hora do dia e CF eólico médio por hora.](figures/r18_importacao_por_hora_2030.png)
 
 ### 8.4 Quanto de eólica compensaria
 
@@ -810,7 +986,7 @@ flat dos data centers "transborda" para as horas em que a geração renovável �
 | alto | base | 6,0 | 14,0 [11,5–16,9] | 10,1 | 2,3× | 87% |
 | alto | alta | 6,0 | 16,0 [13,0–19,2] | 11,6 | 2,7× | 90% |
 
-A Figura 30 mostra a curva de importação em função da eólica adicional.
+A Figura 33 mostra a curva de importação em função da eólica adicional.
 - **Retornos decrescentes.** Cada GW a mais reduz a importação cada vez menos, porque as horas de
   importação que restam são as de vento fraco.
 - **Compensação em energia não basta.** Compensar a energia anual
@@ -821,7 +997,7 @@ A Figura 30 mostra a curva de importação em função da eólica adicional.
 
 Essa é a resposta quantitativa à regra de "separar compensação energética de compensação temporal".
 
-![Figura 30 — Importação média em 2030 em função da capacidade eólica adicional.](figures/r17_curva_compensacao_eolica.png)
+![Figura 33 — Importação média em 2030 em função da capacidade eólica adicional.](figures/r17_curva_compensacao_eolica.png)
 
 ### 8.5 Excedente e limites de intercâmbio
 
@@ -873,14 +1049,14 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 | blocos de 14 dias | 5,12 | -0,01 | 2,28 |
 | anos meteorológicos 2010-2025 | 4,64 | -0,49 | 2,10 |
 
-**Leitura** (Figura 31).
+**Leitura** (Figura 34).
 - **Nível absoluto.** A importação depende bastante das hipóteses de hidráulica, de nível de carga e de
   atraso dos data centers.
 - **Efeito dos data centers.** O efeito pareado fica positivo e na mesma ordem em todas as hipóteses
   (+1,7 a +2,8 TWh), exceto com 12 meses de atraso, em que a carga de 2030 seria a
   de 2029 (813 MWmed).
 
-![Figura 31 — Sensibilidades univariadas: variação da importação média em relação ao caso de referência.](figures/mc3_sensibilidades.png)
+![Figura 34 — Sensibilidades univariadas: variação da importação média em relação ao caso de referência.](figures/mc3_sensibilidades.png)
 
 ## 9. Conclusões
 
@@ -922,9 +1098,15 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 - **Rede.** Não há representação da rede: excedente regional ≠ corte, e importação ≠ déficit. Cortes por
   restrição de rede em horas de importação aumentam a importação real e ficam de fora.
 - **Erro do simulador.** Nos anos observados, a importação anual simulada difere da real em dezenas de
-  por cento, com sinal que muda de ano para ano (seção 7.4).
-- **Despacho.** A hidráulica segue uma regra emulada, não uma otimização, estimada sobre a geração já
-  cortada; a térmica é histórica; a hidrologia é amostrada em só 4 anos.
+  por cento (seção 7.4). Nos anos da frota recente (2024–2026), a subestimação se
+  repete. A causa principal é a eólica simulada ter poucas horas de pouco vento, e os resíduos sorteados
+  não corrigem isso (seção 7.5).
+- **Despacho.** A hidráulica segue uma regra emulada, não uma otimização; a térmica é histórica; a
+  hidrologia é amostrada em só 4 anos.
+  - O coeficiente da regra foi estimado sobre a carga líquida já cortada e aplicado à potencial, uma
+    inconsistência que exagera a resposta da hidráulica.
+  - Com o coeficiente consistente, a importação de 2030 seria 3%
+    maior (seção 7.5).
 - **Nível de carga.** A forma vem da API do ONS e o nível, do PLAN; em 2025 a API fica
   1,3% acima.
 - **Data centers.** A carga é flat e igual à média anual; não há rampas dentro de 2030.
@@ -943,7 +1125,7 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
   tornam os sorteios reprodutíveis (há teste automatizado).
 - **Ambiente.** Python 3.14.1; dependências fixadas em `requirements.lock.txt`; sementes 20261111
   (modelos) e 20261112 (Monte Carlo).
-- **Testes.** 37 testes automatizados (`pytest`):
+- **Testes.** 39 testes automatizados (`pytest`):
   - unidades e fuso horário;
   - agregação 30 min → hora;
   - fechamento do balanço;
@@ -955,7 +1137,7 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
   - conservação da energia hidráulica;
   - recentramento dos resíduos e níveis anuais do sorteio;
   - métricas da validação retrospectiva.
-- **Rastreabilidade.** Manifesto com SHA-256 de cada arquivo bruto; `docs/decisoes.md` com 47 decisões
+- **Rastreabilidade.** Manifesto com SHA-256 de cada arquivo bruto; `docs/decisoes.md` com 54 decisões
   numeradas (técnicas e do usuário); `STATUS.md` com o estado do projeto.
 - **Versionamento.** Git local com commits por etapa. Dados não são versionados, só código, configuração
   e tabelas de resultado.

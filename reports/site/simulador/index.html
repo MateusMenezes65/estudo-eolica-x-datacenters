@@ -777,9 +777,10 @@ function backtestPainel() {
   const imp = idx.importacao_TWh;
   $('btAviso').textContent = `Importação observada em jan–out (horas válidas): ${F2.format(imp.observado_realizado)} TWh. ` +
     `A (cenário 2026 com clima e hidrologia sorteados, ${F0.format(info.n_sorteios_A)} sorteios): mediana ${F2.format(imp.A_p50)} TWh, P5–P95 ${F2.format(imp.A_p5)}–${F2.format(imp.A_p95)}; o observado está no percentil ${F0.format(imp.A_percentil_do_observado_realizado)}. ` +
-    `B (clima ERA5 e hidrologia de 2026, modelos treinados só até 2025): ${F2.format(imp.B_regra_media)} TWh com a regra hidráulica emulada e ${F2.format(imp.B_despacho_obs_media)} TWh com o despacho hidráulico observado — o simulador subestima a importação de 2026, como na validação retrospectiva de 2022–2025.`;
+    `B (clima ERA5 e hidrologia de 2026, modelos treinados só até 2025): ${F2.format(imp.B_regra_media)} TWh com a regra hidráulica do estudo, ${F2.format(imp.B_regra_beta_pot_media)} TWh com o coeficiente da regra estimado sobre a carga líquida potencial (consistente) e ${F2.format(imp.B_despacho_obs_media)} TWh com o despacho hidráulico observado. ` +
+    `O simulador subestima a importação de 2026. O diagnóstico do relatório técnico (seção 7.5) atribui isso a esse coeficiente (erro de método corrigível) e, principalmente, à falta de horas de pouco vento na eólica simulada da frota recente, que se repete em 2024–2026.`;
   const t = $('btTab'); t.replaceChildren();
-  const cols = ['Métrica (jan–out, horas válidas)', 'Observado: intercâmbio', 'Observado: potencial (+ cortes)', 'B: regra emulada (média [P5–P95])', 'B: despacho hidráulico observado', 'A: mediana [P5–P95]', 'Percentil do observado em A', 'Sorteio atual'];
+  const cols = ['Métrica (jan–out, horas válidas)', 'Observado: intercâmbio', 'Observado: potencial (+ cortes)', 'B: regra do estudo (média [P5–P95])', 'B: regra, coeficiente consistente', 'B: despacho hidráulico observado', 'A: mediana [P5–P95]', 'Percentil do observado em A', 'Sorteio atual'];
   const th = document.createElement('thead'), trh = document.createElement('tr'); cols.forEach((c) => { const x = document.createElement('th'); x.textContent = c; trh.appendChild(x); }); th.appendChild(trh); t.appendChild(th);
   const body = document.createElement('tbody');
   const defs = [['importacao_TWh', 'Importação (TWh)', F2], ['horas_importacao', 'Horas com importação', F0], ['importacao_p95_MW', 'P95 da importação (MW)', F0],
@@ -787,7 +788,7 @@ function backtestPainel() {
   defs.forEach(([k, rot, f]) => {
     const r = idx[k], tr = document.createElement('tr');
     const cel = [rot, f.format(r.observado_realizado), f.format(r.observado_potencial), `${f.format(r.B_regra_media)} [${f.format(r.B_regra_p5)}–${f.format(r.B_regra_p95)}]`,
-      f.format(r.B_despacho_obs_media), `${f.format(r.A_p50)} [${f.format(r.A_p5)}–${f.format(r.A_p95)}]`, F0.format(r.A_percentil_do_observado_potencial), f.format(ma[k])];
+      f.format(r.B_regra_beta_pot_media), f.format(r.B_despacho_obs_media), `${f.format(r.A_p50)} [${f.format(r.A_p5)}–${f.format(r.A_p95)}]`, F0.format(r.A_percentil_do_observado_potencial), f.format(ma[k])];
     cel.forEach((x) => { const td = document.createElement('td'); td.textContent = x; tr.appendChild(td); }); body.appendChild(tr);
   });
   t.appendChild(body);

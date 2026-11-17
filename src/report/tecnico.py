@@ -15,6 +15,7 @@ import pandas as pd
 import yaml
 
 from src.paths import CONFIG, REPORTS, ROOT
+from src.report import backtest_tecnico
 from src.report.final import backcast, f, postos_vento, sg, tab
 
 MC, SIM, MOD, TAB = REPORTS / "mc", REPORTS / "sim", REPORTS / "models", REPORTS / "tables"
@@ -44,9 +45,12 @@ FIGURAS = [
     ("r13", "r13_classificador_cortes.png", "Classificador de cortes: frequência de horas com corte por motivo e calibração das probabilidades."),
     ("s1", "s1_importacao_cenarios_2030.png", "Simulador determinístico: importação em 2030 por cenário, média e faixa entre os anos 2022–2025."),
     ("r15", "r15_regra_hidraulica.png", "Regra hidráulica emulada no Monte Carlo, comparada ao despacho observado nas mesmas datas."),
+    ("r15b", "r15b_perfil_horario_hidraulica.png", "Perfil horário médio da hidráulica: despacho observado e regra emulada com o coeficiente do estudo e com o coeficiente consistente (seção 7.5). Esquerda: 2030 (Monte Carlo). Direita: 2026, regra aplicada às parcelas observadas."),
     ("r14", "r14_semana_simulada_2030.png", "Decomposição horária de uma semana simulada de 2030: geração por fonte, carga, data centers e importação."),
     ("mc2", "mc2_convergencia.png", "Convergência do Monte Carlo (média e P95 da importação anual)."),
     ("mc4", "mc4_backcast.png", "Validação retrospectiva: importação anual observada em 2022–2025 e simulada com os níveis do próprio ano, nas duas convenções hidráulicas (barras de erro: P5–P95 dos sorteios de resíduos)."),
+    ("b26", "b26_backtest_2026.png", "Backtest de 2026 (jan–out, horas válidas): importação e excedente por mês, observados e simulados (A: cenário de 2026 com clima sorteado; B: clima e hidrologia de 2026)."),
+    ("r27", "r27_diagnostico_importacao.png", "Diagnóstico da subestimação. Esquerda: coeficiente da regra hidráulica estimado sobre a carga líquida realizada (estudo) e potencial (consistente), com o corte eólico do ano. Direita: erro da importação com os níveis observados de cada ano (* sem resíduos)."),
     ("mc1", "mc1_distribuicao_importacao.png", "Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica."),
     ("r16", "r16_efeito_pareado_e_anos_meteorologicos.png", "Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado."),
     ("r18", "r18_importacao_por_hora_2030.png", "2030: percentual de horas com importação por hora do dia e CF eólico médio por hora."),
@@ -95,6 +99,8 @@ def main() -> None:
     d = carregar()
     c, mcc, inc, n = d["c"], d["mcc"], d["inc"], d["n"]
     R, P, K, S = d["R"], d["P"], d["K"], d["S"]
+
+    nbt = backtest_tecnico.numeros()
 
     def r(dc, w, m, col="media"):
         return R[(R.cenario_dc == dc) & (R.cenario_eolico == w) & (R.metrica == m)][col].iat[0]
@@ -334,6 +340,13 @@ compensaria esse consumo?
   entre {sg(bk['regra']['erro_%'].min())}% e {sg(bk['regra']['erro_%'].max())}% (seção 7.4). O nível absoluto
   de 2030 carrega um erro dessa ordem; o efeito dos data centers, medido por diferença pareada, varia
   menos.
+- **Backtest de 2026 (seção 7.5).** A importação observada de jan–out ({f(nbt['obs'], 2)} TWh) cai dentro da
+  faixa ex-ante do cenário de 2026 (percentil {f(nbt['A_pct'], 0)}). Com o clima e a hidrologia reais, porém, o
+  simulador a subestima. Há duas causas.
+  - Um erro de método corrigível: o coeficiente da regra hidráulica foi estimado sobre a carga líquida
+    já cortada. Corrigido, a importação de 2030 sobe de {f(nbt['imp30_est'], 2)} para {f(nbt['imp30_cons'], 2)} TWh.
+  - Uma limitação sistemática: a eólica simulada tem poucas horas de pouco vento na frota recente.
+  - Por isso, a importação de 2030 tende a estar subestimada. O caso central não foi alterado.
 
 ## 1. Contexto, pergunta e escopo
 
@@ -846,7 +859,7 @@ flowchart TB
   coeficiente foi estimado sobre a geração observada, já com corte.
 - **Sensibilidades.** As alternativas (despacho histórico sem resposta, hidráulica plana) aparecem como
   sensibilidades.
-{fig('r15')}
+{fig('r15')}{backtest_tecnico.perfil(F)}{fig('r15b')}
 A {F('r14')} mostra uma semana de 2030 decomposta, extraída de um sorteio com importação próxima da
 mediana: a eólica sustenta a noite, a solar e a MMGD sustentam o dia, e a importação (hachurada) aparece
 no fim da tarde e em noites de pouco vento.
@@ -879,13 +892,14 @@ regra hidráulica estiverem certas, a importação simulada deve ficar próxima 
     ocorreram em horas de importação (restrições de rede). O simulador usa a geração potencial e não
     representa esses cortes.
   - Em 2024 esse corte foi de {f(bk['regra'].loc[2024, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh,
-    então a subestimação daquele ano tem outra origem, não identificada.
+    então a subestimação daquele ano tem outra origem. A seção 7.5 a atribui ao coeficiente da regra
+    hidráulica e, principalmente, à forma da eólica simulada.
 - **Picos.** Com a regra, o pico simulado difere do observado em {sg(bk['dpico_regra'].min(), 1)} a
   {sg(bk['dpico_regra'].max(), 1)} GW.
 - **Leitura.** O nível absoluto da importação de 2030 carrega um erro estrutural dessa ordem, comparável
   ao efeito de trocar a convenção hidráulica. As diferenças pareadas entre cenários usam o mesmo sorteio
   nos dois lados e variam menos (seção 8.6).
-{fig('mc4')}
+{fig('mc4')}{backtest_tecnico.secao(F, fig)}
 ## 8. Resultados
 
 ### 8.1 Distribuições de 2030
@@ -1002,9 +1016,15 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 - **Rede.** Não há representação da rede: excedente regional ≠ corte, e importação ≠ déficit. Cortes por
   restrição de rede em horas de importação aumentam a importação real e ficam de fora.
 - **Erro do simulador.** Nos anos observados, a importação anual simulada difere da real em dezenas de
-  por cento, com sinal que muda de ano para ano (seção 7.4).
-- **Despacho.** A hidráulica segue uma regra emulada, não uma otimização, estimada sobre a geração já
-  cortada; a térmica é histórica; a hidrologia é amostrada em só 4 anos.
+  por cento (seção 7.4). Nos anos da frota recente ({nbt['anos_rec'][0]}–{nbt['anos_rec'][-1]}), a subestimação se
+  repete. A causa principal é a eólica simulada ter poucas horas de pouco vento, e os resíduos sorteados
+  não corrigem isso (seção 7.5).
+- **Despacho.** A hidráulica segue uma regra emulada, não uma otimização; a térmica é histórica; a
+  hidrologia é amostrada em só 4 anos.
+  - O coeficiente da regra foi estimado sobre a carga líquida já cortada e aplicado à potencial, uma
+    inconsistência que exagera a resposta da hidráulica.
+  - Com o coeficiente consistente, a importação de 2030 seria {f(100 * (nbt['imp30_cons'] / nbt['imp30_est'] - 1), 0)}%
+    maior (seção 7.5).
 - **Nível de carga.** A forma vem da API do ONS e o nível, do PLAN; em 2025 a API fica
   {f(100 * (api25 / plan25 - 1))}% acima.
 - **Data centers.** A carga é flat e igual à média anual; não há rampas dentro de 2030.

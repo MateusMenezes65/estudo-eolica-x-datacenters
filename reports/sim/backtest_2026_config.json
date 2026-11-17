@@ -13,6 +13,7 @@
  "L_gross_sem_dc_MWmed":14070.0,
  "MMGD_MWmed":1786.0,
  "beta_hidro_2026":0.3909886384,
+ "beta_hidro_2026_potencial":0.218480769,
  "fr_eol":1.0336376246,
  "fr_sol":1.0008628713,
  "kA_jan_out":0.9884788085,
