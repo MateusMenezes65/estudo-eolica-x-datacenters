@@ -1,0 +1,197 @@
+% Números citados no texto. Base: commit b0ab7fd (25/11/2026), conferidos em 25/11/2026.
+% Ao atualizar o projeto, revisar SOMENTE este arquivo.
+
+% --- Histórico observado
+\newcommand{\PctEolicaNE}{92}          % % da potência eólica outorgada em operação nas 8 UFs (SIGA, fotografia 01/11/2026: 32,25 de 35,04 GW)
+\newcommand{\CapEolIni}{19{,}6}        % GW, média de 2022, usinas com FC horário no ONS (ne_features_h: cap_eol)
+\newcommand{\CapEolFim}{30{,}6}        % GW, média de 2025, idem
+\newcommand{\ExpMin}{86}               % % das horas com intercâmbio exportador: 2024 (85,6)
+\newcommand{\ExpMax}{93}               % % das horas com intercâmbio exportador: 2025 (92,9)
+\newcommand{\CorteIni}{0{,}6}          % % do potencial eólico cortado em 2022 (GNRa / potencial)
+\newcommand{\CorteFim}{20}             % % do potencial eólico cortado em 2025 (20,1 a 20,2 conforme a agregação)
+
+% --- Projeção oficial de data centers de Rede Básica no NE em 2030, MWmed
+% (config/dc_trajetoria_oficial_ne.csv; datas-base dos acessos 17/11/2025, 20/03/2026 e 22/07/2026)
+\newcommand{\DcPlan}{716}
+\newcommand{\DcRqUm}{1.291}
+\newcommand{\DcRqDois}{2.098}
+\newcommand{\DcContratos}{1.886}
+
+% --- Desenho do estudo
+\newcommand{\NSorteios}{2.000}         % Monte Carlo (reports/mc/mc_config.json)
+
+% --- Gestão dos dados (seção 2)
+\newcommand{\NPontosClima}{34}         % 8 capitais + 16 polos eólicos + 10 solares (config/weather_points.csv)
+\newcommand{\NManifesto}{451}          % docs/manifest/manifest.csv
+\newcommand{\DataColeta}{11 de novembro de 2026} % manifesto, collected_at_utc
+\newcommand{\VolumeBruto}{0{,}93}      % GB em data/raw (469 arquivos)
+\newcommand{\TempoPipeline}{25}        % minutos, pipeline completo nesta máquina
+\newcommand{\SementeModelos}{20261111}
+\newcommand{\SementeMC}{20261112}      % reports/mc/mc_config.json
+\newcommand{\NTestes}{56}              % pytest
+\newcommand{\NDecisoes}{58}            % docs/decisoes.md
+
+% --- Caracterização (seção 3)
+\newcommand{\NEol}{139}                % conjuntos eólicos despachados pelo ONS no NE
+\newcommand{\CapEolConj}{32{,}2}       % GW
+\newcommand{\NSol}{56}
+\newcommand{\CapSolConj}{11{,}4}       % GW
+\newcommand{\HorasNaoFecha}{878}       % jan-mai/2026 (reports/tables/reconciliacao_horas_balanco_nao_fecha.csv)
+\newcommand{\CargaGrau}{3{,}5}         % % por grau C (relatório técnico, 4.3)
+\newcommand{\CorrTempCarga}{0{,}64}
+\newcommand{\CargaFds}{7{,}6}          % %
+\newcommand{\CorteTres}{3{,}9}         % % 2023 (reports/tables/cortes_anuais.csv)
+\newcommand{\CorteQuatro}{9{,}1}       % % 2024
+\newcommand{\CorteCinco}{20{,}2}       % % 2025
+\newcommand{\CorteTWh}{26{,}0}         % TWh 2025
+\newcommand{\CorrObsIni}{0{,}87}       % vento^3 x CF observado, 2022 (reports/tables/checagem_fisica.csv)
+\newcommand{\CorrObsFim}{0{,}58}       % idem, 2025
+\newcommand{\CorrPotMin}{0{,}85}       % vento^3 x CF potencial, 2023
+\newcommand{\CorrPotMax}{0{,}89}       % idem, 2026
+\newcommand{\RefAbaixo}{45}            % % das horas-usina
+\newcommand{\CfMin}{0{,}39}            % 2009
+\newcommand{\CfMax}{0{,}52}            % 2012
+\newcommand{\CfQuatro}{0{,}449}        % média 2022-2025
+\newcommand{\CfTrintaUm}{0{,}460}      % média 1995-2025
+
+% --- Modelagem (seção 4)
+\newcommand{\ViesFrota}{0{,}032}       % reports/models/metricas_funcao_transferencia.csv, B0 treino 2022-2024, teste 2025
+\newcommand{\GanhoVento}{8{,}0}        % % (reports/models/ablacao_features.csv, B0 adotada, inclui a retirada do dia do ano)
+\newcommand{\CorrEol}{0{,}97}          % reports/sim/validacao_sinteticos.csv, B0 2025, corr_fora
+\newcommand{\Extrap}{0{,}05}           % % máximo por variável (reports/sim/extrapolacao_clima.csv)
+\newcommand{\CorrHidMin}{0{,}63}       % reports/sim/diag_beta_hidro.csv, corr_potencial, 2025
+\newcommand{\CorrHidMax}{0{,}71}       % idem, 2022
+\newcommand{\BetaIni}{0{,}42}          % reports/mc/mc_config.json, beta_hidro_por_ano
+\newcommand{\BetaVinteCinco}{0{,}16}
+\newcommand{\BetaCentral}{0{,}21}      % idem, beta_hidro_central
+\newcommand{\DpSim}{0{,}181}           % reports/sim/validacao_sinteticos.csv, B0 2025, dp_fora_com_residuo
+\newcommand{\DpObs}{0{,}183}
+\newcommand{\PrMin}{0{,}77}            % reports/models/cortes_metricas.csv, y_ene, PR_AUC
+\newcommand{\PrMax}{0{,}85}
+\newcommand{\AcasoMin}{0{,}25}
+\newcommand{\AcasoMax}{0{,}32}
+\newcommand{\HorasCorteIni}{7}         % % reports/models/cortes_taxa_eventos_ano.csv, y_total
+\newcommand{\HorasCorteFim}{69}
+\newcommand{\NProjetosDC}{17}          % config/data_centers_ne.csv
+
+% linhas da Tabela de curto prazo (reports/models/comparacao_hgb_baseline.csv)
+\newcommand{\LinhasCurtoPrazo}{%
+Carga líquida (MW)   & 1 h  & 139   & 468   & 70\% & 12 \\
+                     & 24 h & 299   & 468   & 36\% & 11 \\
+CF eólico potencial  & 1 h  & 0,015 & 0,025 & 41\% & 12 \\
+                     & 24 h & 0,044 & 0,082 & 47\% & 12 \\
+CF solar             & 1 h  & 0,018 & 0,048 & 62\% & 12 \\
+                     & 24 h & 0,042 & 0,048 & 13\% & 10 \\}
+
+% linhas da Tabela de funções de transferência (metricas_funcao_transferencia.csv e ablacao_features.csv)
+\newcommand{\LinhasFuncoes}{%
+A0, carga global & Hora, dia da semana, mês, feriado nacional, ponto facultativo, temperatura (da hora e média de 24 h) e irradiância nas capitais & 2022--2025 & 2,5--3,0\% (2,8--3,9\%) & $-3{,}0\%$ \\
+E0, MMGD & Hora, mês e irradiância nas capitais e nos polos solares & Jan/2022--out/2026 & 2,8--3,9\% (7,8--9,9\%) & $-2{,}8\%$ \\
+B0, CF eólico & Hora, mês e vento a 100~m em cada um dos 16 polos & Jul/2024--out/2026 & 0,041 em 2026 (0,133) & $-8{,}0\%$ \\
+C0, CF solar & Hora, mês, irradiância e temperatura & Jul/2024--out/2026 & 0,023--0,026 (0,028--0,035) & $-5{,}3\%$ \\}
+
+% linhas da Tabela de cenários (config/cenarios.yaml e config/cenarios_dc.yaml)
+\newcommand{\LinhasCenarios}{%
+Data centers & Sem data centers & 0 & Nenhum data center de Rede Básica \\
+ & Conservador & 1.886 MWmed & Somente contratos assinados \\
+ & Central & 2.098 MWmed & Segunda revisão do PLAN: contratos e 50\% dos pareceres favoráveis \\
+ & Alto & 2.753 MWmed & Contratos, 100\% dos pareceres e anúncios com potência definida \\
+\addlinespace
+Eólica & Baixa & 32,3 GW & Usinas em operação (SIGA) \\
+ & Base & 34,3 GW & Operação e construção \\
+ & Alta & 39,4 GW & Base e expansão indicativa do PDE até 2030, toda no Nordeste \\
+\addlinespace
+Solar & Única & 13,5 GW & Operação e construção \\
+Carga global & Única & 16.180 MWmed & Segunda revisão do PLAN, sem data centers \\
+MMGD & Única & 2.386 MWmed & Segunda revisão do PLAN \\}
+
+% --- Resultados (seção 5)
+% linhas da Tabela de verificação (reports/mc/mc_backcast.csv; reports/sim/diag_substituicao.csv)
+\newcommand{\LinhasVerificacao}{%
+2022 & 1,47 & 1,49 ($+1\%$)  & 1,44 ($-2\%$) \\
+2023 & 2,38 & 2,14 ($-10\%$) & 2,19 ($-8\%$) \\
+2024 & 3,30 & 2,94 ($-11\%$) & 3,23 ($-2\%$) \\
+2025 & 1,52 & 1,40 ($-8\%$)  & 1,30 ($-15\%$) \\
+2026 & 1,67 & ---            & 1,21 ($-27\%$) \\}
+\newcommand{\ErroRetroMin}{$-11$}
+\newcommand{\ErroRetroMax}{$+1$}
+\newcommand{\ErroForaMenor}{2}         % % em módulo
+\newcommand{\ErroForaMaior}{27}
+\newcommand{\ErroFormasMin}{$-7$}      % todas as formas observadas, beta do ano, 2024-2026
+\newcommand{\ObsVinteSeis}{1{,}67}     % reports/sim/backtest_2026.csv
+\newcommand{\PercVinteSeis}{72}
+\newcommand{\AMin}{0{,}34}
+\newcommand{\AMax}{2{,}88}
+\newcommand{\BVinteSeis}{1{,}40}
+\newcommand{\ErroBVinteSeis}{$-16$}
+\newcommand{\CorrBVinteSeis}{0{,}96}
+\newcommand{\SinalBVinteSeis}{98}
+
+% reports/mc/mc_resumo.csv
+\newcommand{\LinhasResultados}{%
+Sem data centers & 0     & 3,2 [1,1--6,4]  & 3,6 & 2,4 & 918   & 93 \\
+Conservador      & 1.886 & 5,3 [2,2--9,7]  & 6,0 & 3,9 & 1.321 & 79 \\
+Central          & 2.098 & 5,6 [2,4--10,2] & 6,3 & 4,1 & 1.372 & 77 \\
+Alto             & 2.753 & 6,5 [3,0--11,6] & 7,4 & 4,9 & 1.541 & 72 \\}
+\newcommand{\DetSem}{2{,}9}            % reports/sim/resumo_cenarios_2030.csv, eólica base
+\newcommand{\DetCen}{5{,}3}
+\newcommand{\ImpSem}{3{,}2}
+\newcommand{\ImpCen}{5{,}6}
+\newcommand{\HorasSem}{918}
+\newcommand{\HorasCen}{1.372}
+\newcommand{\PctHorasCen}{16}
+\newcommand{\ExcSem}{93}
+\newcommand{\ExcCen}{77}
+\newcommand{\ExcLimSem}{4{,}1}
+\newcommand{\ExcLimCen}{2{,}4}
+\newcommand{\ImpCenPCinco}{2{,}4}
+\newcommand{\ImpCenPNoventa}{10{,}2}
+\newcommand{\ImpCenMed}{5{,}3}
+\newcommand{\ImpSemPNoventa}{6{,}4}
+\newcommand{\PicoSem}{10{,}7}
+\newcommand{\PicoCen}{12{,}8}
+\newcommand{\FluxoMax}{7{,}9}          % maior importação horária observada, 2022-2025
+% reports/mc/mc_incerteza.json
+\newcommand{\VarClima}{80}
+\newcommand{\VarHidro}{19}
+\newcommand{\VarRes}{1}
+\newcommand{\IcCenMin}{4{,}5}
+\newcommand{\IcCenMax}{6{,}8}
+\newcommand{\IcSemMin}{2{,}4}
+\newcommand{\IcSemMax}{4{,}0}
+\newcommand{\IcEfMin}{2{,}0}
+\newcommand{\IcEfMax}{2{,}8}
+% reports/mc/mc_ano_clima.csv
+\newcommand{\ImpAnoMin}{1{,}7}         % 2012
+\newcommand{\ImpAnoMax}{10}            % 2009 (10,1) e 2020 (10,2)
+% reports/tables/didatico_importacao_por_hora_2030.csv
+\newcommand{\PctDezoitoCen}{39}
+\newcommand{\PctDezoitoSem}{26}
+\newcommand{\PctMadrugada}{21}
+% reports/mc/mc_diferencas_pareadas.csv
+\newcommand{\EfCen}{2{,}4}
+\newcommand{\EfCenMin}{1{,}3}
+\newcommand{\EfCenMax}{3{,}7}
+\newcommand{\EfHoras}{454}
+\newcommand{\EfPct}{13}
+\newcommand{\EfBaixa}{2{,}7}
+\newcommand{\EfAlta}{1{,}8}
+% reports/mc/mc_compensacao_eolica.csv e reports/tables/didatico_curva_compensacao.csv
+\newcommand{\Absorcao}{87}
+\newcommand{\CompEnergia}{4{,}6}
+\newcommand{\ImpComEnergia}{4{,}3}
+\newcommand{\CompImp}{10{,}4}
+\newcommand{\CompImpMin}{8{,}7}
+\newcommand{\CompImpMax}{12{,}4}
+\newcommand{\CompRazao}{2{,}3}
+\newcommand{\CompHoras}{7{,}3}
+\newcommand{\RazaoMin}{2{,}1}
+\newcommand{\RazaoMax}{2{,}7}
+% reports/mc/mc_sensibilidades.csv e mc_convergencia.csv
+\newcommand{\EfSensMin}{1{,}8}
+\newcommand{\EfSensMax}{2{,}9}
+\newcommand{\EfAtraso}{0{,}8}
+\newcommand{\ConvMedia}{0{,}3}
+\newcommand{\ConvP}{1{,}7}
+% docs/decisoes.md, decisão 58
+\newcommand{\CorrClimaHidro}{$-0{,}86$}

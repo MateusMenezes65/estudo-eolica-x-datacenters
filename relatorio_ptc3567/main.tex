@@ -1,0 +1,61 @@
+% Relatório final -- PTC3567 (2026)
+% Compilar: pdflatex -> biber -> pdflatex -> pdflatex (ou latexmk -pdf; no Overleaf, sem ajustes)
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[brazilian]{babel}
+\usepackage{csquotes}
+\usepackage[a4paper,left=3cm,right=2cm,top=3cm,bottom=2cm]{geometry}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage[style=abnt,backend=biber]{biblatex}
+% Se o editor não tiver biber ou o estilo abnt, trocar a linha acima por:
+% \usepackage[style=authoryear,backend=bibtex,maxcitenames=2]{biblatex}
+\addbibresource{referencias.bib}
+\renewcommand*{\bibfont}{\small}
+
+\graphicspath{{figures/}}   % geradas por gera_figuras.py no tamanho final (usar sem escala)
+
+\input{numeros}                % números citados no texto, com a origem de cada um
+
+% ---------------------------------------------------------------- dados da capa
+\newcommand{\titulo}{Data centers e expansão eólica no balanço horário do subsistema Nordeste em 2030}
+\newcommand{\disciplina}{PTC3567 -- Ciência dos Dados em Automação e Engenharia (2026)}
+\newcommand{\autores}{%
+  [Nome do autor 1] -- [Nº USP]\\[4pt]
+  [Nome do autor 2] -- [Nº USP]}
+\newcommand{\localdata}{São Paulo\\2026}
+
+\hypersetup{pdftitle={\titulo},pdfsubject={\disciplina}}
+
+\begin{document}
+
+\input{capa}
+
+\onehalfspacing
+\pagenumbering{arabic}
+
+\input{secoes/01_introducao}
+
+\input{secoes/02_gestao_dados}      % Estratégias de Gestão dos Dados
+\input{secoes/03_caracterizacao}    % Caracterização e Preparação dos Dados
+\input{secoes/04_modelagem}         % Modelagem e Análise dos Dados
+\input{secoes/05_resultados}        % Apresentação e Discussão dos Resultados
+\input{secoes/06_conclusoes}        % Conclusões
+
+\clearpage
+\singlespacing
+\printbibliography[heading=bibintoc,title={Referências Bibliográficas}]
+
+\end{document}

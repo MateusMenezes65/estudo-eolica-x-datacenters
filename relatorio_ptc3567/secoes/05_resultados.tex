@@ -1,0 +1,109 @@
+\section{Apresentação e Discussão dos Resultados}
+\label{sec:resultados}
+
+\subsection{Verificação do simulador}
+\label{sec:verificacao}
+
+Antes de ser aplicado a 2030, o simulador foi comparado com o balanço observado de 2022 a 2026. A importação observada é calculada com os cortes somados à geração, para ter o mesmo conceito da simulada. No primeiro teste, o simulador recebe o clima, a hidrologia e os níveis observados de cada ano, e usa os modelos finais. No segundo, os modelos são treinados sem o ano testado, e os resíduos desse ano também são excluídos (Tabela~\ref{tab:verificacao}).
+
+\begin{table}[htb]
+\centering
+\caption{Importação anual observada e simulada com os níveis observados de cada ano (TWh). Em 2026, janeiro a outubro, nas horas em que o balanço do ONS fecha.}
+\label{tab:verificacao}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Ano & Observada & Simulada, modelos finais (erro) & Simulada, ano fora do treino (erro) \\
+\midrule
+\LinhasVerificacao
+\bottomrule
+\end{tabular}
+\end{table}
+
+Com os modelos finais, o erro vai de \ErroRetroMin\% a \ErroRetroMax\%. Fora da amostra, o simulador subestima a importação em todos os anos, de \ErroForaMenor\% a \ErroForaMaior\%, com os maiores erros em 2025 e 2026. Quando as formas simuladas são trocadas pelas observadas e a regra hidráulica é mantida, o erro de 2025 cai para menos de 1\%, e o de 2026, para \ErroFormasMin\%. A maior parte do erro desses dois anos vem, portanto, das formas horárias. Nenhuma das séries o explica sozinha, o que sugere que os resíduos sorteados reproduzem apenas em parte a coincidência de vento fraco, carga alta e fim do dia.
+
+Para 2026 há um segundo teste, com os níveis do cenário de 2026 no lugar dos observados (Figura~\ref{fig:backtest}). Com clima e hidrologia sorteados, a importação observada de \ObsVinteSeis~TWh fica no percentil \PercVinteSeis{} da distribuição (P5--P95 de \AMin{} a \AMax~TWh). Essa comparação não é uma previsão, pois os modelos finais usam dados até outubro de 2026. Com clima e hidrologia observados e modelos treinados até 2025, o simulador obtém \BVinteSeis~TWh (\ErroBVinteSeis\%). A margem horária simulada tem correlação de \CorrBVinteSeis{} com a observada e o mesmo sinal em \SinalBVinteSeis\% das horas. O erro é menor do que o da Tabela~\ref{tab:verificacao} porque a geração eólica do cenário ficou abaixo da observada, o que compensa parte da subestimação.
+
+\begin{figure}[htb]
+\centering
+\includegraphics{fig_backtest}
+\caption{Importação e excedente mensais de 2026, observados e simulados com os níveis do cenário de 2026. A: clima e hidrologia sorteados. B: clima e hidrologia observados.}
+\label{fig:backtest}
+\end{figure}
+
+Esses testes indicam que o nível da importação de 2030 tende a estar subestimado. A diferença entre cenários, que usa os mesmos sorteios nos dois lados, é menos sensível às hipóteses (Seção~\ref{sec:sensibilidades}).
+
+\subsection{Importação e excedente em 2030}
+\label{sec:importacao2030}
+
+A Tabela~\ref{tab:resultados} resume os resultados. Sem novos data centers e com a expansão eólica base, o Nordeste precisaria importar em média \ImpSem~TWh em 2030, em \HorasSem{} horas do ano. No cenário central, a importação média é de \ImpCen~TWh, em \HorasCen{} horas (\PctHorasCen\% do ano). Um simulador determinístico, que usa os perfis observados de 2022 a 2025 no lugar dos sintéticos, chega a valores próximos: \DetSem~TWh sem data centers e \DetCen~TWh no cenário central. A região continua exportadora em todos os cenários: o excedente médio cai de \ExcSem{} para \ExcCen~TWh no cenário central, e a parcela acima do limite de exportação de 21~GW cai de \ExcLimSem{} para \ExcLimCen~TWh.
+
+\begin{table}[htb]
+\centering
+\caption{Resultados para 2030: média dos sorteios, com P5--P95 entre colchetes. Horas e excedente referem-se à eólica base.}
+\label{tab:resultados}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}lrlrrrr@{}}
+\toprule
+ & & \multicolumn{3}{c}{Importação (TWh)} & & \\
+\cmidrule(lr){3-5}
+Data centers & MWmed & Eólica base & Eólica baixa & Eólica alta & Horas & Excedente (TWh) \\
+\midrule
+\LinhasResultados
+\bottomrule
+\end{tabular}
+\end{table}
+
+A importação varia muito de um ano para outro. No cenário central, os percentis 5 e 95 são \ImpCenPCinco{} e \ImpCenPNoventa~TWh, e as distribuições dos cenários se sobrepõem (Figura~\ref{fig:distribuicao}a): a mediana do cenário central (\ImpCenMed~TWh) é menor que o P95 do caso sem data centers (\ImpSemPNoventa~TWh). O ano meteorológico explica \VarClima\% da variância da importação anual, o ano hidrológico \VarHidro\% e os resíduos \VarRes\%. A média do cenário central por ano meteorológico vai de \ImpAnoMin~TWh, com o clima de 2012, a cerca de \ImpAnoMax~TWh, com o de 2009 ou 2020. O IC95 da média, que considera o número limitado de anos, é de \IcCenMin{} a \IcCenMax~TWh no cenário central e de \IcSemMin{} a \IcSemMax~TWh sem data centers.
+
+\begin{figure}[htb]
+\centering
+\includegraphics{fig_distribuicao}
+\caption{Resultados de 2030 com eólica base: (a) distribuição acumulada da importação anual; (b) percentual de dias com importação em cada hora.}
+\label{fig:distribuicao}
+\end{figure}
+
+A importação concentra-se no fim da tarde e à noite (Figura~\ref{fig:distribuicao}b). Às 18~horas, quando a solar já cessou e a eólica ainda não subiu, há importação em \PctDezoitoCen\% dos dias no cenário central, contra \PctDezoitoSem\% sem data centers. De madrugada o percentual fica próximo de \PctMadrugada\%, e entre 9 e 13~horas é quase nulo.
+
+\subsection{Efeito dos data centers}
+\label{sec:efeito}
+
+No cenário central, os data centers aumentam a importação em \EfCen~TWh por ano (P5--P95 de \EfCenMin{} a \EfCenMax) e em \EfHoras{} horas. O sinal é positivo por construção, pois a mesma carga adicional é somada a cada sorteio. O que interessa é o tamanho: o aumento equivale a \EfPct\% da energia consumida pelos data centers. Os outros \Absorcao\% são atendidos por geração que, sem eles, seria excedente. O efeito é de \EfBaixa~TWh com eólica baixa e de \EfAlta~TWh com eólica alta, e o IC95 do valor médio, com eólica base, é de \IcEfMin{} a \IcEfMax~TWh. Não se pode concluir que esse consumo evite cortes na mesma proporção, porque parte dos cortes decorre de restrições da rede, que não é representada.
+
+\subsection{Compensação eólica}
+\label{sec:compensacao}
+
+Para gerar em um ano a energia consumida pelos data centers do cenário central são necessários \CompEnergia~GW de eólica além da base. Com essa capacidade, a importação média ainda seria de \ImpComEnergia~TWh, acima dos \ImpSem~TWh do caso sem data centers (Figura~\ref{fig:compensacao}). Para voltar a esse nível são necessários \CompImp~GW (P5--P95 de \CompImpMin{} a \CompImpMax), ou \CompRazao{} vezes mais. Para igualar o número de horas com importação, o valor é de \CompHoras~GW. Nos demais cenários, a razão entre os dois primeiros critérios fica entre \RazaoMin{} e \RazaoMax{} e aumenta com a frota eólica.
+
+\begin{figure}[htb]
+\centering
+\includegraphics{fig_compensacao}
+\caption{Importação média em 2030 no cenário central em função da capacidade eólica adicional (300 sorteios).}
+\label{fig:compensacao}
+\end{figure}
+
+A diferença decorre do perfil da geração. As horas de importação que restam são as de vento fraco, e nelas cada GW adicional gera pouco. O cálculo supõe que as novas usinas têm o mesmo perfil horário da frota atual. Uma expansão em locais com regime de vento complementar, ou o armazenamento de energia, mudaria esses valores, mas essas alternativas não foram avaliadas.
+
+\subsection{Sensibilidades}
+\label{sec:sensibilidades}
+
+A Figura~\ref{fig:sensibilidades} mostra quanto a importação do cenário central muda quando uma hipótese é alterada. As mais influentes são o despacho hidráulico, o nível da carga, a expansão eólica e a data de entrada dos data centers. O tamanho dos blocos (3 ou 14~dias) altera o resultado em no máximo 0,01~TWh. O efeito dos data centers fica entre \EfSensMin{} e \EfSensMax~TWh em todos os casos, exceto com 12~meses de atraso, em que a carga de 2030 seria a prevista para 2029 e o efeito cairia para \EfAtraso~TWh. De 1.500 para \NSorteios{} sorteios, a média muda \ConvMedia\% e o P95, \ConvP\%.
+
+\begin{figure}[htb]
+\centering
+\includegraphics{fig_sensibilidades}
+\caption{Variação da importação média do cenário central, com eólica base, em relação à referência (500 sorteios comuns).}
+\label{fig:sensibilidades}
+\end{figure}
+
+\subsection{Discussão}
+\label{sec:discussao}
+
+A variação entre anos encontrada aqui concorda com \textcite{bloomfield2016}, que consideram insuficientes menos de dez anos de dados para o planejamento. A reanálise atende a esse requisito para o vento e a irradiância, mas os quatro anos hidrológicos não. O sorteio também trata o ano meteorológico e o hidrológico como independentes. Nos quatro anos em comum, o CF eólico e a energia hidráulica anuais têm correlação de \CorrClimaHidro, mas quatro anos não bastam para estimar essa dependência.
+
+\textcite{staffell2016} representam a mudança da frota ao simular cada parque. Aqui, com uma única função para a região, foi preciso treinar em dados recentes, porque as usinas novas geram mais com o mesmo vento. O CF potencial depende da energia cortada apurada pelo ONS, cuja geração de referência mudou ao longo do período, e parte do aumento observado pode vir dessa mudança. A separação entre avaliação \textit{ex ante} e \textit{ex post}, usada por \textcite{hyndman2010}, ajudou a localizar o erro: em 2026, a importação observada é compatível com a distribuição sorteada, e foi o teste com o clima conhecido que revelou a subestimação.
+
+Os picos de importação devem ser lidos com cautela. A média do pico anual é de \PicoSem~GW sem data centers e de \PicoCen~GW no cenário central, acima do maior fluxo de importação registrado de 2022 a 2025 (\FluxoMax~GW). A térmica segue o despacho histórico e não reage à falta de geração, e o estudo não encontrou um limite de importação documentado. Os valores indicam a necessidade calculada se nada mais respondesse e não representam risco de falta de suprimento. Por fim, a projeção oficial de data centers quase triplicou entre a versão original do PLAN e a sua segunda revisão, de modo que os cenários devem ser atualizados a cada nova publicação.

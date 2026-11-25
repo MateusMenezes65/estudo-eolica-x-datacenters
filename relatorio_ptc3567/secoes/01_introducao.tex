@@ -1,0 +1,64 @@
+\section{Introdução}
+\label{sec:introducao}
+
+\subsection{Problema}
+\label{sec:problema}
+
+O Nordeste concentra cerca de \PctEolicaNE\% da potência eólica em operação no Brasil \parencite{aneel_siga}. Entre 2022 e 2025, a capacidade média das usinas eólicas do subsistema com dados horários publicados pelo Operador Nacional do Sistema Elétrico (ONS) passou de \CapEolIni{} para \CapEolFim~GW, e a região exportou energia para o restante do Sistema Interligado Nacional (SIN) em \ExpMin\% a \ExpMax\% das horas de cada ano \parencite{ons_dados}. No mesmo período, a parcela do potencial eólico cortada por ordem do operador (\textit{constrained-off}) subiu de \CorteIni\% para cerca de \CorteFim\% \parencite{ons_dados}. O subsistema tem, portanto, excedente na maior parte das horas e corta uma parcela crescente da geração eólica.
+
+Ao mesmo tempo, cresce a previsão de conexão de grandes cargas na região. A projeção oficial de carga de data centers ligados à Rede Básica no Nordeste em 2030 passou de \DcPlan~MWmed, com os acessos registrados em novembro de 2025, para \DcRqUm~MWmed em março de 2026 e \DcRqDois~MWmed em julho de 2026 \parencite{plan_nt,plan_1rq,plan_2rq}. Do último valor, \DcContratos~MWmed correspondem a contratos já assinados.
+
+À primeira vista, a nova carga e o excedente se compensam. A dificuldade é o tempo: a carga de um data center, tratada neste trabalho como constante ao longo do ano, não acompanha a geração eólica e a solar, que variam com a hora, a estação e o clima de cada ano. Um balanço anual favorável pode esconder muitas horas em que a região precisa importar. A pergunta de pesquisa é:
+
+\begin{quote}
+\textit{Sob diferentes cenários de entrada de data centers e de expansão eólica, como mudam a necessidade de importação e os excedentes horários do subsistema Nordeste em 2030, e quanto de expansão eólica compensaria o consumo adicional?}
+\end{quote}
+
+A variável central é a margem horária do subsistema,
+\begin{equation}
+  M(t) = G_{\mathrm{NE}}(t) - \left[ L_{\mathrm{base}}(t) + L_{\mathrm{DC}}(t) \right],
+  \label{eq:margem}
+\end{equation}
+em que $G_{\mathrm{NE}}$ é a geração do subsistema, $L_{\mathrm{base}}$ é a carga sem os novos data centers e $L_{\mathrm{DC}}$ é a carga dos data centers. A necessidade de importação é $\max(0,-M)$ e o excedente é $\max(0,M)$. Uma margem negativa não significa déficit de suprimento, pois o subsistema é interligado ao SIN, e um excedente não equivale a corte, pois parte dele pode ser exportada.
+
+Para responder à pergunta, o trabalho combina dados abertos do setor elétrico, reanálise climática ERA5 \parencite{hersbach2020} e aprendizado de máquina. Modelos de \textit{gradient boosting}, na implementação do scikit-learn \parencite{pedregosa2011}, aprendem com dados recentes a relação entre clima, calendário e os perfis horários de carga e geração. Esses modelos são aplicados a 31 anos de clima (1995--2025) e combinados aos níveis de carga e capacidade de cada cenário de 2030. A incerteza é tratada por uma simulação de Monte Carlo com \NSorteios{} sorteios, em que os erros dos modelos são reamostrados em blocos de dias consecutivos, na linha do \textit{bootstrap} em blocos de \textcite{kunsch1989}. Os resultados são condicionais aos cenários adotados e não constituem previsões. A rede elétrica interna, a adequação de suprimento do SIN e a viabilidade econômica estão fora do escopo.
+
+\subsection{Trabalhos relacionados}
+\label{sec:relacionados}
+
+Três experimentos se aproximam da abordagem adotada: \textcite{staffell2016}, na conversão de clima em geração eólica; \textcite{bloomfield2016}, na combinação horária de carga e vento sob muitos anos de clima; e \textcite{hyndman2010}, na simulação da carga futura por cenários e \textit{bootstrap}. A Tabela~\ref{tab:comparacao} resume as semelhanças e diferenças.
+
+\textcite{staffell2016} convertem a velocidade do vento das reanálises MERRA e MERRA-2 em séries horárias de geração eólica e as validam em 23 países europeus. No modelo dos autores, o \textit{Virtual Wind Farm}, o vento é interpolado para as coordenadas de cada parque, extrapolado para a altura do rotor e convertido em potência por curvas de fabricantes suavizadas. O viés da reanálise é medido pela razão entre os fatores de capacidade observado e simulado e corrigido na velocidade do vento por um fator multiplicativo e um deslocamento. Após a calibração, a geração horária nacional é reproduzida com $R^2$ acima de 0,95. Os autores então simulam a frota existente sob vinte anos de clima (1995--2014) e frotas futuras definidas pelo estágio dos empreendimentos (em construção, aprovados e em planejamento), sem lhes atribuir data de entrada.
+
+O presente trabalho segue uma sequência semelhante. A principal diferença está na conversão de clima em geração: em vez de um modelo físico por parque seguido de correção de viés, uma única função é ajustada diretamente ao fator de capacidade agregado da região. Além disso, como os cortes distorcem a geração observada no Nordeste, o alvo é o fator de capacidade \emph{potencial}, que soma à geração a energia cortada apurada pelo ONS.
+
+\textcite{bloomfield2016} combinam registros meteorológicos de várias décadas com uma representação simplificada do sistema elétrico da Grã-Bretanha. A carga e a geração eólica horárias são reconstruídas a partir da reanálise MERRA para 36 anos (1980--2015), com o sistema mantido fixo. A carga vem de uma regressão linear múltipla sobre variáveis meteorológicas e não meteorológicas, ajustada a dados diários de 2006 a 2015 e desagregada em horas por uma curva diurna que varia com a estação. A diferença entre carga e geração eólica define a carga residual, avaliada em quatro cenários de capacidade eólica (0, 15, 30 e 45~GW). A variabilidade climática afeta sobretudo a geração de base: no cenário eólico de 2025, a amplitude entre anos das suas horas de operação cresce quatro vezes, enquanto o efeito sobre a carga de pico é comparativamente pequeno. Os autores concluem que menos de dez anos de dados são insuficientes para orientar o planejamento.
+
+A estrutura é próxima da adotada aqui: carga e vento obtidos do mesmo clima, níveis fixos do sistema, cenários de capacidade eólica e avaliação ano a ano. A conclusão sobre o número de anos apoia a decisão de usar 31 anos de clima, e não apenas os quatro anos completos com dados do ONS. Há três diferenças principais. Este trabalho inclui a solar, a geração distribuída, a hidráulica e a térmica no balanço e trata a margem negativa como necessidade de importação, enquanto \textcite{bloomfield2016} consideram um sistema isolado, sem interconexões. O calendário de 2030, com fins de semana e feriados, é mantido na carga, em vez de removido. Por fim, a variabilidade não explicada pelo clima é reposta pela reamostragem dos erros dos modelos, procedimento que tem paralelo no trabalho descrito a seguir.
+
+\textcite{hyndman2010} preveem a distribuição de probabilidade da carga de pico da Austrália do Sul até dez anos à frente. A carga de cada meia hora é separada em uma forma, normalizada pela mediana do verão de cada ano e explicada por temperatura e calendário, e um nível anual, explicado por variáveis econômicas e graus-dia de resfriamento. As grandes cargas industriais, que não dependem da temperatura, são modeladas à parte. Para cada ano futuro são simulados 2.000 anos de temperatura, por um \textit{bootstrap} sazonal com blocos de tamanho variável, combinados a resíduos reamostrados em blocos de 14 dias e a três cenários de economia, preço e carga industrial. A avaliação separa as previsões \textit{ex ante}, feitas só com a informação disponível antes do período, das \textit{ex post}, que conhecem a temperatura e a economia observadas, mas não a carga.
+
+Quatro escolhas deste trabalho têm correspondência direta: a separação entre forma horária e nível anual, este dado por cenários oficiais; o tratamento da carga dos data centers à parte da carga sensível ao clima; a reamostragem dos resíduos em blocos, aqui de sete dias; e o teste com dados de 2026, feito com clima e hidrologia sorteados e também com os observados, este próximo da avaliação \textit{ex post}. A principal diferença está na simulação do clima: em vez de recombinar blocos de temperatura, cada sorteio usa um ano inteiro de reanálise, o que mantém temperatura, vento e irradiância coerentes entre si, e os resíduos das quatro séries modeladas são sorteados em conjunto.
+
+\begin{table}[htb]
+\centering
+\caption{Comparação entre os trabalhos relacionados e o presente trabalho.}
+\label{tab:comparacao}
+\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+Aspecto & Staffell e Pfenninger (2016) & Bloomfield et al. (2016) & Hyndman e Fan (2010) & Presente trabalho \\
+\midrule
+Região & 23 países europeus & Grã-Bretanha & Austrália do Sul & Subsistema Nordeste do SIN \\
+Clima & MERRA e MERRA-2, 20 anos & MERRA, 36 anos & Temperatura em dois locais, 2.000 anos simulados & ERA5, 31 anos \\
+Geração eólica & Modelo físico por parque, com correção de viés & Reconstruída da reanálise & Não modelada & \textit{Gradient boosting} sobre o vento a 100~m em 16 polos, a hora e o mês \\
+Carga & Não modelada & Regressão linear diária, desagregada em horas & Modelo aditivo por meia hora, forma e nível & \textit{Gradient boosting} horário, forma e nível \\
+Cenários & Frotas futuras por estágio, sem datas & Quatro níveis de capacidade eólica & Três de economia, preço e carga industrial & Quatro de data centers e três de eólica, com a expansão indicativa do PDE 2035 \parencite{epe_pde2035} \\
+Produto final & Fator de capacidade por país & Carga residual e operação por tipo de usina & Distribuição da carga de pico & Distribuição da importação e do excedente \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Em relação a esses trabalhos, a contribuição deste é medir o efeito de uma nova carga constante, a dos data centers, sobre a importação e o excedente de uma região predominantemente exportadora. Para isso, carga, geração distribuída, eólica e solar são obtidas do mesmo ano de clima em cada simulação, e os cenários são comparados sob os mesmos sorteios.
