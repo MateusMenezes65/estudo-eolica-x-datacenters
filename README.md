@@ -4,8 +4,7 @@ Estudo acadêmico de cenários condicionais: como a entrada de data centers e a
 expansão eólica alteram a necessidade de importação e os excedentes horários do
 subsistema Nordeste (ONS) até 2030, e quanto de expansão eólica compensaria o
 consumo adicional. Não é estudo de fluxo de potência, adequação do SIN nem
-viabilidade econômica. Acordo de implementação: [AGENTS.md](AGENTS.md).
-Estado atual e próximos passos: [STATUS.md](STATUS.md). Decisões técnicas:
+viabilidade econômica. Estado atual e próximos passos: [STATUS.md](STATUS.md). Decisões técnicas:
 [docs/decisoes.md](docs/decisoes.md).
 
 ## Como obter o projeto (grupo)

@@ -48,3 +48,8 @@ logs/
 
 # Pacotes de dados para a Release do GitHub
 dist/
+
+# Fora do repositório público (2026-11-25): ficam só na cópia local
+/AGENTS.md
+# base da ANEEL com dados pessoais tarjados; o estudo usa só agregados (decisão 112)
+data/raw/aneel/mmgd/empreendimento-geracao-distribuida.parquet
