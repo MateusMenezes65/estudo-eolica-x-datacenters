@@ -12,18 +12,30 @@
 \usepackage{indentfirst}
 \usepackage{microtype}
 \usepackage{amsmath}
+\usepackage{float}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{caption}
+\captionsetup{skip=6pt}
+\usepackage{enumitem}
+\setlist{nosep}
+% espaço em torno de figuras e tabelas, para caber no limite de páginas
+\setlength{\textfloatsep}{12pt plus 2pt minus 4pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.08}
 \usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
 \usepackage[style=abnt,backend=biber]{biblatex}
 % Se o editor não tiver biber ou o estilo abnt, trocar a linha acima por:
 % \usepackage[style=authoryear,backend=bibtex,maxcitenames=2]{biblatex}
 \addbibresource{referencias.bib}
-\renewcommand*{\bibfont}{\small}
+\renewcommand*{\bibfont}{\footnotesize}
+\appto{\bibsetup}{\setlength{\bibitemsep}{6pt}}
 
 \graphicspath{{figures/}}   % geradas por gera_figuras.py no tamanho final (usar sem escala)
 
@@ -33,8 +45,8 @@
 \newcommand{\titulo}{Data centers e expansão eólica no balanço horário do subsistema Nordeste em 2030}
 \newcommand{\disciplina}{PTC3567 -- Ciência dos Dados em Automação e Engenharia (2026)}
 \newcommand{\autores}{%
-  [Nome do autor 1] -- [Nº USP]\\[4pt]
-  [Nome do autor 2] -- [Nº USP]}
+  Mateus Jeszensky de Menezes -- 13679440\\[4pt]
+  Raphael Rodrigues Souza da Silva -- 12566741}
 \newcommand{\localdata}{São Paulo\\2026}
 
 \hypersetup{pdftitle={\titulo},pdfsubject={\disciplina}}
@@ -54,7 +66,6 @@
 \input{secoes/05_resultados}        % Apresentação e Discussão dos Resultados
 \input{secoes/06_conclusoes}        % Conclusões
 
-\clearpage
 \singlespacing
 \printbibliography[heading=bibintoc,title={Referências Bibliográficas}]
 

@@ -20,7 +20,7 @@ O primeiro experimento verifica se os modelos capturam as relações entre clima
 
 O modelo supera a melhor referência em pelo menos 10 dos 12 meses em todos os casos (Tabela~\ref{tab:curtoprazo}). O menor ganho é o da solar a 24~horas, em que repetir o valor do dia anterior já tem erro baixo.
 
-\begin{table}[htb]
+\begin{table}[H]
 \centering
 \caption{Erro absoluto médio (MAE) da previsão de curto prazo em 2025. A referência é a melhor entre persistência, repetição do dia anterior e repetição da semana anterior.}
 \label{tab:curtoprazo}
@@ -38,9 +38,11 @@ Alvo & Antecedência & Modelo & Referência & Redução & Meses com erro menor \
 \subsection{Funções de transferência}
 \label{sec:transferencia}
 
-As formas horárias de 2030 vêm de quatro funções de transferência, que recebem clima e calendário e não usam valores passados do alvo (Tabela~\ref{tab:funcoes}). A forma da carga (A0) é a carga global dividida pela média do ano, e a da MMGD (E0) é a razão para a média móvel de 365~dias, o que remove o crescimento da capacidade. As funções eólica (B0) e solar (C0) são treinadas a partir de julho de 2024. No caso da eólica, as usinas mais novas geram de 5\% a 10\% mais com o mesmo vento: um modelo treinado até 2024 e testado em 2025 subestima o CF em \ViesFrota, em média. Na carga e na MMGD, o teste exclui um ano por vez. Na eólica e na solar, o teste usa períodos posteriores ao treino.
+O estudo de curto-prazo apenas confirmou que pode ser interessante usar da arquitetura do \texttt{HistGradientBoosting} para transformar dados climáticos em dados de energia. O produto final desse projeto resumiu-se em calibrar funções de transferência que façam essa conversão para cada hora de um possível cenário de 2030. 
 
-\begin{table}[htb]
+Assim, as formas horárias de 2030 vêm de quatro funções de transferência, que recebem clima e calendário e não usam valores passados do alvo (Tabela~\ref{tab:funcoes}). A forma da carga (A0) é a carga global dividida pela média do ano, e a da MMGD (E0) é a razão para a média móvel de 365~dias, o que remove o crescimento da capacidade. As funções eólica (B0) e solar (C0) são treinadas a partir de julho de 2024, considerando apenas a frota mais recente. Afinal, no caso da eólica, as usinas mais novas geram de 5\% a 10\% mais com o mesmo vento, de modo que um modelo treinado até 2024 e testado em 2025 subestima o CF em \ViesFrota, em média. Na carga e na MMGD, o teste exclui um ano por vez. Na eólica e na solar, o teste usa períodos posteriores ao treino.
+
+\begin{table}[H]
 \centering
 \caption{Funções de transferência. O MAE é medido fora do treino, com o do perfil médio por mês e hora entre parênteses (na carga, por mês, dia da semana e hora). A última coluna é a variação do RMSE em relação à versão anterior das variáveis.}
 \label{tab:funcoes}
@@ -63,21 +65,21 @@ As variáveis foram escolhidas por ablação. Cada variante do modelo é treinad
   \item na carga, os graus-hora de resfriamento, a temperatura aparente, a umidade e os feriados menores alteravam o erro em menos de 1\% e saíram, e entrou a média de 24~horas da temperatura.
 \end{itemize}
 
-A versão adotada reduz o erro das quatro funções de forma significativa. Como as variáveis foram escolhidas nas mesmas dobras em que o erro é medido, os ganhos são ligeiramente otimistas. Uma variável de ruído, incluída como controle, alterou o erro em até 0,4\%, e diferenças dessa ordem foram desconsideradas.
+A versão adotada reduz o erro das quatro funções de forma significativa.
 
-\begin{figure}[htb]
+\begin{figure}[H]
 \centering
 \includegraphics{fig_transferencia}
 \caption{Funções de transferência fora do treino: (a) forma da carga em duas semanas de 2025; (b) média diária do CF eólico em 2026.}
 \label{fig:transferencia}
 \end{figure}
 
-A Figura~\ref{fig:transferencia} compara previsões e observações fora do treino. No CF eólico de 2025, também fora do treino, a correlação horária com o observado é \CorrEol. Nenhuma variável de clima de 1995 a 2021 fica fora da faixa de treino em mais de \Extrap\% das horas, de modo que quase não há extrapolação.
+A Figura~\ref{fig:transferencia} mostra que o CF eólico potencial acompanha de perto o observado, com correlação muito boa. Na forma da carga, a visualização de uma janela de duas semanas mostra que se reproduziu um comportamento geral coerente com a observação, embora haja divergências, sobretudo nos horários de excedente de MMGD.
 
 \subsection{Geração hidráulica e térmica}
 \label{sec:hidraulica}
 
-A térmica repete a série horária de um dos anos de 2022 a 2025. A hidráulica preserva a energia diária desse mesmo ano, mas a sua distribuição dentro do dia responde à carga líquida, como ocorre no despacho observado (a correlação entre os desvios intradiários das duas é de \CorrHidMin{} a \CorrHidMax{} em 2022--2025):
+A térmica repete a série horária de um dos anos de 2022 a 2025. A hidráulica preserva a energia diária desse mesmo ano, mas a sua distribuição dentro do dia responde à carga líquida, como ocorre no despacho observado (a correlação entre os desvios intradiários dessas duas variáveis é de \CorrHidMin{} a \CorrHidMax{} em 2022--2025):
 \begin{equation}
   H(t) = \bar{H}_d + \beta \left[ \ell(t) - \bar{\ell}_d \right],
   \label{eq:hidraulica}
@@ -89,7 +91,7 @@ em que $\bar{H}_d$ é a média do dia, $\ell$ é a carga menos a MMGD e as gera�
 
 Os cenários combinam quatro níveis de data centers e três de capacidade eólica (Tabela~\ref{tab:cenarios}). A carga sem data centers é a da segunda revisão do PLAN \parencite{plan_2rq} menos a parcela de data centers nela incluída, para que esta não seja contada duas vezes. O cenário alto usa também um inventário de \NProjetosDC{} projetos, levantado em portarias, processos da ANEEL e imprensa setorial. Como a projeção oficial já é expressa em carga na rede, não se aplica o índice de eficiência energética do data center (PUE). O cadastro da ANEEL não informa datas para os projetos fora de operação, e por isso a expansão eólica é definida pela fase dos empreendimentos.
 
-\begin{table}[htb]
+\begin{table}[H]
 \centering
 \caption{Níveis adotados para 2030.}
 \label{tab:cenarios}
@@ -119,9 +121,24 @@ Os resíduos são necessários porque as funções de transferência estimam mé
 
 O mesmo sorteio é usado em todos os cenários, o que permite calcular diferenças pareadas. São reportados a média e os percentis 5 e 95 (P5 e P95) dos sorteios. Como estes repetem 31 anos meteorológicos e quatro hidrológicos, aumentar o seu número não reduz a incerteza devida à amostra de anos. Essa incerteza é estimada à parte, por reamostragem dos anos com reposição (4.000 reamostras), e informada como IC95 da média.
 
-A compensação eólica é calculada por dois critérios principais. O primeiro iguala a energia anual dos data centers. O segundo iguala a importação anual à do caso sem data centers, e a capacidade necessária é obtida por bisseção.
+A compensação pela expansão eólica é calculada por dois critérios principais. O primeiro iguala a energia anual dos data centers. O segundo iguala a importação anual à do caso sem data centers, e a capacidade necessária é obtida por bisseção.
 
-\subsection{Classificação dos cortes}
-\label{sec:classificador}
+\subsection{Simulador interativo}
+\label{sec:simulador}
 
-Também foi testado um classificador das horas com corte eólico, com variáveis conhecidas antes do evento. Para o corte por razão energética, a área sob a curva precisão-revocação ficou entre \PrMin{} e \PrMax, contra \AcasoMin{} a \AcasoMax{} ao acaso. As probabilidades, porém, não são estáveis: a fração de horas com corte, por qualquer motivo, passou de \HorasCorteIni\% em 2022 para \HorasCorteFim\% em 2025, e o modelo treinado até um ano erra o nível do seguinte. Por isso o classificador não foi aplicado a 2030, e o simulador calcula apenas o excedente.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_simulador}
+\caption{Parte superior do simulador interativo: controles, indicadores do sorteio e margem horária $M(t)$, no ano todo e em duas semanas em torno do pico de importação. Em cada indicador, o ponto é o sorteio, o traço é a mediana do Monte Carlo e as faixas clara e escura vão do P5 ao P95 e do P25 ao P75.}
+\label{fig:simulador}
+\end{figure}
+
+O balanço também foi implementado em uma página interativa (Figura~\ref{fig:simulador}), que roda no navegador, sem servidor nem conexão à internet, e está no repositório do projeto, em \path{reports/site/simulador/index.html}. Ela mostra um sorteio de cada vez, hora a hora, enquanto a Seção~\ref{sec:resultados} resume os \NSorteios{} sorteios do Monte Carlo. O usuário escolhe o ano, de 2026 a 2030, os cenários eólico e de data centers e a hipótese de despacho hidráulico. A página então:
+\begin{enumerate}
+  \item sorteia o ano meteorológico, o ano hidrológico e os blocos de resíduos, sendo que os dois anos também podem ser fixados;
+  \item soma os resíduos às formas da carga e da MMGD e aos CFs e os multiplica pelos níveis do cenário (Equações~\ref{eq:geracao} e~\ref{eq:carga});
+  \item calcula a hidráulica com a carga líquida do próprio sorteio (Equação~\ref{eq:hidraulica});
+  \item subtrai a carga dos data centers e obtém a margem $M(t)$ de cada hora (Equação~\ref{eq:margem}) e os indicadores do ano.
+\end{enumerate}
+
+Cada indicador aparece ao lado da mediana e do intervalo de P5 a P95 do Monte Carlo para o mesmo ano e cenário, o que mostra se o sorteio é típico. O da Figura~\ref{fig:simulador}, exibido quando a página é aberta, combina o clima de \SimClima{} com a hidrologia de \SimHidro{} e resulta em \SimImp~TWh de importação, acima da mediana de \ImpCenMed~TWh. Ao trocar de cenário, o sorteio é mantido, e a diferença entre cenários é pareada, como no Monte Carlo. A página traz ainda a geração por fonte, um mapa de calor por dia e hora, os valores mensais e, para 2026, a comparação com o balanço observado.

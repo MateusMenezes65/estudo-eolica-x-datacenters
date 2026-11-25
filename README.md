@@ -7,10 +7,12 @@ consumo adicional. Não é estudo de fluxo de potência, adequação do SIN nem
 viabilidade econômica. Estado atual e próximos passos: [STATUS.md](STATUS.md). Decisões técnicas:
 [docs/decisoes.md](docs/decisoes.md).
 
-## Como obter o projeto (grupo)
+## Como obter o projeto
 
-O repositório é privado: o dono precisa adicionar cada colega em
-*Settings → Collaborators*. Depois de aceitar o convite:
+A versão 1.0.0, usada no relatório final da disciplina PTC3567, está arquivada
+no Zenodo com os dados derivados e o relatório em PDF:
+[doi.org/10.5281/zenodo.24545239](https://doi.org/10.5281/zenodo.24545239).
+O código também está no GitHub:
 
 ```bash
 git clone https://github.com/MateusMenezes65/estudo-eolica-x-datacenters.git
@@ -43,11 +45,23 @@ git config --global core.longpaths true
 
 A cota gratuita de LFS do dono do repositório é de 10 GiB de download por mês
 (cada clone completo consome cerca de 1,2 GB). Alternativas que não consomem
-essa cota: os zips anexados à Release
-[`dados-2026-11-16`](https://github.com/MateusMenezes65/estudo-eolica-x-datacenters/releases/tag/dados-2026-11-16),
-restaurados com `python -m src.tools.pacote_dados extrair dist/dados`, ou a
-coleta direta das fontes com os comandos abaixo. Para clonar só o código, sem
-baixar os dados do LFS, use a variável `GIT_LFS_SKIP_SMUDGE=1` no clone.
+essa cota: os zips `data-interim.zip` e `data-processed.zip` do registro no
+Zenodo, restaurados com `python -m src.tools.pacote_dados extrair PASTA_DOS_ZIPS`
+(bastam para refazer modelos, simulações e relatórios), ou a coleta direta das
+fontes com os comandos abaixo. Para clonar só o código, sem baixar os dados do
+LFS, use a variável `GIT_LFS_SKIP_SMUDGE=1` no clone.
+
+A base bruta de MMGD da ANEEL
+(`data/raw/aneel/mmgd/empreendimento-geracao-distribuida.parquet`) não está no
+repositório, porque contém dados pessoais tarjados; o estudo usa só agregados.
+Para refazer o pipeline desde `data/raw`, baixe-a com
+`python -m src.collect.aneel download mmgd`.
+
+## Licença e citação
+
+O código está sob a licença MIT; o relatório, as figuras, as tabelas e os dados
+derivados, sob CC BY 4.0 (ver [LICENSE](LICENSE)). Para citar, use o DOI
+10.5281/zenodo.24545239 ou o arquivo [CITATION.cff](CITATION.cff).
 
 ## Ambiente
 

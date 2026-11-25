@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "Se usar este material, cite-o como abaixo."
+type: software
+title: "Data centers e expansão eólica no balanço horário do subsistema Nordeste em 2030"
+version: "1.0.0"
+doi: "10.5281/zenodo.24545239"
+date-released: "2026-11-25"
+authors:
+  - given-names: "Mateus Jeszensky"
+    name-particle: "de"
+    family-names: "Menezes"
+    affiliation: "Universidade de São Paulo, Escola Politécnica"
+  - given-names: "Raphael Rodrigues Souza"
+    name-particle: "da"
+    family-names: "Silva"
+    affiliation: "Universidade de São Paulo, Escola Politécnica"
+license:
+  - MIT
+  - CC-BY-4.0
+repository-code: "https://github.com/MateusMenezes65/estudo-eolica-x-datacenters"
+keywords:
+  - energia eólica
+  - data centers
+  - balanço energético
+  - subsistema Nordeste
+  - Monte Carlo
+  - gradient boosting
+  - ERA5

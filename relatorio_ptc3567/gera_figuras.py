@@ -2,6 +2,7 @@
 
 Uso (na raiz do projeto): python relatorio_ptc3567/gera_figuras.py
 Lê reports/, data/interim e data/processed. Não é necessário para compilar o LaTeX.
+fig_simulador.png não sai daqui: é uma captura de reports/site/simulador/index.html no estado inicial.
 """
 import sys
 from pathlib import Path
@@ -286,7 +287,61 @@ def backtest():
     salvar(fig, "fig_backtest")
 
 
+def carga_temperatura():
+    """Carga global diária (relativa à média do ano) × temperatura ponderada, 2022–2025 (como r05)."""
+    X = pd.read_parquet(RAIZ / "data/processed/ne_features_h.parquet")
+    x = X[X.ano.between(2022, 2025)].copy()
+    x["Lnorm"] = x.L_gross / x.groupby("ano").L_gross.transform("mean")
+    d = x.groupby(x.t.dt.date).agg(L=("Lnorm", "mean"), Tm=("temperature_2m", "mean"), dow=("dia_semana", "first"),
+                                   fer=("feriado_nacional", "max"))
+    util = (d.dow < 5) & (d.fer == 0)
+    fig, ax = plt.subplots(figsize=(4.9, 2.5))
+    for msk, cor, rot in [(util, "#2a78d6", "dias úteis"), (~util, "#eb6834", "fins de semana e feriados")]:
+        ax.scatter(d.Tm[msk], d.L[msk], s=4, alpha=0.45, color=cor, lw=0, label=rot)
+        b = np.polyfit(d.Tm[msk], d.L[msk], 1)
+        xs = np.linspace(d.Tm.min(), d.Tm.max(), 10)
+        ax.plot(xs, np.polyval(b, xs), color=cor, lw=1.6)
+    estilo(ax, "", "carga ÷ média do ano", "temperatura média do dia nas capitais (°C)")
+    ax.legend(frameon=False, loc="upper left", markerscale=2.5, handletextpad=0.2)
+    salvar(fig, "fig_carga_temperatura")
+    return {"pct_por_grau_util": 100 * np.polyfit(d.Tm[util], d.L[util], 1)[0],
+            "corr_util": np.corrcoef(d.Tm[util], d.L[util])[0, 1],
+            "fds_pct": 100 * (d.L[~util].mean() / d.L[util].mean() - 1), "dias": len(d)}
+
+
+def anos_e_efeito():
+    """(a) Importação por ano meteorológico; (b) efeito pareado dos data centers (central, eólica base)."""
+    S = pd.read_parquet(RAIZ / "data/processed/mc_sorteios.parquet")
+    S = S[S.cenario_eolico == "base"]
+    g = S[S.cenario_dc == "central"]
+    p = S.pivot_table(index="sorteio", columns="cenario_dc", values="importacao_TWh")
+    ef = (p.central - p.sem_dc).to_numpy()
+    anos = sorted(g.ano_clima.unique())
+    fig, (a, b) = plt.subplots(1, 2, figsize=(6.3, 2.5), gridspec_kw={"width_ratios": [2.15, 1]})
+    a.boxplot([g[g.ano_clima == y].importacao_TWh for y in anos], positions=range(len(anos)), widths=0.62,
+              whis=(5, 95), showfliers=False, patch_artist=True,
+              boxprops=dict(facecolor="#cfe1f6", edgecolor="#2a78d6", lw=0.8), medianprops=dict(color="#0d3f80", lw=1.4),
+              whiskerprops=dict(color=INK2, lw=0.8), capprops=dict(color=INK2, lw=0.8))
+    a.set_xticks([i for i, y in enumerate(anos) if y % 5 == 0], [str(y) for y in anos if y % 5 == 0])
+    a.set_xticks(range(len(anos)), minor=True)
+    a.tick_params(axis="x", which="minor", length=2)
+    a.set_xlim(-0.7, len(anos) - 0.3)
+    estilo(a, "(a) Importação por ano meteorológico (TWh)", "", "ano meteorológico")
+    b.hist(ef, bins=np.arange(0.5, 4.61, 0.1), color="#2a78d6", edgecolor="white", lw=0.4)
+    q5, q95, m = np.percentile(ef, 5), np.percentile(ef, 95), ef.mean()
+    b.set_ylim(0, b.get_ylim()[1] * 1.3)
+    for v, t in [(q5, "P5"), (m, "média"), (q95, "P95")]:
+        b.axvline(v, ymax=0.8, color=INK2, lw=0.8, ls="--")
+        b.text(v, 0.98, f"{t}\n{v:.1f}".replace(".", ","), transform=b.get_xaxis_transform(), ha="center", va="top",
+               fontsize=6.5, color=INK2)
+    estilo(b, "(b) Efeito dos data centers", "nº de sorteios", "aumento da importação (TWh)")
+    salvar(fig, "fig_anos_efeito")
+    md = g.groupby("ano_clima").importacao_TWh.mean()
+    return {"efeito_media": m, "p5": q5, "p95": q95, "ano_min": (md.idxmin(), md.min()), "ano_max": md.nlargest(2).round(2).to_dict()}
+
+
 if __name__ == "__main__":
     FIG.mkdir(exist_ok=True)
-    for f in [pipeline, mapa, carga, perfis, cf_vento, transferencia, backtest, distribuicao_e_hora, compensacao, sensibilidades]:
+    for f in [pipeline, mapa, carga, perfis, cf_vento, transferencia, backtest, distribuicao_e_hora, compensacao, sensibilidades,
+              carga_temperatura, anos_e_efeito]:
         f()
