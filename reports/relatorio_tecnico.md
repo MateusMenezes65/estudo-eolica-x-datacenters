@@ -1,7 +1,7 @@
 # Relatório técnico — Data centers e expansão eólica no balanço horário do Nordeste (2030)
 
 Documento de apresentação do projeto, passo a passo. Gerado por `python -m src.report.tecnico` em
-2026-11-25 15:41 UTC, a partir das tabelas produzidas pelo pipeline.
+2026-11-25 16:19 UTC, a partir das tabelas produzidas pelo pipeline.
 Os números citados vêm de arquivos em `reports/` e `config/`; os poucos valores de análises exploratórias
 trazem a decisão de `docs/decisoes.md` em que estão registrados.
 
@@ -761,9 +761,9 @@ sorteios de 2030; à direita, a regra aplicada às parcelas observadas de 2026, 
 
 ![Figura 24 — Perfil horário médio da hidráulica: despacho observado e regra emulada com o coeficiente de 2026 (caso central). Esquerda: 2030 (Monte Carlo), também com o coeficiente de cada ano hidrológico. Direita: 2026, regra aplicada às parcelas observadas, também com o coeficiente estimado sobre a carga já cortada.](figures/r15b_perfil_horario_hidraulica.png)
 
-A Figura 25 mostra uma semana de 2030 decomposta, extraída de um sorteio com importação próxima da
-mediana: a eólica sustenta a noite, a solar e a MMGD sustentam o dia, e a importação (hachurada) aparece
-no fim da tarde e em noites de pouco vento.
+A Figura 25 mostra uma semana de 2030 decomposta: a de maior importação de um sorteio próximo da mediana. A
+solar e a MMGD sustentam o dia; à noite, a eólica e a hidráulica cobrem só parte da carga, e a importação
+(hachurada) vai do fim da tarde ao amanhecer.
 
 ![Figura 25 — Decomposição horária de uma semana simulada de 2030: geração por fonte, carga, data centers e importação.](figures/r14_semana_simulada_2030.png)
 

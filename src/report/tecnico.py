@@ -921,9 +921,9 @@ flowchart TB
 - **Sensibilidades.** O coeficiente do próprio ano hidrológico, a amplitude constante em MW, o despacho
   histórico sem resposta e a hidráulica plana.
 {fig('r15')}{backtest_tecnico.perfil(F)}{fig('r15b')}
-A {F('r14')} mostra uma semana de 2030 decomposta, extraída de um sorteio com importação próxima da
-mediana: a eólica sustenta a noite, a solar e a MMGD sustentam o dia, e a importação (hachurada) aparece
-no fim da tarde e em noites de pouco vento.
+A {F('r14')} mostra uma semana de 2030 decomposta: a de maior importação de um sorteio próximo da mediana. A
+solar e a MMGD sustentam o dia; à noite, a eólica e a hidráulica cobrem só parte da carga, e a importação
+(hachurada) vai do fim da tarde ao amanhecer.
 {fig('r14')}
 ### 7.3 Convergência
 
