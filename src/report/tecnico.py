@@ -40,17 +40,17 @@ FIGURAS = [
     ("r08", "r08_data_centers_trajetoria_inventario.png", "Projeções oficiais de carga de data centers no NE em três revisões e inventário documental de projetos."),
     ("r10", "r10_backtest_mae_mensal.png", "Backtesting a 24 h: MAE mensal do HGB e do melhor baseline em cada dobra de 2025."),
     ("m1", "m1_backtest_semana.png", "Uma semana de previsões a 24 h (setembro/2025) para carga, CF eólico e CF solar."),
-    ("r11", "r11_importancia_permutacao.png", "Importância por permutação das features dos modelos A0 (carga) e B0 (eólica), medida fora do treino."),
+    ("r11", "r11_importancia_permutacao.png", "Importância por permutação das features dos modelos A0 (carga) e B0 (eólica), medida fora do treino (os 16 ventos por polo são embaralhados juntos)."),
     ("r12", "r12_transferencia_obs_vs_pred.png", "Funções de transferência fora do treino: carga (A0) em duas semanas de 2025 e CF eólico (B0) diário em 2026."),
     ("r13", "r13_classificador_cortes.png", "Classificador de cortes: frequência de horas com corte por motivo e calibração das probabilidades."),
     ("s1", "s1_importacao_cenarios_2030.png", "Simulador determinístico: importação em 2030 por cenário, média e faixa entre os anos 2022–2025."),
     ("r15", "r15_regra_hidraulica.png", "Regra hidráulica emulada no Monte Carlo, comparada ao despacho observado nas mesmas datas."),
-    ("r15b", "r15b_perfil_horario_hidraulica.png", "Perfil horário médio da hidráulica: despacho observado e regra emulada com o coeficiente adotado (carga líquida potencial) e com o anterior (carga já cortada; seção 7.5). Esquerda: 2030 (Monte Carlo). Direita: 2026, regra aplicada às parcelas observadas."),
+    ("r15b", "r15b_perfil_horario_hidraulica.png", "Perfil horário médio da hidráulica: despacho observado e regra emulada com o coeficiente de 2026 (caso central). Esquerda: 2030 (Monte Carlo), também com o coeficiente de cada ano hidrológico. Direita: 2026, regra aplicada às parcelas observadas, também com o coeficiente estimado sobre a carga já cortada."),
     ("r14", "r14_semana_simulada_2030.png", "Decomposição horária de uma semana simulada de 2030: geração por fonte, carga, data centers e importação."),
     ("mc2", "mc2_convergencia.png", "Convergência do Monte Carlo (média e P95 da importação anual)."),
     ("mc4", "mc4_backcast.png", "Validação retrospectiva: importação anual observada em 2022–2025 e simulada com os níveis do próprio ano, nas duas convenções hidráulicas (barras de erro: P5–P95 dos sorteios de resíduos)."),
     ("b26", "b26_backtest_2026.png", "Backtest de 2026 (jan–out, horas válidas): importação e excedente por mês, observados e simulados (A: cenário de 2026 com clima sorteado; B: clima e hidrologia de 2026)."),
-    ("r27", "r27_diagnostico_importacao.png", "Diagnóstico da subestimação. Esquerda: coeficiente da regra hidráulica estimado sobre a carga líquida realizada (anterior) e potencial (adotado), com o corte eólico do ano. Direita: erro da importação com os níveis observados de cada ano (* sem resíduos)."),
+    ("r27", "r27_diagnostico_importacao.png", "Diagnóstico da subestimação. Esquerda: coeficiente da regra hidráulica estimado sobre a carga líquida realizada e potencial, com o corte eólico do ano (o de 2026 sobre a potencial é o caso central de 2030). Direita: erro da importação com os níveis observados de cada ano (* sem resíduos)."),
     ("mc1", "mc1_distribuicao_importacao.png", "Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica."),
     ("r16", "r16_efeito_pareado_e_anos_meteorologicos.png", "Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado."),
     ("r18", "r18_importacao_por_hora_2030.png", "2030: percentual de horas com importação por hora do dia e CF eólico médio por hora."),
@@ -94,6 +94,7 @@ def carregar():
                        "B": MOD / "comparacao_hgb_baseline.csv", "T": MOD / "metricas_funcao_transferencia.csv",
                        "Dm": MOD / "cortes_metricas.csv", "taxa": MOD / "cortes_taxa_eventos_ano.csv",
                        "V": SIM / "validacao_sinteticos.csv", "E": SIM / "extrapolacao_clima.csv",
+                       "abl": MOD / "ablacao_features.csv",
                        "cortes": TAB / "cortes_anuais.csv", "cob": TAB / "cobertura.csv", "inv": TAB / "inventario_raw.csv",
                        "det": SIM / "resultados_2030.csv", "detK": SIM / "compensacao_eolica_2030.csv",
                        "detS": SIM / "sensibilidades_2030.csv", "ff": SIM / "fatores_frota.csv",
@@ -139,9 +140,9 @@ def main() -> None:
     ce = cortes[cortes.fonte == "eólica"].set_index("ano")
     cs = cortes[cortes.fonte == "solar"].set_index("ano")
     T = d["T"]
-    a0g = T[T.modelo.str.startswith("A0 L_gross") & (T.metodo == "HGB")].MAE
-    a0p = T[T.modelo.str.startswith("A0 L_gross") & (T.metodo != "HGB")].MAE
-    a0n = T[T.modelo.str.startswith("A0 L_net") & (T.metodo == "HGB")].MAE
+    a0g = T[T.modelo.str.startswith("A0 L_gross") & (T.metodo == "HGB")].MAE_forma
+    a0p = T[T.modelo.str.startswith("A0 L_gross") & (T.metodo != "HGB")].MAE_forma
+    a0n = T[T.modelo.str.startswith("A0 L_net") & (T.metodo == "HGB")].MAE_forma
     b0 = T[(T.modelo == "B0 CF eólico pot")]
     c0 = T[(T.modelo == "C0 CF solar pot")]
     V, E = d["V"], d["E"]
@@ -173,9 +174,11 @@ def main() -> None:
     AC = d["AC"].set_index("ano_clima")
     fis = d["fis"].set_index("ano")
     co_obs, co_pot = fis.iloc[:, 0], fis.iloc[:, 1]
-    betas = [float(v) for v in mcc["beta_hidro"].values()]
+    betas = [float(v) for v in mcc["beta_hidro_por_ano"].values()]
+    dps = mcc["dp_intradiario_carga_liquida_MW"]
     ter_med = [float(v) for v in mcc["termica_hist_media_MWmed"].values()]
-    cen = mcc["centro_residuos"]
+    cm = mcc["centro_residuos_mensal"]
+    kf = d["ff"].set_index(d["ff"].columns[0]).k_eol.astype(float)
     efx = sd.efeito_DC_TWh.drop(["referencia", "sem_dc", "DC com atraso de 12 meses"])
     razao = K.dW_importacao_anual_media_MW / K.dW_energia_anual_MW
     dc2029 = dc[(dc.estudo == "2a RQ PLAN 2026-2030") & (dc.ano == 2029) & (dc.componente == "total")].mwmed.iat[0]
@@ -184,6 +187,15 @@ def main() -> None:
     api25, plan25 = mcc["L_gross_api_2025_MWmed"], plan[("carga_global", 2025)]
     import re
     n_testes = contar_testes()
+    abl = d["abl"]
+    abf = abl[abl.validacao == "anos ou blocos fora"]
+    ad = abf[abf.variante == "adotada"].set_index("modelo")
+    t_abl = tab(pd.DataFrame([[r.modelo, r.variante, int(r.n_features), f(r.RMSE, 4), "—" if r.variante == "anterior" else sg(r._9, 1) + "%",
+                               {"melhor": "melhor", "pior": "pior", "não": "não significativa"}.get(r.significativa, "referência")]
+                              for r in abf[abf.variante.isin(["anterior", "adotada", "anterior sem dia_ano", "anterior sem cdh24",
+                                                              "anterior + ruído (controle)", "hora, mês, vento médio", "anterior sem clima",
+                                                              "adotada sem temp_mm24", "adotada sem temperature_2m", "adotada sem mes"])].itertuples()],
+                             columns=["Modelo", "Variante (re-treinada)", "Nº de features", "RMSE fora da amostra", "Variação do RMSE", "Diferença (IC95)"]))
     n_dec = len(re.findall(r"^\d+b?\. ", (ROOT / "docs" / "decisoes.md").read_text(encoding="utf-8"), re.M))
 
     # ---------------- tabelas
@@ -225,10 +237,10 @@ def main() -> None:
         ["A (h = 1 h, 24 h)", "validação: previsão de curto prazo", "carga líquida horária (MWmed)", "calendário, temperatura, temp. aparente, umidade, CDH, irradiância, lags do alvo (≥ h) e médias móveis", "toda a história antes do mês testado", "12 dobras mensais em 2025", "previsão da carga", "só validação acadêmica"],
         ["B (h = 1 h, 24 h)", "validação", "CF eólico potencial", "hora, mês, dia do ano, vento e vento³ a 100 m, lags e médias móveis", "idem", "idem", "previsão do CF", "só validação"],
         ["C (h = 1 h, 24 h)", "validação", "CF solar observado", "hora, mês, dia do ano, irradiância, temperatura, lags", "idem", "idem", "previsão do CF", "só validação"],
-        ["A0", "função de transferência", "carga bruta / média do ano", "calendário completo + temperatura, temp. aparente, umidade, CDH, irradiância (sem lags)", "2022–2025", "deixando um ano de fora", "forma horária da carga", "perfis de 2030 (Monte Carlo)"],
-        ["E0", "função de transferência", "MMGD / média móvel de 365 dias", "hora, mês, dia do ano, irradiância nas capitais e nos polos, temperatura", "2022-01 → 2026-10", "resíduos fora da amostra", "forma horária da MMGD", "perfis de 2030"],
-        ["B0", "função de transferência", "CF eólico potencial", "hora, mês, dia do ano, vento e vento³ a 100 m (pesos da frota atual)", "2024-07 → 2026-10 (frota recente)", "temporal: 2025 e 2026 fora do treino", "CF eólico horário", "perfis de 2030; fator de frota do determinístico"],
-        ["C0", "função de transferência", "CF solar potencial", "hora, mês, dia do ano, irradiância nos polos, temperatura", "2024-07 → 2026-10", "temporal", "CF solar horário", "perfis de 2030; fator de frota"],
+        ["A0", "função de transferência", "carga bruta / média do ano", "hora, dia da semana, mês, feriado nacional, ponto facultativo, temperatura (da hora e média de 24 h), irradiância nas capitais", "2022–2025", "deixando um ano de fora", "forma horária da carga", "perfis de 2030 (Monte Carlo)"],
+        ["E0", "função de transferência", "MMGD / nível anual (média móvel de 365 dias)", "hora, mês, irradiância nas capitais e nos polos", "2022-01 → 2026-10", "deixando um ano de fora", "forma horária da MMGD", "perfis de 2030"],
+        ["B0", "função de transferência", "CF eólico potencial", "hora, mês, vento a 100 m em cada um dos 16 polos", "2024-07 → 2026-10 (frota recente)", "temporal: 2025 e 2026 fora do treino", "CF eólico horário", "perfis de 2030; fator de frota do determinístico"],
+        ["C0", "função de transferência", "CF solar potencial", "hora, mês, irradiância nos polos, temperatura", "2024-07 → 2026-10", "temporal", "CF solar horário", "perfis de 2030; fator de frota"],
         ["D", "classificador (viabilidade)", "hora com corte > 1% da capacidade, por motivo", "potencial eólico e solar, carga, MMGD, excedente bruto previsto, capacidades, calendário", "2023–2024 e 2024-07 → 2025", "temporal: 2025 e 2026", "probabilidade de corte", "só descritivo (não entra no simulador)"],
     ], columns=["Modelo", "Papel", "Alvo (saída)", "Features (entradas)", "Treino", "Validação", "Saída", "Onde é usado"]))
 
@@ -350,18 +362,17 @@ compensaria esse consumo?
   sensíveis à carga de data centers, que a projeção oficial revisou de {f(dcrev['PLAN 2026-2030'], 0)}
   para {f(dcrev['2a RQ PLAN 2026-2030'], 0)} MWmed em oito meses, e à operação hidráulica.
 - **Quanto confiar.** Rodado com os níveis observados de 2022–2025, o simulador erra a importação anual
-  entre {sg(bk['regra']['erro_%'].min())}% e {sg(bk['regra']['erro_%'].max())}% (seção 7.4). O nível absoluto
-  de 2030 carrega um erro dessa ordem; o efeito dos data centers, medido por diferença pareada, varia
-  menos.
+  entre {sg(bk['regra']['erro_%'].min())}% e {sg(bk['regra']['erro_%'].max())}% (seção 7.4). Fora da amostra, com as
+  funções re-treinadas sem o próprio ano, o erro vai de {sg(nbt['erro_min'])}% a {sg(nbt['erro_max'])}% em 2022–2026
+  (seção 7.5). O nível absoluto de 2030 carrega um erro dessa ordem e tende a estar subestimado; o efeito dos
+  data centers, medido por diferença pareada, varia menos.
 - **Backtest de 2026 (seção 7.5).** A importação observada de jan–out ({f(nbt['obs'], 2)} TWh) cai dentro da
-  faixa ex-ante do cenário de 2026 (percentil {f(nbt['A_pct'], 0)}). Com o clima e a hidrologia reais, porém, o
-  simulador a subestima ({f(nbt['B_cen'], 2)} TWh, {sg(100 * (nbt['B_cen'] / nbt['obs'] - 1))}%). Há duas causas.
-  - Um erro de método, já corrigido: o coeficiente da regra hidráulica era estimado sobre a carga líquida
-    já cortada. Com a correção, a importação de 2030 (DC central, eólica base) passou de
-    {f(nbt['imp30_ant'], 2)} para {f(nbt['imp30'], 2)} TWh, e o efeito dos data centers, de
-    {f(nbt['dc30_ant'], 2)} para {f(nbt['dc30'], 2)} TWh. As conclusões não mudam.
-  - Uma limitação do modelo, declarada e não corrigida (decisão 53): a eólica simulada tem poucas horas
-    de pouco vento na frota recente. Por isso, a importação de 2030 tende a estar subestimada.
+  faixa do cenário de 2026 com clima e hidrologia sorteados (percentil {f(nbt['A_pct'], 0)}). Com o clima e a
+  hidrologia reais, o simulador dá {f(nbt['B_cen'], 2)} TWh ({sg(100 * (nbt['B_cen'] / nbt['obs'] - 1))}%).
+- **Revisão de 2026-11-25 (decisões 54–58).** Uma auditoria corrigiu a importação observada do diagnóstico, as
+  features das funções de transferência, os resíduos e o coeficiente da regra hidráulica. A importação central
+  passou de 5,18 para {f(nbt['imp30'], 2)} TWh e o efeito dos data centers, de 2,29 para
+  {f(p('central', 'base', 'importacao_TWh'), 2)} TWh. As conclusões não mudam.
 
 ## 1. Contexto, pergunta e escopo
 
@@ -571,7 +582,7 @@ constante de data centers absorveria energia.
 de vento mostrou duas causas: 2025 foi mais ventoso, e a frota nova tem curva de potência 5–10% maior
 (decisão 20).
 Por isso os modelos que projetam 2030 são treinados só na frota recente (2024-07 em diante), e o simulador
-determinístico aplica um **fator de frota** por ano (1,05–1,09 para 2022–2024; ~1,00 para 2025).
+determinístico aplica um **fator de frota** por ano ({f(kf[[2022, 2023, 2024]].min(), 2)}–{f(kf[[2022, 2023, 2024]].max(), 2)} para 2022–2024; {f(kf[2025], 2)} para 2025).
 
 **Ciclo diurno e limitação do ERA5.** O CF potencial é ~{f(100 * (nn('cf_noite_rel') - 1), 0)}% maior à
 noite e ~{f(100 * (1 - nn('cf_meiodia_rel')), 0)}% menor ao meio-dia em relação à média do dia. O vento³
@@ -703,13 +714,13 @@ curto prazo; (2) **função de transferência** clima → sistema, que gera os p
 Esses modelos não usam lags do alvo, porque em 2030 não há "valor da hora anterior" observado.
 
 **As quatro funções.**
-- **A0 — forma da carga bruta** (carga ÷ média do ano). Validada deixando um ano inteiro de fora: MAE
-  de {f(100 * a0g.min())}–{f(100 * a0g.max())}% contra {f(100 * a0p.min())}–{f(100 * a0p.max())}% do
-  perfil médio. Vence nos 4 anos.
+- **A0 — forma da carga bruta** (carga ÷ média do ano). Validada deixando um ano inteiro de fora, com a forma
+  renormalizada a média 1 como no simulador: MAE de {f(100 * a0g.min())}–{f(100 * a0g.max())}% contra
+  {f(100 * a0p.min())}–{f(100 * a0p.max())}% do perfil médio.
   - Com a carga *líquida* o erro chegaria a {f(100 * a0n.max())}%, porque a forma muda com a MMGD. Isso
     confirmou a decisão da seção 4.3.
-- **E0 — forma da MMGD** (MMGD ÷ média móvel de 365 dias, o que remove o crescimento da capacidade).
-  Depende da irradiância.
+- **E0 — forma da MMGD** (MMGD ÷ média móvel de 365 dias, o que remove o crescimento da capacidade; nas pontas
+  da série o nível segue a taxa de crescimento vizinha, decisão 56). Depende da irradiância.
 - **B0 — CF eólico potencial.** Treinado só na frota recente (2024-07 a 2025-12) e testado em 2026: MAE
   {f(b0[b0.metodo == 'HGB'].MAE.iat[1], 3)} contra {f(b0[b0.metodo != 'HGB'].MAE.iat[1], 3)} do perfil
   médio, com viés de {f(b0[b0.metodo == 'HGB'].vies.iat[1], 3)}.
@@ -718,18 +729,38 @@ Esses modelos não usam lags do alvo, porque em 2030 não há "valor da hora ant
 - **C0 — CF solar potencial.** MAE {f(c0[c0.metodo == 'HGB'].MAE.min(), 3)}–{f(c0[c0.metodo == 'HGB'].MAE.max(), 3)}
   contra {f(c0[c0.metodo != 'HGB'].MAE.min(), 3)}–{f(c0[c0.metodo != 'HGB'].MAE.max(), 3)} do perfil.
 
+**Como as features foram escolhidas: ablação (decisão 55).** Cada variante é **re-treinada** sem (ou com) uma
+feature e avaliada em anos ou blocos de 12 a 16 meses que não entraram no treino (`src/models/ablacao.py`). A
+comparação usa o IC95 da diferença de erro, por bootstrap em blocos de 7 dias. Uma feature de ruído puro
+serve de controle.
+
+{t_abl}
+
+- **Especificação adotada.** Melhora as quatro funções: {sg(ad.loc['B0', 'dif_RMSE_%'], 1)}% na eólica,
+  {sg(ad.loc['C0', 'dif_RMSE_%'], 1)}% na solar, {sg(ad.loc['A0', 'dif_RMSE_%'], 1)}% na carga e
+  {sg(ad.loc['E0', 'dif_RMSE_%'], 1)}% na MMGD, com menos features em três delas.
+- **Dia do ano.** Sai dos quatro modelos. Na eólica e na solar, com só 28 meses de treino, o modelo decorava o
+  tempo de dias específicos, e tirá-lo reduz o erro.
+- **Vento por polo.** Os 16 ventos a 100 m (um por polo), no lugar da média espacial e do cubo dela, são o maior
+  ganho da eólica: a conversão em potência é não linear e os regimes de vento diferem entre litoral e interior.
+- **Redundâncias da carga.** CDH é cópia da temperatura para árvores (função monótona); temperatura aparente,
+  umidade e os feriados menores mudavam o erro em menos de 1%. Entra a média de 24 h da temperatura (inércia
+  térmica); depois dela, a temperatura da hora contribui pouco, e foi mantida pelo sentido físico.
+- **Cuidados.** As features foram escolhidas nas mesmas dobras em que o erro é medido, então os ganhos são
+  ligeiramente otimistas. Diferenças abaixo de 1% não devem ser interpretadas: até o ruído as produz.
+
 **O que os modelos usam.** A importância por permutação mede quanto o erro aumenta quando uma feature é
-embaralhada ({F('r11')}).
-- **B0:** o vento a 100 m domina, seguido da hora do dia, que corrige o ciclo noturno subestimado pelo
-  ERA5.
-- **A0:** hora, dia da semana e dia do ano dominam. A temperatura aparece com peso menor porque divide a
-  informação sazonal com o dia do ano.
+embaralhada num modelo já treinado ({F('r11')}; os 16 polos são embaralhados juntos). Ela mostra em que o
+modelo se apoia, não se a feature deveria estar nele: antes da revisão, o dia do ano parecia importante por
+esse critério e, mesmo assim, piorava o modelo.
+- **B0:** o vento domina, seguido da hora do dia, que corrige o ciclo noturno subestimado pelo ERA5.
+- **A0:** hora e dia da semana dominam, seguidos da média de 24 h da temperatura, do mês e da irradiância.
 
 Importância por permutação **não** tem interpretação causal.
 {fig('r11')}
-A {F('r12')} mostra as previsões fora do treino. A carga acompanha o ciclo diário e semanal, com erros
-maiores nos domingos, quando o modelo prevê uma queda menor que a observada. O CF eólico diário segue as
-variações do vento ao longo de 2026.
+A {F('r12')} mostra as previsões fora do treino. A carga acompanha o ciclo diário e semanal; com o ano fora do
+treino, o erro médio varia pouco entre os dias da semana (2,7% a 3,0%, decisão 55). O CF eólico diário segue
+as variações do vento ao longo de 2026.
 {fig('r12')}
 **Da previsão ao perfil sintético.**
 - **Calendário e clima.** O clima de cada ano é colocado no calendário de 2030 por (mês, dia, hora); 29/02
@@ -737,14 +768,12 @@ variações do vento ao longo de 2026.
   mesma população de usinas.
 - **Variabilidade.** Como as previsões são médias condicionais, mais "lisas" que a realidade, a
   variabilidade que falta é recomposta com **resíduos fora da amostra**: erros de previsão medidos por
-  validação cruzada mensal na janela 2024-07..2025-12, reamostrados no Monte Carlo (seção 7).
+  validação cruzada mensal na janela 2024-07..2026-10, reamostrados no Monte Carlo (seção 7).
 - **Validação.**
-  - O CF eólico sintético tem correlação horária de {f(vb['corr'].min(), 2)}–{f(vb['corr'].max(), 2)}
-    com o observado.
-  - Com os resíduos, o desvio-padrão horário reproduz o observado ({f(vb.loc[2025, 'dp_sint_com_residuo_aprox'], 3)}
-    contra {f(vb.loc[2025, 'dp_obs'], 3)} em 2025). A variância média, porém, não garante a cauda: nas horas
-    de menos vento da frota recente a eólica simulada fica acima da observada (seção 7.5; limitação
-    declarada, decisão 53).
+  - O CF eólico sintético tem correlação horária de {f(vb.loc[2025, 'corr_fora'], 2)} com o observado em 2025, fora da
+    amostra ({f(vb.loc[2025, 'corr'], 2)} com o modelo final, que viu 2025 no treino).
+  - Fora da amostra e com os resíduos, o desvio-padrão horário de 2025 fica em {f(vb.loc[2025, 'dp_fora_com_residuo'], 3)},
+    contra {f(vb.loc[2025, 'dp_obs_fora'], 3)} observado. A cauda de pouco vento é avaliada na seção 7.5.
   - Só {f(E[['pct_abaixo', 'pct_acima']].sum(axis=1).max(), 2)}% das horas de 1995–2021 ficam fora da
     faixa de treino de alguma variável, ou seja, quase não há extrapolação.
 
@@ -859,12 +888,16 @@ flowchart TB
 - **Resíduos em blocos.** Sequências de 7 dias de erros fora da amostra das quatro séries, sorteadas
   **juntas** e de épocas do ano parecidas (±14 dias). Isso preserva a autocorrelação e a dependência
   entre carga, vento e sol (por exemplo, um dia nublado reduz a solar e a MMGD ao mesmo tempo). O tamanho
-  do bloco foi testado: 3 e 14 dias dão o mesmo resultado.
-- **Resíduos recentrados.** Os erros fora da amostra não têm média zero. De cada série subtrai-se a média
-  esperada sob o próprio sorteio (CF eólico {sg(cen['B0'], 4)}; CF solar {sg(cen['C0'], 4)}; carga
-  {sg(cen['A0'], 4)}; MMGD {sg(cen['E0'], 4)}), e as formas de carga e MMGD voltam a ter média 1 em cada
-  sorteio. Os resíduos repõem variabilidade horária sem deslocar o nível anual. Sem essa correção a
-  importação média seria {sg(sd.loc['residuos sem recentrar', 'delta_media_TWh'], 2)} TWh diferente.
+  do bloco foi testado: 3 e 14 dias dão o mesmo resultado. A janela dos resíduos vai de
+  {mcc['janela_residuos'][0]} a {mcc['janela_residuos'][1]}, com dois anos de janeiro a outubro: de 82% a 94% da importação
+  observada ocorre de janeiro a junho, e até 2026-11-25 essa época tinha só um ano de resíduos (decisão 56).
+- **Resíduos recentrados por mês.** Os erros fora da amostra não têm média zero, e o viés muda com a época do
+  ano. De cada série subtrai-se a média esperada no mês sob o próprio sorteio: CF eólico de {sg(min(cm['B0']), 4)}
+  a {sg(max(cm['B0']), 4)}, carga de {sg(min(cm['A0']), 4)} a {sg(max(cm['A0']), 4)}. Na solar e na MMGD o centro é por mês
+  e hora, para não criar geração à noite. Um centro único para o ano (versão anterior) compensava, em
+  janeiro–junho, um viés que só existia no 2º semestre de 2024. As formas de carga e MMGD voltam a ter média 1
+  em cada sorteio. Sem recentrar, a importação média seria
+  {sg(sd.loc['residuos sem recentrar', 'delta_media_TWh'], 2)} TWh diferente.
 - **Ano hidrológico** (2022–2025): define a energia hidráulica diária e a térmica.
 - **Números aleatórios comuns.** O mesmo sorteio é aplicado a todos os cenários, de modo que as diferenças
   entre cenários são **pareadas**: medem o efeito do cenário no mesmo clima.
@@ -875,13 +908,15 @@ flowchart TB
   2022–2025). Repetir o despacho de um ano qualquer, sem essa resposta, quebraria a dependência
   entre clima e despacho.
 - **Como.** A regra mantém a energia diária do ano hidrológico sorteado e redistribui a geração dentro do
-  dia seguindo a carga líquida simulada, com o coeficiente medido em cada ano
-  ({f(min(betas), 2)}–{f(max(betas), 2)}), dentro dos mínimos e máximos mensais históricos ({F('r15')}). O
+  dia seguindo a carga líquida simulada, dentro dos mínimos e máximos mensais históricos ({F('r15')}). O
   coeficiente é estimado sobre a carga líquida potencial (geração + corte), a mesma grandeza a que a regra
-  é aplicada (decisão 52, adotada em 2026-11-17). Antes era estimado sobre a carga já cortada; a seção 7.5
-  mostra por que isso era inconsistente.
-- **Sensibilidades.** As alternativas (despacho histórico sem resposta, hidráulica plana) aparecem como
-  sensibilidades.
+  é aplicada (decisão 52), e é o de 2026: {f(mcc['beta_hidro_central'], 2)} (decisão 57).
+- **Por que o de 2026.** O coeficiente cai quando a carga líquida oscila mais dentro do dia: de
+  {f(max(betas), 2)} em 2022 (desvio de {f(dps['2022'], 0)} MW) a {f(min(betas), 2)} em 2025 ({f(dps['2025'], 0)} MW); em 2026
+  sobe um pouco, porque a hidrologia também pesa. Em 2030 o desvio simulado é {f(dps['2030_simulado'], 0)} MW; 2026 ({f(dps['2026_jan_out'], 0)} MW) é o regime observado mais
+  próximo. O coeficiente de 2026 vem de janeiro a outubro, só das horas em que o balanço fecha.
+- **Sensibilidades.** O coeficiente do próprio ano hidrológico, a amplitude constante em MW, o despacho
+  histórico sem resposta e a hidráulica plana.
 {fig('r15')}{backtest_tecnico.perfil(F)}{fig('r15b')}
 A {F('r14')} mostra uma semana de 2030 decomposta, extraída de um sorteio com importação próxima da
 mediana: a eólica sustenta a noite, a solar e a MMGD sustentam o dia, e a importação (hachurada) aparece
@@ -899,26 +934,24 @@ da importação anual mudou {f(abs(C.loc[2000, 'var_media_%']), 2)}% e o P95,
 
 **Teste.** Antes de usar o simulador para 2030, ele foi rodado para cada ano de 2022–2025 com o clima, o
 ano hidrotérmico e os **níveis observados** daquele ano (carga coerente com o balanço, MMGD, energia
-eólica e solar potenciais). Só os resíduos são sorteados ({bk['n']} sorteios). Se as formas horárias e a
-regra hidráulica estiverem certas, a importação simulada deve ficar próxima da observada ({F('mc4')}).
+eólica e solar potenciais). Só os resíduos são sorteados ({bk['n']} sorteios), sem os do próprio ano. Se as
+formas horárias e a regra hidráulica estiverem certas, a importação simulada deve ficar próxima da observada
+({F('mc4')}). A observada é a potencial (intercâmbio mais cortes), o conceito do simulador; entre parênteses, a
+realizada (decisão 54). O coeficiente da regra é o do próprio ano. As funções de transferência viram parte
+desses anos no treino; o erro fora da amostra está na seção 7.5.
 
 {bk['tabela']}
 
-- **Erro da importação anual.** Com a regra emulada (caso central), de
+- **Erro da importação anual.** Com a regra emulada, de
   {sg(bk['regra']['erro_%'].min())}% a {sg(bk['regra']['erro_%'].max())}%, erro absoluto médio de
   {f(bk['mae_regra'], 0)}%. Com o despacho hidráulico observado no próprio ano, de
   {sg(bk['obs']['erro_%'].min())}% a {sg(bk['obs']['erro_%'].max())}%, erro absoluto médio de
   {f(bk['mae_obs'], 0)}%. Nenhuma convenção é melhor em todos os anos.
 - **O erro muda ao longo dos anos.** Com a regra, vai de {sg(bk['regra'].loc[2022, 'erro_%'])}% em 2022 a
   {sg(bk['regra'].loc[2025, 'erro_%'])}% em 2025.
-  - Em 2025, {f(bk['regra'].loc[2025, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh de corte eólico
-    ocorreram em horas de importação (restrições de rede). O simulador usa a geração potencial e não
-    representa esses cortes.
-  - Em 2024 esse corte foi de {f(bk['regra'].loc[2024, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh,
-    então a subestimação daquele ano tem outra origem. A seção 7.5 a atribui principalmente à forma da
-    eólica simulada, com poucas horas de pouco vento na frota recente (limitação declarada, decisão 53).
-    O coeficiente da regra hidráulica também contribuía e já foi corrigido (decisão 52): a tabela acima
-    já usa o coeficiente adotado.
+  - Cortes em horas de importação não explicam o erro. Em 2025 foram
+    {f(bk['regra'].loc[2025, 'corte_eol_em_horas_de_importacao_TWh'], 2)} TWh de corte eólico, mas gerá-los reduziria a
+    importação em só {f(bk['regra'].loc[2025, 'importacao_evitada_se_gerado_TWh'], 2)} TWh.
 - **Picos.** Com a regra, o pico simulado difere do observado em {sg(bk['dpico_regra'].min(), 1)} a
   {sg(bk['dpico_regra'].max(), 1)} GW.
 - **Leitura.** O nível absoluto da importação de 2030 carrega um erro estrutural dessa ordem, comparável
@@ -1028,8 +1061,8 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
    entre cenários. Por isso os resultados devem ser comunicados como distribuições e diferenças pareadas,
    não como um número único.
 5. **O efeito é mais confiável que o nível.** Na validação retrospectiva, o nível anual da importação
-   erra de {sg(bk['regra']['erro_%'].min())}% a {sg(bk['regra']['erro_%'].max())}% em 2022–2025, e nos anos da frota
-   recente ({nbt['anos_rec'][0]}–{nbt['anos_rec'][-1]}) o erro é sempre de subestimação. O nível de 2030 tende,
+   erra de {sg(bk['regra']['erro_%'].min())}% a {sg(bk['regra']['erro_%'].max())}% em 2022–2025; fora da amostra, de
+   {sg(nbt['erro_min'])}% a {sg(nbt['erro_max'])}% em 2022–2026, pior nos anos recentes. O nível de 2030 tende,
    portanto, a estar **subestimado**. O efeito pareado dos data centers fica entre +{f(efx.min())} e
    +{f(efx.max())} TWh/ano em todas as hipóteses testadas, exceto o atraso.
 
@@ -1040,23 +1073,26 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 {t_lim_rob}
 
 **Limitações de método.**
-- **Rede.** Não há representação da rede: excedente regional ≠ corte, e importação ≠ déficit. Cortes por
-  restrição de rede em horas de importação aumentam a importação real e ficam de fora.
+- **Rede.** Não há representação da rede: excedente regional ≠ corte, e importação ≠ déficit. Cortes em horas
+  de importação ficam de fora; em 2025, gerá-los evitaria
+  {f(bk['regra'].loc[2025, 'importacao_evitada_se_gerado_TWh'], 2)} TWh.
 - **Erro do simulador.** Com os níveis observados, a importação anual simulada erra de
   {sg(bk['regra']['erro_%'].min())}% a {sg(bk['regra']['erro_%'].max())}% em 2022–2025 (seção 7.4); no backtest de 2026,
-  {sg(100 * (nbt['B_cen'] / nbt['obs'] - 1))}% (seção 7.5).
-- **Eólica simulada com poucas horas de pouco vento (limitação do modelo, decisão 53).** Em
-  {nbt['anos_rec'][0]}–{nbt['anos_rec'][-1]}, o P5 horário da eólica simulada (com os resíduos) fica
-  {f(nbt['p5_exc_rec_min'], 0)}–{f(nbt['p5_exc_rec_max'], 0)} MW acima do observado; os resíduos sorteados não
-  corrigem a cauda. Por isso, nesses anos, com as funções de transferência re-treinadas sem o próprio ano,
-  a importação simulada fica {f(-nbt['erro_rec_max'], 0)}% a {f(-nbt['erro_rec_min'], 0)}% abaixo da observada,
-  e a importação de 2030 tende a estar subestimada. A correção foi adiada por decisão
-  do usuário (2026-11-17); a seção 7.5 descreve as alternativas.
+  {sg(100 * (nbt['B_cen'] / nbt['obs'] - 1))}%; fora da amostra, {sg(nbt['erro_min'])}% a {sg(nbt['erro_max'])}% em
+  2022–2026 (seção 7.5). A importação de 2030 tende a estar subestimada.
+- **Cauda de pouco vento (decisão 53, revista).** A limitação registrada em 2026-11-17 não se confirma com o
+  observado corrigido e o vento por polo: o P5 horário da eólica simulada fica entre {sg(nbt['p5_min'], 0)} e
+  {sg(nbt['p5_max'], 0)} MW do observado em 2022–2026 (seção 7.5).
 - **Despacho.** A hidráulica segue uma regra emulada, não uma otimização; a térmica é histórica; a
   hidrologia é amostrada em só 4 anos.
-  - O coeficiente da regra passou a ser estimado sobre a carga líquida potencial (decisão 52). Com o
-    coeficiente anterior, sobre a carga já cortada, a importação de 2030 seria
-    {f(100 * (1 - nbt['imp30_ant'] / nbt['imp30']), 0)}% menor (seção 7.5).
+  - O coeficiente da regra depende do regime (decisão 57). Com o de cada ano hidrológico a importação de 2030
+    seria {f(100 * (1 - nbt['imp30_ano'] / nbt['imp30']), 0)}% menor (seção 7.5); com a amplitude constante em MW,
+    {sg(sd.loc['hidraulica: amplitude constante em MW', 'delta_media_TWh'], 2)} TWh (seção 8.6).
+  - O ano hidrológico é sorteado sem relação com o ano meteorológico; nos quatro anos comuns os dois são
+    correlacionados (decisão 58).
+- **Alvo eólico.** O CF potencial é geração mais GNRa, e a referência do ONS usada na apuração mudou entre 2022 e
+  2026; parte da deriva do CF potencial pode vir daí (decisão 58).
+- **Compensação eólica.** A eólica adicional tem o mesmo perfil horário da frota simulada.
 - **Nível de carga.** A forma vem da API do ONS e o nível, do PLAN; em 2025 a API fica
   {f(100 * (api25 / plan25 - 1))}% acima.
 - **Data centers.** A carga é flat e igual à média anual; não há rampas dentro de 2030.
@@ -1065,10 +1101,11 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 - **Backtesting solar.** O modelo de curto prazo da solar prevê o CF observado, com corte; o eólico prevê
   o potencial.
 - **Funções de transferência.** Partem da frota atual (pesos espaciais fixos) e do ERA5, que suaviza o
-  jato noturno. Preveem médias condicionais; a variabilidade vem dos resíduos, que somam só 18 meses e são
-  sorteados sem relação com o vento da hora.
+  jato noturno. Preveem médias condicionais; a variabilidade vem dos resíduos, que somam 28 meses e são
+  sorteados pela época do ano, sem relação com o vento da hora.
 - **Cenários eólicos.** São hipóteses de fase, não um cronograma.
-- **Dados de 2026.** São complementares, com anomalias no balanço de jan–mai.
+- **Dados de 2026.** Vão só até outubro e têm anomalias no balanço de jan–mai; as horas que não fecham ficam fora
+  do coeficiente da regra e do backtest.
 
 ## 11. Reprodutibilidade e engenharia
 
@@ -1090,8 +1127,10 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
   - conservação da energia hidráulica;
   - recentramento dos resíduos e níveis anuais do sorteio;
   - métricas da validação retrospectiva;
-  - coeficiente da regra hidráulica (o adotado recupera o coeficiente verdadeiro num caso sintético com
-    corte) e fechamento do balanço observado de 2026;
+  - coeficiente da regra hidráulica (recupera o verdadeiro num caso sintético com corte; caso central = 2026) e
+    geração potencial observada (importação potencial nunca acima da realizada);
+  - features (sem informação futura; especificação adotada melhor que a anterior na ablação) e validações sem
+    resíduos do próprio ano;
   - trajetórias de 2026–2030, ano bissexto e motor do simulador interativo igual ao do Monte Carlo.
 - **Rastreabilidade.** Manifesto com SHA-256 de cada arquivo bruto; `docs/decisoes.md` com {n_dec} decisões
   numeradas (técnicas e do usuário); `STATUS.md` com o estado do projeto.
@@ -1107,9 +1146,9 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
 - **Eólica alta.** 39,4 GW, com toda a expansão indicativa do PDE alocada ao NE.
 - **Hidráulica.** Despacho histórico no determinístico; regra emulada no Monte Carlo; hidráulica plana
   como sensibilidade. Em 2026-11-17, coeficiente da regra estimado sobre a carga líquida potencial
-  (decisão 52).
-- **Cauda de pouco vento da eólica simulada.** Em 2026-11-17, correção adiada; fica registrada como
-  limitação do modelo, e os resultados de 2030 não mudam (decisão 53).
+  (decisão 52); em 2026-11-25, o de 2026 no caso central (decisão 57).
+- **Correções da auditoria.** Em 2026-11-25 o usuário decidiu aplicar as quatro correções de método: observado
+  do diagnóstico, features, resíduos e coeficiente hidráulico (decisões 54–57).
 - **Clima.** ERA5 de 1995–2021 incluído para o Monte Carlo.
 - **Anos 2026–2029.** Níveis de cenário por ano só para o simulador interativo (anexo); os resultados e
   as conclusões do estudo continuam sendo os de 2030.

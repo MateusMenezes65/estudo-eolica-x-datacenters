@@ -9,6 +9,9 @@ são fixos para que todos os anos meteorológicos representem a MESMA populaçã
 - vento a 100 m e irradiância nos polos: capacidade média de out/2026 de cada usina/conjunto
   do FC ONS, atribuída ao ponto ERA5 mais próximo (mesma regra de src.build.ne_hourly);
 - temperatura, umidade e irradiância nas capitais: população das UFs (Censo 2022).
+
+Colunas usadas pelas funções de transferência (decisão 55): `ws_<polo>` = vento a 100 m de cada um dos
+16 polos eólicos, sem média espacial; `temp_mm24` = média da temperatura ponderada nas 24 h até a hora t.
 """
 from __future__ import annotations
 
@@ -82,6 +85,10 @@ def main() -> None:
     C["wind_speed3_100m"] = wavg("wind", "wind_speed_100m", lambda v: v ** 3)
     C["shortwave_radiation"] = wavg("solar", "shortwave_radiation")
     C["cdh24"] = (C.temperature_2m - 24).clip(lower=0)
+    for pid in sorted(w["wind"].index):                       # vento de cada polo eólico (modelo B0)
+        C[f"ws_{pid}"] = series[pid]["wind_speed_100m"].astype("float32")
+    # inércia térmica da carga (modelo A0); nas primeiras 23 h da série a janela é menor
+    C["temp_mm24"] = C.temperature_2m.rolling(24, min_periods=1).mean()
     C = C.dropna().reset_index()
     PROCESSED.mkdir(parents=True, exist_ok=True)
     C.to_parquet(PROCESSED / "clima_ne_1995_2026.parquet")

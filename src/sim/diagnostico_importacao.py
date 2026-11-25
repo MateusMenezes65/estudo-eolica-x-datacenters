@@ -10,13 +10,17 @@ Pergunta: a importação simulada fica abaixo da observada em 2024, 2025 e 2026.
 de um ano específico ou vem da metodologia? Três testes:
 1. Consistência do coeficiente da regra hidráulica. O beta anterior era estimado sobre a carga líquida
    REALIZADA (eólica e solar já cortadas, decisão 39), mas a regra é aplicada à carga líquida
-   POTENCIAL simulada. Com corte crescente as duas divergem. Desde a decisão 52 (2026-11-17) o caso
-   central usa o beta sobre a carga líquida potencial; aqui os dois são comparados.
+   POTENCIAL simulada (decisão 52). Além disso, o beta cai quando a carga líquida oscila mais dentro do
+   dia; em 2030 o caso central usa o de 2026, o regime mais próximo (decisão 57). Na validação
+   retrospectiva cada ano usa o próprio beta, sobre a carga líquida potencial ("beta do ano").
 2. Substituição de formas (2022–2026). Com os NÍVEIS observados de cada ano, troca-se a forma horária
    simulada de cada parcela (funções de transferência re-treinadas sem o próprio ano, sem resíduos)
    pela observada, e a regra hidráulica pelo despacho observado. Mostra qual parcela explica o erro e
    se o sinal se repete entre anos (sistemático) ou não (ano específico).
-3. Efeito em 2030: Monte Carlo do estudo (mesmos 2.000 sorteios) com o beta anterior e o adotado.
+3. Efeito em 2030: Monte Carlo do estudo (mesmos 2.000 sorteios) com o beta por ano sobre a carga
+   realizada, por ano sobre a potencial e o de 2026 (caso central).
+A importação observada é a potencial (intercâmbio + cortes), com a eólica e a solar do balanço mais o
+corte apurado (src.sim.observado, decisão 54).
 """
 from __future__ import annotations
 
@@ -36,11 +40,15 @@ from src.sim import montecarlo as mc
 from src.sim import sinteticos as sint
 from src.sim.anos import InsumosAno, simular_ano
 from src.sim.deterministico import l_dc_2030, load_cfg
+from src.sim.observado import potencial_frota
 
 OUT = REPORTS / "sim"
 ANOS = [2022, 2023, 2024, 2025, 2026]
 FIM_2026 = "2026-10-31 23:00"
-COR = {"obs": "#52514e", "real": "#2a78d6", "pot": "#eb6834"}
+COR = {"obs": "#52514e", "real": "#2a78d6", "ano": "#2a78d6", "pot": "#eb6834"}
+CASOS_2030 = ["beta por ano hidrológico, carga realizada (decisão 34)",
+              "beta por ano hidrológico, carga potencial (decisão 52)",
+              "beta de 2026 (caso central, decisão 57)"]
 INK2, GRID = "#52514e", "#e1e0d9"
 
 
@@ -52,24 +60,22 @@ def observado_ano(X: pd.DataFrame, ano: int) -> pd.DataFrame:
     req = ["interc", "hid", "ter", "eol_bal", "sol_central", "ger_eol_fc", "pot_eol_fc", "ger_sol_fc", "pot_sol_fc",
            "L_net", "MMGD"]
     g["valida"] = g[req].notna().all(axis=1) & (g.anomalia_balanco.fillna(1) == 0)
-    v = g[g.valida]
-    fr_e = v.eol_bal.mean() / v.ger_eol_fc.mean()
-    fr_s = v.sol_central.mean() / v.ger_sol_fc.mean()
+    P = potencial_frota(g, g[g.valida])
     O = pd.DataFrame(index=g.index)
     O["valida"] = g.valida
     O["hid"], O["ter"], O["MMGD"] = g.hid, g.ter, g.MMGD
     O["eol_real"], O["sol_real"] = g.eol_bal, g.sol_central
-    O["eol_pot"], O["sol_pot"] = g.pot_eol_fc * fr_e, g.pot_sol_fc * fr_s
+    O["eol_pot"], O["sol_pot"] = P.eol_pot, P.sol_pot            # balanço + corte apurado (decisão 54)
     O["L_bal"] = g.hid + g.ter + g.eol_bal + g.sol_central + g.MMGD - g.interc       # carga bruta implícita no balanço
     O["L_api_liq"] = g.L_net
     O["M"] = O.hid + O.ter + O.eol_pot + O.sol_pot + O.MMGD - O.L_bal
     O["interc"] = g.interc
-    O.attrs.update(fr_e=fr_e, fr_s=fr_s)
+    O.attrs.update(P.attrs)
     return O
 
 
 def tabela_beta(obs: dict, X: pd.DataFrame) -> pd.DataFrame:
-    """Beta anterior (carga líquida realizada) e adotado (potencial) por ano, pela função do Monte Carlo."""
+    """Beta por ano sobre a carga líquida realizada (anterior) e potencial, pela função do Monte Carlo."""
     rows = []
     Xt = X.set_index("t")
     for ano, O in obs.items():
@@ -84,8 +90,19 @@ def tabela_beta(obs: dict, X: pd.DataFrame) -> pd.DataFrame:
                      "corte_eolico_%": float(100 * (g.eol_pot - g.eol_real).sum() / g.eol_pot.sum()),
                      "corte_solar_%": float(100 * (g.sol_pot - g.sol_real).sum() / g.sol_pot.sum()),
                      # colunas novas sempre ao fim (o relatório e a figura leem 'corte_eolico_%' pela posição)
-                     "corr_realizada": mc.corr_regra(bruto, False), "corr_potencial": mc.corr_regra(bruto, True)})
+                     "corr_realizada": mc.corr_regra(bruto, False), "corr_potencial": mc.corr_regra(bruto, True),
+                     **beta_por_oscilacao(bruto)})
     return pd.DataFrame(rows)
+
+
+def beta_por_oscilacao(g: pd.DataFrame) -> dict:
+    """Beta nos dias de menor e de maior oscilação da carga líquida potencial do ano (tercis)"""
+    dn, dh = mc.desvios_regra(g, True)
+    dia = dn.index.normalize()
+    amp = dn.groupby(dia).transform("std")
+    q = dn.groupby(dia).std().quantile([1 / 3, 2 / 3]).to_numpy()
+    return {"beta_dias_menor_oscilacao": float(np.polyfit(dn[amp <= q[0]], dh[amp <= q[0]], 1)[0]),
+            "beta_dias_maior_oscilacao": float(np.polyfit(dn[amp > q[1]], dh[amp > q[1]], 1)[0])}
 
 
 # ------------------------------------------------------------------ 2. validação retrospectiva com os dois beta
@@ -95,10 +112,9 @@ def backcast_beta(c: dict, Tb: pd.DataFrame, n: int) -> pd.DataFrame:
     tb = Tb.set_index("ano").loc[[int(a) for a in ins.anos_h]]
     rows = []
     for nome, b in [("beta anterior (carga líquida realizada)", tb.beta_realizada.to_numpy()),
-                    ("beta adotado (carga líquida potencial)", tb.beta_potencial.to_numpy())]:
-        ins.beta = b
+                    ("beta do ano (carga líquida potencial)", tb.beta_potencial.to_numpy())]:
         for ano in [int(a) for a in ins.anos_h]:
-            r = [x for x in bc.simular_ano(ins, c, X, ano, n) if x["convencao"].startswith("regra")][0]
+            r = [x for x in bc.simular_ano(ins, c, X, ano, n, beta=b) if x["convencao"].startswith("regra")][0]
             rows.append({"beta": nome, "ano": ano, "obs_TWh": r["obs_TWh"], "sim_TWh": r["sim_TWh"], "erro_%": r["erro_%"],
                          "obs_horas": r["obs_horas"], "sim_horas": r["sim_horas"]})
     return pd.DataFrame(rows)
@@ -170,24 +186,25 @@ def substituicao(obs: dict, Tb: pd.DataFrame, n_res: int = 100) -> tuple[pd.Data
 
         casos = {
             "simulado, regra com beta anterior": (sim, "real"),
-            "simulado, regra com beta adotado": (sim, "pot"),
+            "simulado, regra com beta do ano": (sim, "pot"),
             "simulado, despacho hidráulico observado": (sim, "obs"),
-            "forma eólica observada (beta adotado)": ({**sim, "eol": ob["eol"]}, "pot"),
-            "forma da carga observada (beta adotado)": ({**sim, "L": ob["L"]}, "pot"),
-            "formas solar e MMGD observadas (beta adotado)": ({**sim, "sol": ob["sol"], "MMGD": ob["MMGD"]}, "pot"),
+            "forma eólica observada (beta do ano)": ({**sim, "eol": ob["eol"]}, "pot"),
+            "forma da carga observada (beta do ano)": ({**sim, "L": ob["L"]}, "pot"),
+            "formas solar e MMGD observadas (beta do ano)": ({**sim, "sol": ob["sol"], "MMGD": ob["MMGD"]}, "pot"),
             "todas as formas observadas, regra com beta anterior": (ob, "real"),
-            "todas as formas observadas, regra com beta adotado": (ob, "pot"),
+            "todas as formas observadas, regra com beta do ano": (ob, "pot"),
             "todas as formas observadas, despacho observado": (ob, "obs"),
         }
-        # resíduos fora da amostra sorteados em blocos de 7 dias a partir de 1º/jan (mesmo esquema do Monte Carlo)
-        rins = types.SimpleNamespace(res=pool.res, dia_ok=pool.dia_ok, doy_pool=pool.doy_pool, nd=len(t) // 24,
+        # resíduos fora da amostra sorteados em blocos de 7 dias a partir de 1º/jan (mesmo esquema do Monte
+        # Carlo), sem os do próprio ano testado
+        rins = types.SimpleNamespace(res=pool.res, dia_ok=mc.dias_fora_do_ano(pool, ano), doy_pool=pool.doy_pool, nd=len(t) // 24,
                                      anos=np.array([ano]), anos_h=np.array([ano]))
         sdr = mc.sortear(rins, n_res, 7, mc.SEMENTE)
         rr = pool.res[sdr["dias"]].reshape(n_res, len(t), 4) - sdr["centro"]
         cr = com_residuos(P, O, sel, rr)
         casos_res = {}
         for hidro, rot in [("real", "simulado com resíduos, regra com beta anterior"),
-                           ("pot", "simulado com resíduos, regra com beta adotado")]:
+                           ("pot", "simulado com resíduos, regra com beta do ano")]:
             b = float(tb.loc[ano, "beta_realizada" if hidro == "real" else "beta_potencial"])
             vals = []
             for j in range(n_res):
@@ -215,7 +232,7 @@ def substituicao(obs: dict, Tb: pd.DataFrame, n_res: int = 100) -> tuple[pd.Data
         rows.append(r)
         perfis[ano] = pd.DataFrame({"hora": t.hour, "mes": t.month, "valida": sel, "obs": O.hid.to_numpy(),
                                     "real": hs["todas as formas observadas, regra com beta anterior"],
-                                    "pot": hs["todas as formas observadas, regra com beta adotado"]}, index=t)
+                                    "pot": hs["todas as formas observadas, regra com beta do ano"]}, index=t)
     return pd.DataFrame(rows), perfis
 
 
@@ -226,8 +243,9 @@ def efeito_2030(c: dict, d: dict, Tb: pd.DataFrame, n: int) -> tuple[pd.DataFram
     ldc = {k: l_dc_2030(k, d)[0] for k in ["sem_dc", "central"]}
     tb = Tb.set_index("ano").loc[[int(a) for a in ins.anos_h]]
     rows, perf = [], []
-    for nome, b in [("beta anterior (carga líquida realizada)", tb.beta_realizada.to_numpy()),
-                    ("beta adotado (carga líquida potencial)", tb.beta_potencial.to_numpy())]:
+    for nome, chave, b in [(CASOS_2030[0], "real", tb.beta_realizada.to_numpy()),
+                           (CASOS_2030[1], "ano", tb.beta_potencial.to_numpy()),
+                           (CASOS_2030[2], "pot", np.full(len(tb), ins.beta_ref))]:
         ins.beta = b
         for w in ["baixa", "base", "alta"]:
             Dk = simular_ano(ins, c, ldc, sd, ws=[w])
@@ -246,10 +264,9 @@ def efeito_2030(c: dict, d: dict, Tb: pd.DataFrame, n: int) -> tuple[pd.DataFram
         hora = np.tile(np.arange(24), 365)
         mes = pd.date_range("2030-01-01", "2030-12-31 23:00", freq="h").month.to_numpy()
         for grupo, mm in [("jan–abr", mes <= 4), ("mai–dez", mes >= 5)]:
-            perf.append(pd.DataFrame({"conjunto": "2030", "serie": "real" if nome.startswith("beta anterior") else "pot",
-                                      "meses": grupo, "hora": range(24),
+            perf.append(pd.DataFrame({"conjunto": "2030", "serie": chave, "meses": grupo, "hora": range(24),
                                       "MW": [hid[:, mm & (hora == k)].mean() for k in range(24)]}))
-            if nome.startswith("beta anterior"):
+            if chave == "real":
                 perf.append(pd.DataFrame({"conjunto": "2030", "serie": "obs", "meses": grupo, "hora": range(24),
                                           "MW": [ins.hid[h][:, mm & (hora == k)].mean() for k in range(24)]}))
     return pd.DataFrame(rows), pd.concat(perf, ignore_index=True)
@@ -266,14 +283,14 @@ def estilo(ax, titulo, ylab=None):
 
 
 def figura_perfil(PF: pd.DataFrame) -> None:
-    rot = {"obs": "despacho observado", "real": "regra emulada, beta anterior (carga já cortada)",
-           "pot": "regra emulada, beta adotado (carga potencial)"}
+    rot = {"obs": "despacho observado", "ano": "regra emulada, beta do próprio ano hidrológico",
+           "real": "regra emulada, beta de 2026 sobre a carga já cortada", "pot": "regra emulada, beta de 2026 (caso central)"}
     fig, axes = plt.subplots(2, 2, figsize=(11.5, 6.4), sharex=True)
     for j, conj in enumerate(["2030", "2026"]):
         for i, meses in enumerate(["jan–abr", "mai–dez" if conj == "2030" else "mai–out"]):
             ax = axes[i, j]
             g = PF[(PF.conjunto == conj) & (PF.meses == meses)]
-            for s in ["obs", "real", "pot"]:
+            for s in ["obs", "ano" if conj == "2030" else "real", "pot"]:
                 gg = g[g.serie == s].sort_values("hora")
                 ax.plot(gg.hora, gg.MW / 1000, color=COR[s], lw=2, label=rot[s])
             tit = (f"2030, Monte Carlo (300 sorteios, eólica base): {meses}" if conj == "2030"
@@ -283,6 +300,7 @@ def figura_perfil(PF: pd.DataFrame) -> None:
     for ax in axes[1]:
         ax.set_xlabel("hora do dia", fontsize=8.5, color=INK2)
     axes[0, 0].legend(frameon=False, fontsize=8)
+    axes[0, 1].legend(frameon=False, fontsize=8)
     fig.suptitle("Perfil horário da hidráulica emulada: mesma energia diária, redistribuída conforme a carga líquida",
                  x=0.01, ha="left", fontsize=11)
     fig.tight_layout(); fig.savefig(FIGURES / "r15b_perfil_horario_hidraulica.png", dpi=130); plt.close(fig)
@@ -292,19 +310,20 @@ def figura_diagnostico(Tb: pd.DataFrame, SB: pd.DataFrame) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.2))
     ax = axes[0]
     x = np.arange(len(Tb))
-    ax.bar(x - 0.18, Tb.beta_realizada, width=0.34, color=COR["real"], label="anterior: sobre carga líquida realizada")
-    ax.bar(x + 0.18, Tb.beta_potencial, width=0.34, color=COR["pot"], label="adotado: sobre carga líquida potencial")
+    ax.bar(x - 0.18, Tb.beta_realizada, width=0.34, color=COR["real"], label="sobre carga líquida realizada (anterior)")
+    ax.bar(x + 0.18, Tb.beta_potencial, width=0.34, color=COR["pot"], label="sobre carga líquida potencial (o de 2026 é o central em 2030)")
     for k, r in enumerate(Tb.itertuples()):
         ax.text(k, max(r.beta_realizada, r.beta_potencial) + 0.015, f"corte {r._6:.0f}%".replace(".", ","),
                 ha="center", fontsize=7.5, color=INK2)
     ax.set_xticks(x, [str(a) for a in Tb.ano])
+    ax.set_ylim(0, 1.35 * max(Tb.beta_realizada.max(), Tb.beta_potencial.max()))
     estilo(ax, "Coeficiente beta da regra hidráulica por ano (e corte eólico)")
-    ax.legend(frameon=False, fontsize=7.5, loc="lower left")
+    ax.legend(frameon=False, fontsize=7.5, loc="upper right")
     ax = axes[1]
-    casos = [("simulado com resíduos, regra com beta anterior", COR["real"], "método anterior (com resíduos, beta anterior)"),
-             ("simulado com resíduos, regra com beta adotado", COR["pot"], "método atual (com resíduos, beta adotado)"),
-             ("forma eólica observada (beta adotado)", "#1baf7a", "forma eólica observada, beta adotado*"),
-             ("todas as formas observadas, regra com beta adotado", "#6250d6", "todas as formas observadas, beta adotado*")]
+    casos = [("simulado com resíduos, regra com beta anterior", COR["real"], "formas simuladas + resíduos, beta sobre carga realizada"),
+             ("simulado com resíduos, regra com beta do ano", COR["pot"], "formas simuladas + resíduos, beta do ano (método atual)"),
+             ("forma eólica observada (beta do ano)", "#1baf7a", "forma eólica observada, beta do ano*"),
+             ("todas as formas observadas, regra com beta do ano", "#6250d6", "todas as formas observadas, beta do ano*")]
     x = np.arange(len(SB))
     for k, (col, cor, rot) in enumerate(casos):
         err = 100 * (SB[col] / SB.observado_TWh - 1)

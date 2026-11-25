@@ -1,6 +1,6 @@
 # STATUS — Estudo Eólica × Data Centers (NE, 2030)
 
-Última atualização: 2026-11-17 (β da regra hidráulica sobre a carga líquida potencial adotado; resultados de 2030 regenerados; revisão de coerência dos relatórios final e técnico) · Etapas concluídas: **Dia 1** (dados e auditoria), **Dia 2** (modelos, cenários, simulador determinístico), **Dia 3** (Monte Carlo, sensibilidades e relatório final) e o **simulador interativo** pedido pelo usuário.
+Última atualização: 2026-11-25 (auditoria conceitual e estatística; quatro correções de método aplicadas, decisões 54–57; resultados de 2030 e relatórios regenerados; commit local no branch `auditoria-pre-push`, sem push) · Etapas concluídas: **Dia 1**, **Dia 2**, **Dia 3**, o **simulador interativo** e a **auditoria pré-push**.
 
 **Entregas:**
 - [reports/relatorio_final.md](reports/relatorio_final.md): relatório final, gerado por `python -m src.report.final`.
@@ -15,7 +15,7 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
 - Ambiente: `.venv` com as versões de `requirements.lock.txt`. A execução original usou Python 3.14.1; na máquina usada desde 2026-11-16 só há Python 3.13.7, e o `.venv` foi criado com ele e as mesmas versões fixadas (testes aprovados; Monte Carlo de 2030 recalculado idêntico ao do estudo).
 - `python -m src.pipeline` refaz tudo a partir de `data/raw`, em cerca de 25 min (Monte Carlo de 2030: ~5 min). A coleta dos dados brutos está no README.
 - Sementes: 20261111 (modelos) e 20261112 (Monte Carlo).
-- Testes: `pytest -q` (43 casos coletados, contando os parametrizados; o relatório técnico cita a contagem do pytest).
+- Testes: `pytest -q` (55 casos coletados, contando os parametrizados; o relatório técnico cita a contagem do pytest).
 - Git local com identidade só neste repositório. Versionados: código, configuração, manifesto, tabelas de resultado, relatórios (Markdown e HTML) e, via Git LFS, a pasta `data/` (item abaixo).
 - Remoto (2026-11-16, a pedido do usuário): repositório **privado** `github.com/MateusMenezes65/estudo-eolica-x-datacenters`, branch `master`. Colegas entram como colaboradores; instruções de clone no README. `logs/` passou a ser ignorado. `reports/site/` (HTML dos relatórios final e técnico) passou a ser versionado. Os dados foram publicados como anexos da Release `dados-2026-11-16` (zips de `data/raw`, `data/interim` e `data/processed` + SHA256SUMS; `python -m src.tools.pacote_dados empacotar|extrair`) e, por decisão do usuário, também versionados com **Git LFS** (`.gitattributes`: `data/**`; 484 arquivos em 2026-11-16 e 487 em 2026-11-17, com as bases do simulador e do backtest de 2026; cerca de 1,2 GB; cota gratuita de 10 GiB de armazenamento e 10 GiB de download/mês). Isso altera a regra do AGENTS.md de não versionar bases grandes. Toda nova versão de um arquivo de `data/` consome armazenamento LFS adicional.
 
@@ -64,83 +64,88 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
   - ambos: versão do Python (3.14.1 na execução original, 3.13.7 desde 2026-11-16).
   - Comandos: `python -m src.pipeline --desde diagnostico`; `pytest -q` (43 aprovados).
 
+- **Auditoria conceitual e estatística pré-push (2026-11-25)** — decisões 54–58.
+  - Auditoria feita numa cópia, sem alterar o projeto; depois, por decisão do usuário, aplicadas as quatro correções de método:
+    - **54** geração potencial observada com definição única (`src/sim/observado.py`); a validação retrospectiva compara com a importação potencial;
+    - **55** features das funções de transferência por ablação fora da amostra (`src/models/ablacao.py`, nova etapa `ablacao`): sai o dia do ano, entram os 16 ventos por polo; RMSE −8,0% (eólica), −5,3% (solar), −3,0% (carga), −2,8% (MMGD);
+    - **56** resíduos até out/2026, recentrados por mês (solar e MMGD por mês e hora), MMGD sem distorção nas pontas, validações sem resíduos do próprio ano;
+    - **57** coeficiente da regra hidráulica de 2030 = o de 2026 (0,21), com o do próprio ano e a amplitude constante como sensibilidades.
+  - Achados só declarados (decisão 58): dependência clima–hidrologia, GNRa não homogênea, perfil da eólica nova, incerteza da amostra de anos, sinal do efeito dos DC por construção.
+  - Comandos: `python -m src.features.clima_historico`; `python -m src.models.backtest --so-transferencia`; `python -m src.pipeline --desde ablacao`; `pytest -q` (55 aprovados). Curto prazo (modelos A, B e C) e classificador D não mudaram.
+  - Não feito: push; atualização dos slides (`.pptx`) e da pasta `relatorio_ptc3567/`; textos sobre "100% dos sorteios", convergência e "clima pesa tanto quanto o cenário" (decisão 58).
+
 ## 3. Resultados principais (2030, eólica base)
 
-Regenerados em 2026-11-17 com o β da regra hidráulica sobre a carga líquida potencial (decisão 52). Entre colchetes, P5–P95; os valores anteriores à correção estão no histórico do Git.
+Regenerados em 2026-11-25 com as correções das decisões 54–57. Entre colchetes, P5–P95; os valores anteriores estão no histórico do Git.
 
 | | Sem DC | DC central (2.098 MWmed) |
 |---|---|---|
-| Importação média (TWh/ano) | 2,9 [0,8–5,9] | 5,2 [1,9–9,6] |
-| Horas com importação | 877 | 1.326 |
-| Efeito pareado dos DC | — | +2,3 TWh [1,1–3,7]; +449 h; positivo em 100% dos sorteios |
+| Importação média (TWh/ano) | 3,2 [1,1–6,4] | 5,6 [2,4–10,2] |
+| Horas com importação | 918 | 1.372 |
+| Efeito pareado dos DC | — | +2,4 TWh [1,3–3,7]; +454 h |
 
-- **Mudança com a correção do β:** importação central de 5,04 para 5,18 TWh (+3%); efeito dos DC de 2,25 para 2,29 TWh.
+- **Mudança com a auditoria:** importação central de 5,18 para 5,55 TWh (+7%); efeito dos DC de 2,29 para 2,38 TWh. Conclusões mantidas.
 - **Compensação eólica do cenário central:** 4,6 GW em energia anual, contra 10,4 GW para neutralizar a importação anual (2,3×).
-- **Absorção:** 88% da energia dos data centers cairia em horas de excedente regional (potencial de absorção, não corte evitado).
+- **Absorção:** 87% da energia dos data centers cairia em horas de excedente regional (potencial de absorção, não corte evitado).
 - **Incerteza:**
-  - o ano meteorológico explica 73% da variância da importação anual e o hidrológico, 25%;
-  - a amplitude interquartil climática (3,5 TWh) é comparável à amplitude entre os cenários de DC (3,1 TWh).
+  - o ano meteorológico explica 80% da variância da importação anual e o hidrológico, 19%;
+  - a amplitude interquartil climática (3,2 TWh) é igual à amplitude entre os cenários de DC (3,2 TWh).
 - **Sensibilidades (efeito na importação):**
-  - carga ±5%: −1,0 / +1,2 TWh;
-  - hidráulica plana: +2,0 TWh;
-  - despacho histórico sem resposta: +0,7 TWh;
-  - β anterior da regra (carga já cortada): −0,15 TWh;
-  - atraso de 12 meses dos DC: −1,5 TWh;
-  - eólica baixa/alta: +0,7 / −1,4 TWh.
-- **Efeito dos DC nessas sensibilidades:** sempre positivo, de +1,7 a +2,8 TWh, exceto com o atraso.
-- **Confiança:** com os níveis observados, o simulador erra a importação anual de −20% a +8% em 2022–2025 e −33% no backtest de 2026; nos anos da frota recente o erro é sempre de subestimação, então o nível de 2030 tende a estar subestimado (decisão 53). O efeito pareado dos DC é o resultado mais robusto.
+  - carga ±5%: −1,1 / +1,3 TWh;
+  - hidráulica plana: +1,9 TWh; despacho histórico sem resposta: +0,6 TWh;
+  - beta do próprio ano hidrológico: −0,2 TWh; amplitude constante em MW: +0,5 TWh;
+  - atraso de 12 meses dos DC: −1,6 TWh;
+  - eólica baixa/alta: +0,8 / −1,4 TWh.
+- **Efeito dos DC nessas sensibilidades:** de +1,8 a +2,9 TWh, exceto com o atraso.
+- **Confiança no nível:**
+  - validação retrospectiva 2022–2025 (níveis observados, funções treinadas também nesses anos): −11% a +1%;
+  - fora da amostra (funções re-treinadas sem o próprio ano, resíduos de outros anos): −2% (2022), −8%, −2%, −15% (2025), −27% (2026);
+  - o nível de 2030 tende a estar subestimado. O efeito pareado dos DC é o resultado mais robusto.
 
-**Anos intermediários (simulador; não alteram as conclusões).** Importação média, DC central e eólica base: 1,8 (2026), 2,3 (2027), 2,7 (2028), 3,1 (2029) e 5,2 TWh (2030). O salto em 2030 acompanha a carga de DC da 2ª RQ (813 → 2.098 MWmed).
+**Anos intermediários (simulador; não alteram as conclusões).** Importação média, DC central e eólica base: 2,0 (2026), 2,5 (2027), 3,0 (2028), 3,4 (2029) e 5,6 TWh (2030). O salto em 2030 acompanha a carga de DC da 2ª RQ (813 → 2.098 MWmed).
 
 **Backtest de 2026 (jan–out, 6.418 horas válidas; decisão 50).**
-- Importação observada: 1,68 TWh. Distribuição ex-ante do cenário de 2026 (clima e hidrologia sorteados): mediana 0,98, P5–P95 0,21–2,90 TWh; o observado fica no percentil 74.
-- Com o clima ERA5 e a hidrologia de 2026 (modelos treinados só até 2025): 1,13 TWh com a regra emulada (β adotado), 0,90 TWh com o β anterior e 1,25 TWh com o despacho hidráulico observado (subestima 33%, 47% e 26%). M horário: correlação 0,96, sinal certo em 97% das horas, viés −753 MW.
-- O viés de nível empurraria a importação para cima; a subestimação vem da forma horária (regra hidráulica e poucas horas extremas). Confirma a limitação da validação retrospectiva.
+- Importação potencial observada: 1,67 TWh (realizada 1,68). Com clima e hidrologia sorteados: mediana 1,17, P5–P95 0,34–2,88 TWh; percentil 72. Não é ex-ante: modelos, resíduos e coeficiente usam dados até out/2026.
+- Com o clima ERA5 e a hidrologia de 2026 (modelos só até 2025, resíduos só de 2024–2025): 1,40 TWh com a regra (−16%) e 1,52 TWh com o despacho hidráulico observado. Antes da auditoria: 1,13 TWh (−33%). Parte do acerto vem do viés de nível (M médio −744 MW); com os níveis observados o erro é −27%.
 
-**Diagnóstico: esperado ou erro de metodologia? (decisões 52–53)**
-- **Erro de método, corrigido (decisão 52, adotada pelo usuário em 2026-11-17).** O β da regra hidráulica era estimado sobre a carga líquida realizada (com corte) e aplicado à potencial. A diferença cresce com o corte: em 2026, 0,37 contra 0,21. Com a correção:
-  - o erro retrospectivo cai de −24% para −18% (2024) e de −30% para −20% (2025);
-  - B de 2026 sobe de 0,90 para 1,13 TWh;
-  - em 2030, a importação central/base passa de 5,04 para 5,18 TWh (+3%) e o efeito dos DC de 2,25 para 2,29 TWh.
-- **Limitação sistemática, não corrigida (decisão 53).** A eólica simulada tem poucas horas de pouco vento na frota recente, e os resíduos não corrigem isso em 2024–2026. Mesmo com o β adotado, a importação fica 13% a 45% abaixo da observada nesses anos.
-  - Não é erro de código: com as formas observadas, a regra com o β adotado erra só −1% a −7%.
-  - Não é acaso de 2026: o sinal se repete em três anos.
-  - A importação de 2030 tende a estar subestimada.
-- **Esperado:** o ano de 2026 está dentro da faixa ex-ante (percentil 74); cortes de rede em horas de importação não são representados.
+**Diagnóstico (decisões 52–57).**
+- Com as formas observadas, a regra hidráulica erra −7% a 0% em 2024–2026.
+- A limitação da decisão 53 (poucas calmarias) não se confirma: P5 horário da eólica simulada entre −480 e +111 MW do observado.
+- O erro que resta não vem de uma parcela só (eólica, carga, solar e MMGD); cresce em 2025–2026.
 
 ## 4. Limitações principais
 
-- Não há representação de rede: excedente ≠ corte; cortes de rede em horas de importação (0,37 TWh em 2025) ficam de fora.
-- Erro retrospectivo da importação anual de +8% a −20% (regra emulada com o β adotado). A subestimação dos anos recentes vem sobretudo da forma eólica simulada (decisão 53).
+- Não há representação de rede: excedente ≠ corte. Cortes em horas de importação pesam pouco (0,07 TWh de importação em 2025).
+- Erro fora da amostra da importação anual de −27% a −2%, pior nos anos recentes; nível de 2030 tende a estar subestimado.
 - Picos de importação de 2030 supõem térmica no despacho histórico (sem redespacho): medem exposição, não risco.
-- Despacho hidrotérmico por regra emulada, sem otimização.
-- Hidrologia amostrada só em 2022–2025.
+- Despacho hidrotérmico por regra emulada, sem otimização; o coeficiente depende do regime e o adotado vem de jan–out/2026.
+- Hidrologia amostrada só em 2022–2025 e independente do clima (correlação de −0,86 nos quatro anos comuns, decisão 58).
+- A amostra real é de 31 climas × 4 hidrologias: 2.000 sorteios não reduzem essa incerteza.
 - Carga de data centers flat; a projeção oficial muda rápido entre revisões (716 → 1.291 → 2.098 MWmed para 2030).
-- Funções de transferência baseadas na frota atual; resíduos de 18 meses.
-- Cenários eólicos sem datas do SIGA.
-- Não há limite de importação documentado.
+- Funções de transferência baseadas na frota atual; resíduos de 28 meses; features escolhidas nas mesmas dobras em que o erro foi medido.
+- CF eólico potencial depende da GNRa, cuja referência mudou entre 2022 e 2026 (decisão 58).
+- A eólica adicional da compensação tem o mesmo perfil da frota.
+- Cenários eólicos sem datas do SIGA. Não há limite de importação documentado.
 - Anos 2026–2029: a entrada da capacidade em construção (uniforme em 2027–2029) é hipótese; o SIGA não traz datas previstas.
-- Limitação declarada do modelo (decisão 53; correção adiada pelo usuário em 2026-11-17): a eólica simulada não tem as calmarias da frota recente (P5 horário 314–473 MW acima do observado em 2024–2026), então a importação de 2030 tende a estar subestimada. O β inconsistente da regra hidráulica (decisão 52) já foi corrigido.
 
 ## 5. Decisões
 
-Todas registradas em `docs/decisoes.md` (1–53). As do usuário são: L_base = carga líquida da API (Dia 1); data centers pela opção A + C com o cenário alto aceito; base de carga e MMGD pela 2ª RQ do PLAN; eólica alta = 39,4 GW; despacho histórico com hidráulica plana como sensibilidade (determinístico); regra hidráulica emulada no Monte Carlo.
+Todas registradas em `docs/decisoes.md` (1–58). As do usuário são: L_base = carga líquida da API (Dia 1); data centers pela opção A + C com o cenário alto aceito; base de carga e MMGD pela 2ª RQ do PLAN; eólica alta = 39,4 GW; despacho histórico com hidráulica plana como sensibilidade (determinístico); regra hidráulica emulada no Monte Carlo.
 
-Em 2026-11-15 o usuário manteve o CDV_ACESSOS no cenário alto (decisão 44) e a regra hidráulica emulada como caso central (decisão 45).
-
-Em 2026-11-17 o usuário adotou o β da regra hidráulica sobre a carga líquida potencial no caso central (decisão 52) e decidiu não corrigir, por enquanto, a cauda de pouco vento da eólica simulada (decisão 53). A limitação segue declarada nos relatórios: a importação de 2030 tende a estar subestimada.
+Em 2026-11-15 o usuário manteve o CDV_ACESSOS no cenário alto (decisão 44) e a regra hidráulica emulada como caso central (decisão 45). Em 2026-11-17 adotou o β sobre a carga líquida potencial (decisão 52) e adiou a cauda de pouco vento (decisão 53, agora revista). Em 2026-11-25 decidiu aplicar as quatro correções de método da auditoria (decisões 54–57).
 
 Pendências do usuário:
-- nenhuma decisão bloqueante. Em aberto, para quando o usuário quiser retomar: testar a correção da cauda de pouco vento (decisão 53; por exemplo, quantile mapping do CF ou resíduos condicionados ao nível previsto), primeiro como sensibilidade. Mudaria os resultados de 2030.
+- levar o branch `auditoria-pre-push` para `master` e fazer o push;
+- ajustar ou não os textos da decisão 58 (d) e (e) nos relatórios;
+- atualizar os slides (`Eólica × Data Centers no Nordeste até 2030 - v3.pptx`, fora do Git): números de 2030, slide 13 (features), slides 19–28, curtose sem origem no repositório. O `relatorio_ptc3567/` (LaTeX, fora do Git) não cita resultados de 2030 até agora.
 
-Outras pendências, não bloqueantes: A regra de entrada da capacidade em construção nos anos 2026–2029 (uniforme em 2027–2029; decisão 47) foi escolhida por falta de datas no SIGA e pode ser trocada em `config/cenarios_anuais.yaml`.
+Outra pendência, não bloqueante: a regra de entrada da capacidade em construção nos anos 2026–2029 (decisão 47) pode ser trocada em `config/cenarios_anuais.yaml`.
 
 ## 6. Próximos passos possíveis (fora do escopo obrigatório)
 
-- Isolar a causa da falta de calmarias na eólica simulada da frota recente (pesos espaciais, geração potencial em anos de corte alto, indisponibilidades) e testar uma correção (decisão 53).
-- Atualizar o backtest de 2026 quando novembro e dezembro estiverem consolidados.
-
+- Resíduos condicionados ao CF previsto, para reproduzir a coincidência entre calmaria e carga alta (erro que resta em 2025–2026).
+- Hidrologia de longo prazo do São Francisco (P2 #13): amplia a amostra e permite estimar a dependência com o vento.
+- Atualizar o backtest de 2026 e o coeficiente da regra quando novembro e dezembro estiverem consolidados.
 - Representação simplificada da rede do NE ou dos limites por região (Pecém, Parnaíba) para estimar o corte evitado.
-- Hidrologia de longo prazo do São Francisco (P2 #13) para ampliar a amostra hidrológica.
 - Armazenamento ou flexibilidade como alternativa à expansão eólica para cobrir a importação noturna.
 - Atualizar com a nota técnica completa da 2ª RQ e com o 1º PLAN 2027–2031 quando forem publicados.

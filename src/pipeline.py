@@ -1,7 +1,7 @@
 """Executa o pipeline completo a partir de data/raw (sem baixar dados).
 
 Uso: python -m src.pipeline [--desde etapa] [--ate etapa]
-Etapas, em ordem: integracao, auditoria, pde, features, clima, backtest, cortes,
+Etapas, em ordem: integracao, auditoria, pde, features, clima, backtest, ablacao, cortes,
 deterministico, sinteticos, montecarlo, backcast, trajetorias, anos, backtest2026, diagnostico, relatorio,
 figuras, tecnico, html_final, html_tecnico, simulador.
 As etapas trajetorias, anos, backtest2026 e simulador alimentam só o simulador interativo
@@ -23,6 +23,7 @@ ETAPAS = [
     ("features", "src.features.build", []),
     ("clima", "src.features.clima_historico", []),
     ("backtest", "src.models.backtest", []),
+    ("ablacao", "src.models.ablacao", []),
     ("cortes", "src.models.cortes", []),
     ("deterministico", "src.sim.deterministico", []),
     ("sinteticos", "src.sim.sinteticos", ["--refazer-residuos"]),

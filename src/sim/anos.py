@@ -196,7 +196,8 @@ def main(argv=None) -> None:
                             importacao_p95_TWh=("importacao_TWh", q(95)), excedente_p5_TWh=("excedente_TWh", q(5)),
                             excedente_p50_TWh=("excedente_TWh", q(50)), excedente_p95_TWh=("excedente_TWh", q(95)))
                        .reset_index().assign(ano=ano))
-        info["anos"][ano] = {"horas": int(ins.nd * 24), "centro_residuos": [round(float(x), 6) for x in sd["centro"]]}
+        info["anos"][ano] = {"horas": int(ins.nd * 24),
+                             "centro_residuos_mensal": [[round(float(x), 6) for x in v] for v in sd["centro_mensal"]]}
         g = D[(D.cenario_dc == "central") & (D.cenario_eolico == "base")].importacao_TWh
         print(f"{ano}: importação central/base média {g.mean():.2f} TWh [{np.percentile(g, 5):.2f}–{np.percentile(g, 95):.2f}]")
     D = pd.concat(todos, ignore_index=True)

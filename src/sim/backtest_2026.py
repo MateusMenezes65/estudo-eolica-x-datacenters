@@ -16,10 +16,13 @@ Observado (ONS):
   inteira, como em src/sim/backcast.py). É o conceito do simulador, que usa geração potencial.
 
 Simulado:
-- (A) ex-ante: os 2.000 sorteios do Monte Carlo de 2026 (clima 1995–2025, hidrologia 2022–2025);
-  pergunta: o ano observado cai dentro da faixa simulada?
+- (A) clima e hidrologia sorteados: os 2.000 sorteios do Monte Carlo de 2026 (clima 1995–2025,
+  hidrologia 2022–2025); pergunta: o ano observado cai dentro da faixa simulada? Não é uma previsão
+  ex-ante: as funções de transferência, os resíduos e o coeficiente da regra usam dados até out/2026, e
+  os níveis de 2026 vêm de documentos de jul/2026 (PLAN) e nov/2026 (SIGA);
 - (B) clima e hidrologia de 2026 conhecidos: funções de transferência re-treinadas só com dados
-  até 2025-12-31 (fora da amostra) aplicadas ao ERA5 de 2026; térmica observada; hidráulica pela
+  até 2025-12-31 (fora da amostra) aplicadas ao ERA5 de 2026, com resíduos sorteados só de 2024–2025;
+  térmica observada; hidráulica pela
   regra emulada com a energia diária observada de 2026 e o coeficiente sobre a carga líquida
   potencial (decisão 52); como comparação, o coeficiente anterior e o despacho observado.
   Os níveis continuam sendo os do cenário (PLAN, SIGA): o erro de B mistura o erro de nível do
@@ -41,6 +44,7 @@ from src.sim import montecarlo as mc
 from src.sim import sinteticos as sint
 from src.sim.anos import InsumosAno, calendario, niveis_dc, simular_ano
 from src.sim.deterministico import load_cfg
+from src.sim.observado import potencial_frota
 from src.sim.trajetorias import calcular, config_ano, load_cfg_anual
 
 OUT = REPORTS / "sim"
@@ -61,18 +65,16 @@ def observado(cfa: dict) -> pd.DataFrame:
     ok = g[req].notna().all(axis=1)
     if cfa["backtest_2026"]["excluir_horas_anomalas"]:
         ok &= g.anomalia_balanco.fillna(1) == 0
-    v = g[ok]
-    fr_e = v.eol_bal.mean() / v.ger_eol_fc.mean()        # frota inteira / usinas com FC
-    fr_s = v.sol_central.mean() / v.ger_sol_fc.mean()
+    P = potencial_frota(g, g[ok])                        # balanço + corte apurado (decisão 54)
     O = pd.DataFrame(index=t)
     O["valida"] = ok
-    O["corte"] = (g.pot_eol_fc - g.ger_eol_fc) * fr_e + (g.pot_sol_fc - g.ger_sol_fc) * fr_s
+    O["corte"] = P.corte_eol + P.corte_sol
     O["M_real"] = g.interc
     O["M_pot"] = g.interc + O.corte
     O["L_gross"], O["MMGD"], O["hid"], O["ter"] = g.L_gross, g.MMGD, g.hid, g.ter
-    O["eol_pot"], O["sol_pot"] = g.pot_eol_fc * fr_e, g.pot_sol_fc * fr_s
+    O["eol_pot"], O["sol_pot"] = P.eol_pot, P.sol_pot
     O["eol_real"], O["sol_real"] = g.eol_bal, g.sol_central
-    O.attrs.update(fr_e=fr_e, fr_s=fr_s)
+    O.attrs.update(P.attrs)
     return O
 
 
@@ -133,7 +135,7 @@ def main() -> None:
     sel = O.valida.to_numpy()
     mes = t.month.to_numpy()
 
-    # ---------------- (A) ex-ante: Monte Carlo de 2026 restrito às horas válidas de jan–out
+    # ---------------- (A) clima e hidrologia sorteados: Monte Carlo de 2026 nas horas válidas de jan–out
     ins = InsumosAno(ANO)
     n = cfa["simulador"]["n_sorteios_mc"]
     sd = mc.sortear(ins, n, 7, mc.SEMENTE)
@@ -159,8 +161,8 @@ def main() -> None:
 
     # resíduos fora da amostra sorteados em blocos, como no Monte Carlo (só jan–out)
     base_ins = mc.Insumos()
-    rins = types.SimpleNamespace(res=base_ins.res, dia_ok=base_ins.dia_ok, doy_pool=base_ins.doy_pool,
-                                 nd=nh // 24, anos=np.array([ANO]), anos_h=np.array([ANO]))
+    rins = types.SimpleNamespace(res=base_ins.res, dia_ok=mc.dias_fora_do_ano(base_ins, ANO), doy_pool=base_ins.doy_pool,
+                                 nd=nh // 24, anos=np.array([ANO]), anos_h=np.array([ANO]))   # sem os resíduos de 2026
     nr = bt["n_sorteios_residuos"]
     sdr = mc.sortear(rins, nr, 7, mc.SEMENTE)
     rs = base_ins.res[sdr["dias"]].reshape(nr, nh, 4) - sdr["centro"]

@@ -300,3 +300,69 @@ emulada, e identificar se a subestimação é esperada ou vem de erro de metodol
     2030 tende a estar subestimada. Correção possível (quantile mapping do CF eólico ou resíduos
     condicionados ao nível previsto) não aplicada. — fato observado; em 2026-11-17 o usuário decidiu não
     corrigir por enquanto (limitação mantida e declarada nos relatórios).
+    — **revista em 2026-11-25 (decisões 54–56): a limitação não se confirma.** Com o observado corrigido, o vento
+    por polo e os resíduos novos, o P5 horário da eólica simulada fica entre −480 e +111 MW do observado em
+    2022–2026 (−120 a +111 em 2024–2026).
+
+## Auditoria conceitual e estatística (2026-11-25)
+
+Pedido do usuário antes do push final: procurar inconsistências conceituais e estatísticas, sobretudo no
+feature selection das funções de transferência. A auditoria rodou numa cópia, sem alterar o projeto; em
+seguida o usuário decidiu aplicar as quatro correções de método ("Aplicar as quatro"). Efeito passo a passo
+(Monte Carlo de 2.000 sorteios, DC central, eólica base; importação média / efeito dos DC, em TWh):
+
+| Passo | Importação | Efeito dos DC | Erro retrospectivo 2022–2025 (beta do ano) |
+|---|---|---|---|
+| antes (commit 1d1252d) | 5,18 | 2,29 | −20% a +8% (contra a realizada) |
+| + observado do diagnóstico (54) | 5,18 | 2,29 | −17% a +9% (contra a potencial) |
+| + features (55) | 5,06 | 2,22 | −17% a −7% |
+| + resíduos (56) | 5,37 | 2,32 | −12% a +2% |
+| + beta de 2026 em 2030 (57) | 5,57 | 2,38 | −12% a +2% |
+| ajustes finais: MMGD com mês, centro da solar e da MMGD por hora, validação sem resíduos do próprio ano | 5,55 | 2,38 | −11% a +1% |
+
+54. **Geração potencial observada: uma só definição** (`src/sim/observado.py`). Potencial = balanço do ONS +
+    corte apurado (GNRa das usinas com FC × razão balanço/FC). O diagnóstico usava (geração + corte das usinas
+    com FC) × razão anual: mesma média, outra forma. As usinas sem FC geram relativamente mais nas calmarias, e
+    a versão escalada subestimava a eólica em 132–213 MW nas horas de importação (137–262 MW no P5), o que
+    inflava a importação "observada" em 4% a 10% (2022: 1,62 contra 1,47 TWh). A validação retrospectiva passa a
+    comparar com a importação potencial, o conceito do simulador. O corte eólico em horas de importação
+    (0,37 TWh em 2025) só reduziria a importação em 0,07 TWh se gerado. Não muda 2030. — adotada pelo usuário.
+55. **Features das funções de transferência por ablação fora da amostra** (`src/models/ablacao.py`,
+    `reports/models/ablacao_features.csv`): cada variante é re-treinada e avaliada em anos ou blocos longos fora
+    do treino, com IC95 por bootstrap em blocos de 7 dias. Saem o dia do ano (os quatro modelos), vento médio e
+    vento³, CDH, temperatura aparente, umidade, irradiância dos polos na carga e os feriados menores; entram o
+    vento de cada um dos 16 polos, a média de 24 h da temperatura e a irradiância das capitais na carga.
+    RMSE fora da amostra: B0 −8,0%, C0 −5,3%, A0 −3,0%, E0 −2,8%, todos significativos. A escolha anterior se
+    apoiava em importância por permutação, que premiava o dia do ano porque o modelo se apoiava nele.
+    Ressalvas: features escolhidas nas mesmas dobras (ganho ligeiramente otimista); diferenças abaixo de 1% não
+    se interpretam (o ruído as produz). A versão de E0 com 3 features, proposta ao usuário, foi descartada: com
+    a forma da MMGD corrigida (decisão 56) ela piora 3%; E0 ficou com hora, mês e as duas irradiâncias. O fator
+    de frota do determinístico passou a usar as mesmas funções e o clima de pesos fixos. O erro médio da carga
+    com o ano fora do treino varia pouco entre os dias da semana (2,7% a 3,0%). — adotada pelo usuário.
+56. **Resíduos do Monte Carlo.** (a) Janela até 2026-10-31: de 82% a 94% da importação observada ocorre de
+    janeiro a junho, época em que a janela anterior só tinha 2025. (b) Centro mensal no lugar de um centro
+    único do ano: o viés de B0 vinha do 2º semestre de 2024 (−0,05 em jul/2024) e era compensado também em
+    janeiro–junho, onde não existe. (c) Solar e MMGD centradas por mês e hora: o centro único somava ~57 MW de
+    solar à noite. (d) Nível da MMGD com taxa de crescimento vizinha nas pontas da série: a janela truncada
+    distorcia a forma em até 12%. (e) Nas validações, o ano testado não recebe os próprios resíduos. A carga de
+    2026 (jan–out) tem o nível ajustado para resíduo médio zero. — adotada pelo usuário (a, b); c, d e e são
+    consequências técnicas.
+57. **Coeficiente da regra hidráulica em 2030 = o de 2026 (0,21).** O beta cai quando a carga líquida oscila
+    mais: 0,42 (2022, desvio intradiário de 1,9 GW) → 0,16 (2025, 4,7 GW) e, dentro de cada ano, dos dias de
+    menor para os de maior oscilação (2026: 0,27 → 0,19). Em 2030 o desvio simulado é 6,9 GW; aplicar o beta de
+    cada ano hidrológico era o mesmo erro da decisão 52. 2026 (6,0 GW) é o regime observado mais próximo; em
+    2026 o beta sobe em relação a 2025, porque a hidrologia também pesa. Na validação retrospectiva cada ano usa
+    o próprio beta. Sensibilidades: beta do próprio ano hidrológico (−0,19 TWh) e amplitude constante em MW
+    (+0,54 TWh; contrariada por 2026, em que a resposta foi de ~1,3 GW contra 0,75–0,94 GW em 2022–2025).
+    Ressalva: 6.418 horas válidas de jan–out/2026. Configuração em `config/cenarios.yaml`. — adotada pelo usuário.
+58. **Achados da auditoria só declarados como limitação.** (a) Clima e hidrologia são sorteados como
+    independentes; nos quatro anos comuns a correlação entre CF eólico anual e hidráulica anual é −0,86 (n = 4,
+    indicativo): os pares reais davam média 7% menor e dispersão 30% menor que os independentes. (b) A razão
+    entre a geração de referência do ONS e a verificada, em horas sem restrição, vai de 0,75 (2022) a 1,05
+    (2026): a GNRa, e com ela o CF potencial, não é homogênea; a deriva do resíduo de B0 se concentra nas horas
+    com risco de corte e é nula nas sem risco, onde a importação ocorre. Enfraquece a decisão 20. (c) A
+    compensação eólica supõe o perfil da frota. (d) Os 2.000 sorteios têm erro de simulação pequeno, mas a
+    amostra real é de 31 climas × 4 hidrologias: IC95 da média por reamostragem dos anos, antes das correções,
+    3,9–6,5 TWh (efeito dos DC, 1,9–2,7). (e) O sinal do efeito dos DC é positivo por construção (carga constante
+    nunca reduz a importação): não é evidência. Textos dos relatórios sobre (d) e (e) ainda não ajustados. —
+    fato observado; pendente do usuário.

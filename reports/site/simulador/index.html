@@ -228,12 +228,12 @@ details summary { cursor: pointer; color: var(--ink2); font-weight: 600; }
       <ul>
         <li><b>Mesmo método do Monte Carlo de 2030</b> (<code>src/sim/montecarlo.py</code>): carga bruta e MMGD = forma horária do ano meteorológico × nível do cenário;
           eólica e solar = CF potencial (frota atual, função de transferência sobre o ERA5) × capacidade do cenário; resíduos fora da amostra sorteados juntos em blocos de 7 dias;
-          térmica no despacho histórico do ano hidrotérmico; hidráulica pela regra emulada (energia diária do ano hidrotérmico, forma intradiária que acompanha a carga líquida potencial, limites mensais históricos).</li>
+          térmica no despacho histórico do ano hidrotérmico; hidráulica pela regra emulada (energia diária do ano hidrotérmico, forma intradiária que acompanha a carga líquida potencial com o coeficiente de 2026, limites mensais históricos).</li>
         <li><b>Níveis por ano</b>: carga sem DC e MMGD da 2ª Revisão Quadrimestral do PLAN 2026–2030; solar e eólica do SIGA (operação + construção com entrada uniforme em 2027–2029);
           eólica alta soma a expansão indicativa do PDE 2035 no ano; data centers pela 2ª RQ (conservador = contratos; central = contratos + 50% dos pareceres; alto = contratos + pareceres + inventário M3). 2030 = valores do estudo.</li>
         <li><b>2028 é bissexto</b>: 29/02 repete o clima, os perfis e a hidrologia de 28/02; a energia anual soma 8.784 horas.</li>
         <li><b>Leitura</b>: margem negativa é necessidade de importação, não déficit; excedente regional não é corte evitado (não há rede representada); a térmica não é redespachada.
-          O nível absoluto da importação tem erro de até algumas dezenas de por cento e, nos anos da frota recente, sempre para baixo: a importação simulada tende a estar subestimada, porque a eólica simulada tem poucas horas de pouco vento (validação retrospectiva 2022–2025 e backtest de 2026; relatório técnico, seções 7.4–7.5). As diferenças entre cenários no mesmo sorteio são mais robustas.</li>
+          O nível absoluto da importação tem erro de até algumas dezenas de por cento e, nos anos recentes, para baixo: a importação simulada tende a estar subestimada (validação retrospectiva 2022–2025 e backtest de 2026; relatório técnico, seções 7.4–7.5). As diferenças entre cenários no mesmo sorteio são mais robustas.</li>
         <li><b>Sorteios da página</b> usam um gerador próprio (semente na URL); as faixas P5–P95 vêm dos <span class="mcn"></span> sorteios do Monte Carlo de cada ano (<code>src/sim/anos.py</code>).</li>
       </ul>
     </details>
@@ -341,11 +341,11 @@ function simular(ano, w, h, dias, cenW, modo) {
   const A0 = I['A0_' + ano][w], nh = A0.length, leap = nh === 8784, nd = nh / 24;
   const E0 = noAno(I.E0[w], leap), B0 = noAno(I.B0[w], leap), C0 = noAno(I.C0[w], leap);
   const hidp = noAno(I.hid[h], leap), ter = noAno(I.ter[h], leap);
-  const c = D.centro[String(ano)], niv = D.niveis[String(ano)], res = I.res;
+  const cm = D.centro[String(ano)], mhc = mesHora(ano), niv = D.niveis[String(ano)], res = I.res;
   const L = new Float64Array(nh), MM = new Float64Array(nh), cfe = new Float64Array(nh), cfs = new Float64Array(nh);
   let sL = 0, sM = 0;
   for (let d = 0; d < nd; d++) for (let k = 0; k < 24; k++) {
-    const i = d * 24 + k, r = (dias[d] * 24 + k) * 4;
+    const i = d * 24 + k, r = (dias[d] * 24 + k) * 4, c = cm[mhc[i]][k];   // centro do mês e da hora
     L[i] = A0[i] + (res[r] - c[0]); sL += L[i];
     MM[i] = Math.max(E0[i] + (res[r + 1] - c[1]), 0); sM += MM[i];
     cfe[i] = Math.min(Math.max(B0[i] + (res[r + 2] - c[2]), 0), 1);
@@ -777,10 +777,10 @@ function backtestPainel() {
   const imp = idx.importacao_TWh;
   $('btAviso').textContent = `Importação observada em jan–out (horas válidas): ${F2.format(imp.observado_realizado)} TWh. ` +
     `A (cenário 2026 com clima e hidrologia sorteados, ${F0.format(info.n_sorteios_A)} sorteios): mediana ${F2.format(imp.A_p50)} TWh, P5–P95 ${F2.format(imp.A_p5)}–${F2.format(imp.A_p95)}; o observado está no percentil ${F0.format(imp.A_percentil_do_observado_realizado)}. ` +
-    `B (clima ERA5 e hidrologia de 2026, modelos treinados só até 2025): ${F2.format(imp.B_regra_media)} TWh com a regra hidráulica do caso central, ${F2.format(imp.B_regra_beta_anterior_media)} TWh com o coeficiente anterior da regra (estimado sobre a carga já cortada) e ${F2.format(imp.B_despacho_obs_media)} TWh com o despacho hidráulico observado. ` +
-    `O simulador subestima a importação de 2026. O diagnóstico do relatório técnico (seção 7.5) encontrou um erro de método no coeficiente da regra, já corrigido (decisão 52), e uma limitação sistemática ainda não corrigida: a eólica simulada tem poucas horas de pouco vento na frota recente, o que se repete em 2024–2026.`;
+    `B (clima ERA5 e hidrologia de 2026, modelos treinados só até 2025): ${F2.format(imp.B_regra_media)} TWh com a regra hidráulica do caso central, ${F2.format(imp.B_regra_beta_anterior_media)} TWh com o coeficiente da regra estimado sobre a carga já cortada e ${F2.format(imp.B_despacho_obs_media)} TWh com o despacho hidráulico observado. ` +
+    `Com o clima real, o simulador ainda subestima a importação de 2026, menos do que antes da revisão de 2026-11-25 (features, resíduos e coeficiente da regra; decisões 54–57 e relatório técnico, seção 7.5). A não é previsão ex-ante: modelos, resíduos e coeficiente usam dados até out/2026.`;
   const t = $('btTab'); t.replaceChildren();
-  const cols = ['Métrica (jan–out, horas válidas)', 'Observado: intercâmbio', 'Observado: potencial (+ cortes)', 'B: regra, caso central (média [P5–P95])', 'B: regra, coeficiente anterior', 'B: despacho hidráulico observado', 'A: mediana [P5–P95]', 'Percentil do observado em A', 'Sorteio atual'];
+  const cols = ['Métrica (jan–out, horas válidas)', 'Observado: intercâmbio', 'Observado: potencial (+ cortes)', 'B: regra, caso central (média [P5–P95])', 'B: regra, coeficiente sobre carga já cortada', 'B: despacho hidráulico observado', 'A: mediana [P5–P95]', 'Percentil do observado em A', 'Sorteio atual'];
   const th = document.createElement('thead'), trh = document.createElement('tr'); cols.forEach((c) => { const x = document.createElement('th'); x.textContent = c; trh.appendChild(x); }); th.appendChild(trh); t.appendChild(th);
   const body = document.createElement('tbody');
   const defs = [['importacao_TWh', 'Importação (TWh)', F2], ['horas_importacao', 'Horas com importação', F0], ['importacao_p95_MW', 'P95 da importação (MW)', F0],

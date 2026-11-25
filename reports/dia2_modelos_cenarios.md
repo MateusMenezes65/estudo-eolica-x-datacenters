@@ -1,5 +1,8 @@
 # Dia 2 — Modelos, cenários e simulador determinístico (2030)
 
+> Registro do Dia 2, mantido como histórico. As features das funções de transferência, os resíduos e a regra
+> hidráulica foram revistos depois (decisões 52–57); os números atuais estão em `relatorio_tecnico.md`.
+
 Data: 2026-11-11; revisado em 2026-11-12, após a revisão de hipóteses com o usuário (base de carga e MMGD passaram a vir da 2ª Revisão Quadrimestral do PLAN 2026–2030). Tabelas de origem em `reports/models/` e `reports/sim/`; configuração em
 `config/cenarios.yaml` e `config/cenarios_dc.yaml`. Todos os números de 2030 são **resultados
 condicionais a hipóteses de cenário**, não previsões.

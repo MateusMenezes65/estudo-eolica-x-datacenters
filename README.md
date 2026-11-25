@@ -152,7 +152,17 @@ Conferência do manifesto, integração horária, auditoria e testes:
 ```
 
 ```bash
+.venv/Scripts/python.exe -m src.features.clima_historico
+```
+
+```bash
 .venv/Scripts/python.exe -m src.models.backtest
+```
+
+Ablação das features das funções de transferência (decisão 55):
+
+```bash
+.venv/Scripts/python.exe -m src.models.ablacao
 ```
 
 ```bash
@@ -166,10 +176,6 @@ Conferência do manifesto, integração horária, auditoria e testes:
 Resultados: `reports/dia2_modelos_cenarios.md`, `reports/models/`, `reports/sim/`.
 
 ## Dia 3 (incerteza e relatório final)
-
-```bash
-.venv/Scripts/python.exe -m src.features.clima_historico
-```
 
 ```bash
 .venv/Scripts/python.exe -m src.sim.sinteticos --refazer-residuos
@@ -231,8 +237,8 @@ referência calculados em Python (rodapé "Autoverificação do motor").
 
 ## Pipeline completo a partir de `data/raw`
 
-Roda, em ordem, integração, auditoria, PDE, features, clima, backtesting, cortes, simulador
-determinístico, perfis sintéticos, Monte Carlo, validação retrospectiva, trajetórias e Monte Carlo
+Roda, em ordem, integração, auditoria, PDE, features, clima, backtesting, ablação das features, cortes,
+simulador determinístico, perfis sintéticos, Monte Carlo, validação retrospectiva, trajetórias e Monte Carlo
 de 2026–2030, backtest de 2026, relatórios (Markdown e HTML) e simulador interativo (cerca de 25 min):
 
 ```bash
@@ -269,8 +275,8 @@ grandes (> 50 MB por conjunto) foram feitos com autorização do usuário.
 | `src/build/` | base horária integrada do NE (`data/interim/ne_hourly.parquet`) |
 | `src/audit/` | relatório de qualidade, tabelas e figuras |
 | `src/features/` | base analítica horária e clima 1995–2026 com pesos fixos da frota |
-| `src/models/` | backtesting de curto prazo, funções de transferência e classificador de cortes |
-| `src/sim/` | simulador determinístico, perfis sintéticos, Monte Carlo, validação retrospectiva, trajetórias e Monte Carlo de 2026–2030, backtest de 2026 |
+| `src/models/` | backtesting de curto prazo, funções de transferência, ablação das features (`ablacao.py`) e classificador de cortes |
+| `src/sim/` | simulador determinístico, perfis sintéticos, Monte Carlo, geração potencial observada (`observado.py`), validação retrospectiva, trajetórias e Monte Carlo de 2026–2030, backtest de 2026 |
 | `src/report/` | relatório final, relatório técnico, figuras didáticas, versão HTML, anexo 2026–2029 e simulador interativo (`simulador.py` + `simulador_app.html`) |
 | `tests/` | testes de unidades, tempo, junções e balanço |
 | `docs/` | plano orientador, manifesto, decisões |

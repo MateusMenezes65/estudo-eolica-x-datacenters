@@ -9,8 +9,10 @@ Dois papéis (AGENTS.md, "Papel dos modelos"):
    instante-alvo é tratado como previsão perfeita → resultados são LIMITE SUPERIOR
    de desempenho frente a uma previsão meteorológica operacional.
 2. Função de transferência clima → sistema (sem lags do alvo): usada para gerar
-   perfis horários de anos meteorológicos. Avaliada por validação deixando um ano fora
-   (carga) e por validação temporal recente (eólica/solar, por mudança de frota).
+   perfis horários de anos meteorológicos. São avaliadas aqui as mesmas funções usadas no
+   Monte Carlo (features e clima de pesos fixos de src.sim.sinteticos), por validação deixando um
+   ano fora (carga e MMGD) e por validação temporal recente (eólica/solar, por mudança de frota).
+   A escolha das features está em src.models.ablacao.
 
 Backtesting: origem móvel, 12 dobras mensais em 2025; treino = todo o histórico
 anterior ao início do mês testado (janela expansível). Transformações ajustadas só no
@@ -95,12 +97,16 @@ def backtest_short(X: pd.DataFrame, name: str, spec: dict, h: int, months) -> tu
     return pd.DataFrame(rows), pd.concat(preds)
 
 
-def transfer_eval(X: pd.DataFrame) -> pd.DataFrame:
-    """Avalia as funções de transferência clima → sistema (sem lags do alvo)."""
+def transfer_eval() -> pd.DataFrame:
+    """Avalia as funções de transferência clima → sistema (sem lags do alvo), com as features e o clima
+    de src.sim.sinteticos.MODELOS (os mesmos do Monte Carlo)."""
+    from src.sim import sinteticos as sint                  # import local: sinteticos usa HGB e CAL daqui
+    M = sint.MODELOS
+    X = sint.dados_treino(extras=["L_net"])
     rows = []
     # A0: carga normalizada pelo nível médio do ano (o nível vem dos cenários).
     # Avaliada para a carga BRUTA (forma estável; MMGD tratada à parte) e para a líquida.
-    exA = TARGETS["A_carga_liquida"]["exog"]
+    exA = M["A0"]["ex"]
     for alvo in ["L_gross", "L_net"]:
       yA = X[alvo] / X.groupby("ano")[alvo].transform("mean")
       for ano in [2022, 2023, 2024, 2025]:
@@ -112,16 +118,28 @@ def transfer_eval(X: pd.DataFrame) -> pd.DataFrame:
         pc = pd.Series(clim.reindex(pd.MultiIndex.from_arrays([X.mes[te], X.dia_semana[te], X.hora[te]])).values,
                        index=yA[te].index)
         nm = f"A0 {alvo}/nível anual"
-        rows.append({"modelo": nm, "validacao": f"ano fora={ano}", "metodo": "HGB", "vies": float((p - yA[te]).mean()), **metrics(yA[te], p)})
-        rows.append({"modelo": nm, "validacao": f"ano fora={ano}", "metodo": "perfil mes×dia×hora", "vies": float((pc - yA[te]).mean()), **metrics(yA[te], pc)})
+        for metodo, q in [("HGB", p), ("perfil mes×dia×hora", pc)]:
+            # MAE_forma: com a previsão renormalizada a média 1 no ano, como o simulador a usa
+            fm = metrics(yA[te], q / q.mean() * yA[te].mean())
+            rows.append({"modelo": nm, "validacao": f"ano fora={ano}", "metodo": metodo, "vies": float((q - yA[te]).mean()),
+                         **metrics(yA[te], q), "MAE_forma": fm["MAE"], "RMSE_forma": fm["RMSE"]})
+    # E0: forma da MMGD, deixando um ano fora (2026 só até outubro)
+    exE, yE = M["E0"]["ex"], X.M_shape
+    for ano in [2022, 2023, 2024, 2025, 2026]:
+        tr, te = (X.ano != ano) & yE.notna(), (X.ano == ano) & yE.notna()
+        mdl = HistGradientBoostingRegressor(**HGB).fit(X.loc[tr, exE], yE[tr])
+        p = pd.Series(mdl.predict(X.loc[te, exE]), index=yE[te].index)
+        clim = yE[tr].groupby([X.mes[tr], X.hora[tr]]).mean()
+        pc = pd.Series(clim.reindex(pd.MultiIndex.from_arrays([X.mes[te], X.hora[te]])).values, index=yE[te].index)
+        for metodo, q in [("HGB", p), ("perfil mes×hora", pc)]:
+            rows.append({"modelo": "E0 MMGD/nível", "validacao": f"ano fora={ano}", "metodo": metodo,
+                         "vies": float((q - yE[te]).mean()), **metrics(yE[te], q)})
     # B0/C0: frota muda no tempo → validação temporal em dois cortes
     cortes = {"B0 CF eólico pot": [("2022-01-01", "2024-12-31 23:00", "2025-01-01", "2025-12-31 23:00"),
                                    ("2024-07-01", "2025-12-31 23:00", "2026-01-01", "2026-10-31 23:00")],
               "C0 CF solar pot": [("2024-04-01", "2025-06-30 23:00", "2025-07-01", "2025-12-31 23:00"),
                                   ("2024-07-01", "2025-12-31 23:00", "2026-01-01", "2026-10-31 23:00")]}
-    exC = TARGETS["C_cf_solar"]["exog"] + ["cloud_cover"] if "cloud_cover" in X else TARGETS["C_cf_solar"]["exog"]
-    for nome, ycol, ex in [("B0 CF eólico pot", "cf_eol_pot", TARGETS["B_cf_eolico_pot"]["exog"]),
-                           ("C0 CF solar pot", "cf_sol_pot", exC)]:
+    for nome, ycol, ex in [("B0 CF eólico pot", "cf_eol_pot", M["B0"]["ex"]), ("C0 CF solar pot", "cf_sol_pot", M["C0"]["ex"])]:
         y = X[ycol]
         for tr_ini, tr_fim, te_ini, te_fim in cortes[nome]:
             tr = X.t.between(tr_ini, tr_fim) & y.notna()
@@ -145,7 +163,7 @@ def main(argv=None) -> None:
     X = pd.read_parquet(PROCESSED / "ne_features_h.parquet")
     X = X[X.t < "2026-11-01"].reset_index(drop=True)  # mês corrente é preliminar
     if a.so_transferencia:
-        T = transfer_eval(X)
+        T = transfer_eval()
         T.to_csv(OUT / "metricas_funcao_transferencia.csv", index=False)
         print(T.round(4).to_string())
         return
@@ -177,7 +195,7 @@ def main(argv=None) -> None:
     agg_cmp = agg_cmp.reset_index().merge(pd.DataFrame(wins), on=["alvo", "h"])
     agg.to_csv(OUT / "metricas_curto_prazo_2025.csv", index=False)
     agg_cmp.to_csv(OUT / "comparacao_hgb_baseline.csv", index=False)
-    T = transfer_eval(X)
+    T = transfer_eval()
     T.to_csv(OUT / "metricas_funcao_transferencia.csv", index=False)
 
     # figura: uma semana de 2025 para cada alvo, h=24

@@ -6,18 +6,20 @@ Saídas: reports/mc/mc_backcast.csv e reports/figures/mc4_backcast.png
 
 Pergunta: alimentado com os NÍVEIS observados de um ano passado, o simulador reproduz a
 importação que o NE realmente teve? Para cada ano y de 2022–2025:
-- clima e ano hidrotérmico fixos em y; só os blocos de resíduos são sorteados;
+- clima e ano hidrotérmico fixos em y; só os blocos de resíduos são sorteados, sem os do próprio ano y;
 - carga bruta = carga líquida coerente com o balanço do ONS (geração − intercâmbio) + MMGD;
-- energia eólica e solar = energia POTENCIAL observada em y (geração + GNRa), levada à frota
-  inteira pela razão balanço / usinas com fator de capacidade; a capacidade efetiva é a que faz
-  o CF simulado médio devolver essa energia. Os níveis anuais são, portanto, os observados;
+- energia eólica e solar = energia POTENCIAL observada em y (balanço + corte apurado,
+  `src.sim.observado`); a capacidade efetiva é a que faz o CF simulado médio devolver essa energia.
+  Os níveis anuais são, portanto, os observados;
 - o que se testa são as FORMAS horárias (funções de transferência + resíduos) e a convenção
   hidráulica: a regra emulada (caso central) e o despacho hidráulico observado no próprio ano.
 A térmica é a observada em y nas duas convenções.
 
-O simulador usa a geração potencial. Cortes eólicos que ocorreram em horas de importação
-(restrições de rede) aumentam a importação observada e não são representados; a tabela traz
-esse corte para leitura do erro. Não é um teste dos cenários de 2030.
+O simulador usa a geração potencial, então é comparado à importação potencial: intercâmbio mais os
+cortes eólicos e solares (decisão 54). A tabela traz também a importação realizada (intercâmbio), o
+corte eólico em horas de importação e quanto a importação cairia se os cortes fossem gerados: esse
+efeito é bem menor que o corte, que na maioria dessas horas excede a importação. Não é um teste dos
+cenários de 2030.
 """
 from __future__ import annotations
 
@@ -32,30 +34,38 @@ import pandas as pd
 from src.paths import FIGURES, PROCESSED, REPORTS
 from src.sim import montecarlo as mc
 from src.sim.deterministico import load_cfg
+from src.sim.observado import potencial_frota
 
 OUT = REPORTS / "mc"
-CONVENCOES = {"regra_historica": "regra emulada (caso central)",
+CONVENCOES = {"regra_historica": "regra emulada (beta do próprio ano)",
               "historico_sorteado": "despacho hidráulico observado no ano"}
 
 
 def niveis_observados(g: pd.DataFrame) -> dict:
     """Níveis anuais observados de um ano (MWmed) e métricas da importação observada."""
-    fr_e = g.eol_bal.mean() / g.ger_eol_fc.mean()        # frota inteira / usinas com FC
-    fr_s = g.sol_central.mean() / g.ger_sol_fc.mean()
+    P = potencial_frota(g)
     l_net_bal = (g.hid + g.ter + g.eol_bal + g.sol_central - g.interc).mean()
-    imp = (-g.interc).clip(lower=0)
-    em_imp = g.interc < 0
-    corte = (g.pot_eol_fc - g.ger_eol_fc) * fr_e
+    M_pot = g.interc + P.corte_eol + P.corte_sol          # conceito do simulador (geração potencial)
+    imp = (-M_pot).clip(lower=0)
+    real = (-g.interc).clip(lower=0)
     return {"L_gross": l_net_bal + g.MMGD.mean(), "MMGD": g.MMGD.mean(),
-            "eol_pot": g.pot_eol_fc.mean() * fr_e, "sol_pot": g.pot_sol_fc.mean() * fr_s,
-            "obs_TWh": imp.sum() / 1e6, "obs_horas": int(em_imp.sum()),
+            "eol_pot": P.eol_pot.mean(), "sol_pot": P.sol_pot.mean(),
+            "obs_TWh": imp.sum() / 1e6, "obs_horas": int((M_pot < 0).sum()),
             "obs_p95_MW": float(np.percentile(imp, 95)), "obs_pico_MW": float(imp.max()),
-            "corte_eol_em_horas_de_importacao_TWh": float(corte[em_imp].sum() / 1e6)}
+            "obs_real_TWh": real.sum() / 1e6,
+            "corte_eol_em_horas_de_importacao_TWh": float(P.corte_eol[g.interc < 0].sum() / 1e6),
+            "importacao_evitada_se_gerado_TWh": float((real - imp).sum() / 1e6)}
 
 
-def simular_ano(ins, c, X: pd.DataFrame, ano: int, n: int, semente: int = mc.SEMENTE) -> list[dict]:
+def simular_ano(ins, c, X: pd.DataFrame, ano: int, n: int, semente: int = mc.SEMENTE, beta=None) -> list[dict]:
+    """Simula o ano observado `ano`. O coeficiente da regra é o do próprio ano (`ins.beta_ano`), porque a
+    carga líquida do passado é a daquele regime; `beta` (um valor por ano hidrológico) o substitui."""
+    beta = ins.beta_ano if beta is None else beta
     nv = niveis_observados(X[X.ano == ano])
+    ok = ins.dia_ok
+    ins.dia_ok = mc.dias_fora_do_ano(ins, ano)            # sem os resíduos do próprio ano testado
     sd = mc.sortear(ins, n, 7, semente)
+    ins.dia_ok = ok
     sd["w"] = np.full(n, int(np.flatnonzero(ins.anos == ano)[0]))
     sd["h"] = np.full(n, int(np.flatnonzero(ins.anos_h == ano)[0]))
     k = mc.componentes(ins, sd, np.arange(n), c, {"L_gross": nv["L_gross"], "MMGD": nv["MMGD"]})
@@ -64,7 +74,7 @@ def simular_ano(ins, c, X: pd.DataFrame, ano: int, n: int, semente: int = mc.SEM
     base = k["ter"] + k["cfs"] * cap_s + k["cfe"] * cap_e - (k["L"] - k["MMGD"])
     rows = []
     for modo, rotulo in CONVENCOES.items():
-        M = base + mc.hidraulica(ins, k["h"], -base, modo)
+        M = base + mc.hidraulica(ins, k["h"], -base, modo, beta)
         imp = np.clip(-M, 0, None)
         twh = imp.sum(1) / 1e6
         rows.append({"ano": ano, "convencao": rotulo, "obs_TWh": nv["obs_TWh"], "sim_TWh": twh.mean(),
@@ -73,7 +83,9 @@ def simular_ano(ins, c, X: pd.DataFrame, ano: int, n: int, semente: int = mc.SEM
                      "obs_horas": nv["obs_horas"], "sim_horas": (M < 0).sum(1).mean(),
                      "obs_p95_MW": nv["obs_p95_MW"], "sim_p95_MW": np.percentile(imp, 95, axis=1).mean(),
                      "obs_pico_MW": nv["obs_pico_MW"], "sim_pico_MW": imp.max(1).mean(),
+                     "obs_real_TWh": nv["obs_real_TWh"],
                      "corte_eol_em_horas_de_importacao_TWh": nv["corte_eol_em_horas_de_importacao_TWh"],
+                     "importacao_evitada_se_gerado_TWh": nv["importacao_evitada_se_gerado_TWh"],
                      "cap_eol_efetiva_MW": cap_e, "cap_sol_efetiva_MW": cap_s, "n_sorteios": n})
     return rows
 

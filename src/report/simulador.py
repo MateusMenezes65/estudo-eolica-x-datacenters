@@ -162,7 +162,7 @@ def main(argv=None) -> None:
     for ano in anos:
         ins = ins30 if ano == 2030 else InsumosAno(ano)
         enc[f"A0_{ano}"] = codificar(ins.A0, ESCALAS["A0"])
-        centro[str(ano)] = [float(x) for x in mc.centro_residuos(ins, 7)]
+        centro[str(ano)] = mc.centro_residuos(ins, 7).tolist()                 # 12 meses × 24 h × 4 séries
         cand.setdefault(str(ins.nd), candidatos(ins))
     mes30 = calendario(2030).month.to_numpy() - 1
     primeira = np.array([np.flatnonzero(mes30 == m)[0] for m in range(12)])
@@ -190,7 +190,7 @@ def main(argv=None) -> None:
             j = int(rng.choice(cnd))
             L = min(7, nd - 7 * k)
             dias[7 * k:7 * k + L] = j + np.arange(L)
-        out = motor(I, ano, w, h, dias, np.array(centro[str(ano)]), niv[ano], cen_w, modo)
+        out = motor(I, ano, w, h, dias, mc.expandir_centro(np.array(centro[str(ano)]), nd), niv[ano], cen_w, modo)
         verif.append({"ano": ano, "w": w, "h": h, "dias": dias.tolist(), "cenario_eolico": cen_w, "cenario_dc": cen_dc,
                       "hidro": modo, "esperado": metricas_ref(out["M0"] - niv[ano]["ldc"][cen_dc], c),
                       "M0_soma": float(out["M0"].sum())})

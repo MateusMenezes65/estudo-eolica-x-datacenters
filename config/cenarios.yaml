@@ -36,6 +36,12 @@ hidro_termica:
   regra: geração hidráulica e térmica horária observada no ano climático (despacho histórico)
   tipo: hipotese
   sensibilidade: hidraulica_plana   # mesma energia anual do ano, perfil constante (pessimista); decisão do usuário 2026-11-12
+  # Monte Carlo: regra hidráulica emulada. O coeficiente beta cai quando a carga líquida potencial oscila
+  # mais dentro do dia (0,42 em 2022 com desvio de 1,9 GW; 0,16 em 2025 com 4,6 GW), e em 2030 o desvio
+  # simulado é ~6,9 GW. O caso central usa o beta do ano observado com a oscilação mais próxima da de 2030
+  # (2026, 5,9 GW); o beta do próprio ano hidrológico e a amplitude constante em MW são sensibilidades.
+  beta_regra: {ano_referencia: 2026, periodo: ["2026-01-01", "2026-10-31 23:00"], tipo: "parâmetro estimado",
+               nota: "horas em que o balanço do ONS fecha; decisão 57, usuário 2026-11-25"}
   limitacao: >-
     Não representa redespacho: em 2030 a térmica e a hidráulica do São Francisco
     poderiam responder a déficits ou excedentes.

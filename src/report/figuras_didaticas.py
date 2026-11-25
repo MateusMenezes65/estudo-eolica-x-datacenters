@@ -11,7 +11,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.inspection import permutation_importance
 
 from src.paths import CONFIG, FIGURES, INTERIM, PROCESSED, REPORTS, TABLES
 
@@ -256,9 +255,20 @@ def r11_transferencia_importancia():
         Xte = D.loc[te, s["ex"]]
         yte = D.loc[te, s["alvo"]]
         sub = Xte.sample(min(6000, len(Xte)), random_state=1)
-        pi = permutation_importance(mdl, sub, yte.loc[sub.index], n_repeats=5, random_state=1, scoring="neg_mean_absolute_error")
-        for f, v, e in zip(s["ex"], pi.importances_mean, pi.importances_std):
-            rows.append({"modelo": nome, "feature": f, "aumento_MAE": v, "dp": e})
+        # permutação por grupo: os 16 ventos por polo são embaralhados juntos (são uma só informação física)
+        grupos = {f: [f] for f in s["ex"] if not f.startswith("ws_")}
+        polos = [f for f in s["ex"] if f.startswith("ws_")]
+        if polos:
+            grupos["vento nos 16 polos"] = polos
+        rng, ysub = np.random.default_rng(1), yte.loc[sub.index]
+        mae0 = np.abs(mdl.predict(sub) - ysub).mean()
+        for f, cols in grupos.items():
+            v = []
+            for _ in range(5):
+                Z = sub.copy()
+                Z[cols] = Z[cols].to_numpy()[rng.permutation(len(Z))]
+                v.append(np.abs(mdl.predict(Z) - ysub).mean() - mae0)
+            rows.append({"modelo": nome, "feature": f, "aumento_MAE": np.mean(v), "dp": np.std(v)})
         pred[nome] = pd.DataFrame({"t": D.loc[te, "t"], "obs": yte, "pred": mdl.predict(Xte)})
     I = pd.DataFrame(rows)
     I.to_csv(TABLES / "didatico_importancia_permutacao.csv", index=False)

@@ -1,7 +1,10 @@
 beta,cenario_eolico,central_media_TWh,central_p5_TWh,central_p95_TWh,sem_dc_media_TWh,efeito_DC_TWh,efeito_DC_p5,efeito_DC_p95,horas_central
-beta anterior (carga líquida realizada),baixa,5.7558,2.2358,10.418,3.1923,2.5636,1.2504,4.0321,1490.3375
-beta anterior (carga líquida realizada),base,5.0372,1.8475,9.4126,2.7838,2.2534,1.0348,3.6887,1308.617
-beta anterior (carga líquida realizada),alta,3.7139,1.1974,7.4666,2.028,1.6859,0.6774,2.9987,979.143
-beta adotado (carga líquida potencial),baixa,5.9146,2.2995,10.6294,3.312,2.6025,1.2887,4.0428,1508.9845
-beta adotado (carga líquida potencial),base,5.1805,1.8745,9.6108,2.8919,2.2886,1.0684,3.7104,1325.7795
-beta adotado (carga líquida potencial),alta,3.8269,1.2048,7.6609,2.1135,1.7134,0.681,3.03,992.463
+"beta por ano hidrológico, carga realizada (decisão 34)",baixa,5.9391,2.4568,10.8131,3.3419,2.5972,1.3394,4.0531,1507.5085
+"beta por ano hidrológico, carga realizada (decisão 34)",base,5.2131,2.0261,9.8042,2.9313,2.2818,1.1023,3.6662,1322.679
+"beta por ano hidrológico, carga realizada (decisão 34)",alta,3.8834,1.3206,7.8639,2.1732,1.7102,0.7228,2.9654,988.5745
+"beta por ano hidrológico, carga potencial (decisão 52)",baixa,6.0977,2.5504,10.9444,3.4601,2.6376,1.3636,4.0717,1526.251
+"beta por ano hidrológico, carga potencial (decisão 52)",base,5.3555,2.0841,9.9233,3.0374,2.3181,1.1399,3.6849,1340.6695
+"beta por ano hidrológico, carga potencial (decisão 52)",alta,3.9943,1.3258,7.9681,2.2566,1.7376,0.7251,2.9855,1002.284
+"beta de 2026 (caso central, decisão 57)",baixa,6.3228,2.8767,11.2154,3.6142,2.7086,1.4875,4.1094,1562.727
+"beta de 2026 (caso central, decisão 57)",base,5.5545,2.4086,10.1943,3.1739,2.3806,1.2524,3.7369,1372.4845
+"beta de 2026 (caso central, decisão 57)",alta,4.145,1.6065,8.1569,2.36,1.785,0.8472,3.0266,1026.132

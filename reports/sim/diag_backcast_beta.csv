@@ -1,9 +1,9 @@
 beta,ano,obs_TWh,sim_TWh,erro_%,obs_horas,sim_horas
-beta anterior (carga líquida realizada),2022,1.474,1.53,3.789,1020,1130.53
-beta anterior (carga líquida realizada),2023,2.387,2.548,6.723,1075,1160.973
-beta anterior (carga líquida realizada),2024,3.315,2.51,-24.28,1264,1105.517
-beta anterior (carga líquida realizada),2025,1.583,1.11,-29.872,620,475.027
-beta adotado (carga líquida potencial),2022,1.474,1.55,5.122,1020,1138.157
-beta adotado (carga líquida potencial),2023,2.387,2.583,8.198,1075,1170.38
-beta adotado (carga líquida potencial),2024,3.315,2.727,-17.726,1264,1132.683
-beta adotado (carga líquida potencial),2025,1.583,1.27,-19.765,620,511.693
+beta anterior (carga líquida realizada),2022,1.474,1.485,0.744,1020,1115.51
+beta anterior (carga líquida realizada),2023,2.376,2.109,-11.233,1060,1084.627
+beta anterior (carga líquida realizada),2024,3.303,2.718,-17.7,1259,1094.91
+beta anterior (carga líquida realizada),2025,1.517,1.223,-19.337,548,492.137
+beta do ano (carga líquida potencial),2022,1.474,1.494,1.37,1020,1118.673
+beta do ano (carga líquida potencial),2023,2.376,2.141,-9.873,1060,1092.847
+beta do ano (carga líquida potencial),2024,3.303,2.94,-10.988,1259,1128.573
+beta do ano (carga líquida potencial),2025,1.517,1.399,-7.726,548,531.85

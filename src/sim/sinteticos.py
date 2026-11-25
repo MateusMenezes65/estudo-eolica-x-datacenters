@@ -6,14 +6,18 @@ Relatórios: reports/sim/validacao_sinteticos.csv, extrapolacao_clima.csv; figur
 
 Funções de transferência (HGB, hiperparâmetros de src.models.backtest), com o clima de pesos
 fixos (src.features.clima_historico):
-- A0  carga bruta / média do ano  ~ calendário + temperatura, temp. aparente, umidade, CDH, GHI
-- E0  MMGD / média móvel de 365 d ~ hora, mês, dia do ano, GHI nas capitais e nos polos, temperatura
-- B0  CF eólico potencial         ~ hora, mês, dia do ano, vento 100 m, vento³   (frota 2024-07..2026-10)
-- C0  CF solar potencial          ~ hora, mês, dia do ano, GHI nos polos, temperatura (idem)
+- A0  carga bruta / média do ano  ~ hora, dia da semana, mês, feriado nacional, ponto facultativo,
+                                    temperatura (da hora e média de 24 h), GHI nas capitais
+- E0  MMGD / nível anual          ~ hora, mês, GHI nas capitais e nos polos
+- B0  CF eólico potencial         ~ hora, mês, vento a 100 m em cada um dos 16 polos (frota 2024-07..2026-10)
+- C0  CF solar potencial          ~ hora, mês, GHI nos polos, temperatura (idem)
+As features foram escolhidas por ablação fora da amostra (src.models.ablacao, decisão 55).
 Para 2030, o clima do ano y é alinhado ao calendário de 2030 por (mês, dia, hora); 29/02 é
 descartado. As previsões são médias condicionais; a variabilidade não explicada é recomposta
 no Monte Carlo com resíduos FORA DA AMOSTRA (validação cruzada por mês) da janela comum
-2024-07..2025-12, reamostrados em blocos conjuntos (preserva a dependência entre as séries).
+2024-07..2026-10, reamostrados em blocos conjuntos (preserva a dependência entre as séries). A janela
+ia só até 2025-12; a extensão dá dois anos, em vez de um, a janeiro–junho, a época em que o NE mais
+importa (decisão 56).
 """
 from __future__ import annotations
 
@@ -25,34 +29,51 @@ import pandas as pd
 from sklearn.ensemble import HistGradientBoostingRegressor
 
 from src.features.build import calendar_features
+from src.ingest import weather
 from src.models.backtest import CAL, HGB
 from src.paths import FIGURES, PROCESSED, REPORTS
 
 ANOS_CLIMA = list(range(1995, 2026))
-JANELA_RES = ("2024-07-01", "2025-12-31 23:00")
-W = ["temperature_2m", "apparent_temperature", "relative_humidity_2m", "cdh24", "shortwave_radiation"]
+JANELA_RES = ("2024-07-01", "2026-10-31 23:00")
+POLOS_EOL = [f"ws_{p}" for p in weather.points().query("kind == 'wind'").point_id.sort_values()]
 MODELOS = {
-    "A0": dict(alvo="L_shape", ex=CAL + W, treino=("2022-01-01", "2025-12-31 23:00")),
-    "E0": dict(alvo="M_shape", ex=["hora", "mes", "dia_ano", "shortwave_radiation_pop", "shortwave_radiation",
-                                   "temperature_2m"], treino=("2022-01-01", "2026-10-31 23:00")),
-    "B0": dict(alvo="cf_eol_pot", ex=["hora", "mes", "dia_ano", "wind_speed_100m", "wind_speed3_100m"],
-               treino=("2024-07-01", "2026-10-31 23:00")),
-    "C0": dict(alvo="cf_sol_pot", ex=["hora", "mes", "dia_ano", "shortwave_radiation", "temperature_2m"],
+    "A0": dict(alvo="L_shape", ex=["hora", "dia_semana", "mes", "feriado_nacional", "ponto_facultativo",
+                                   "temperature_2m", "temp_mm24", "shortwave_radiation_pop"],
+               treino=("2022-01-01", "2025-12-31 23:00")),
+    "E0": dict(alvo="M_shape", ex=["hora", "mes", "shortwave_radiation_pop", "shortwave_radiation"],
+               treino=("2022-01-01", "2026-10-31 23:00")),
+    "B0": dict(alvo="cf_eol_pot", ex=["hora", "mes"] + POLOS_EOL, treino=("2024-07-01", "2026-10-31 23:00")),
+    "C0": dict(alvo="cf_sol_pot", ex=["hora", "mes", "shortwave_radiation", "temperature_2m"],
                treino=("2024-07-01", "2026-10-31 23:00")),
 }
 LIMITES = {"A0": (None, None), "E0": (0.0, None), "B0": (0.0, 1.0), "C0": (0.0, 1.0)}
 
 
-def dados_treino() -> pd.DataFrame:
+def dados_treino(extras: list[str] | None = None) -> pd.DataFrame:
     F = pd.read_parquet(PROCESSED / "ne_features_h.parquet")
     F = F[F.t < "2026-11-01"]
     Cl = pd.read_parquet(PROCESSED / "clima_ne_1995_2026.parquet")
-    keep = ["t", "ano", "L_gross", "MMGD", "cf_eol_pot", "cf_sol_pot", "hid", "ter"] + CAL
+    keep = ["t", "ano", "L_gross", "MMGD", "cf_eol_pot", "cf_sol_pot", "hid", "ter"] + CAL + (extras or [])
     D = F[keep].merge(Cl, on="t", how="inner")
     D["L_shape"] = D.L_gross / D.groupby("ano").L_gross.transform("mean")
-    m365 = D.set_index("t").MMGD.rolling("365D", center=True, min_periods=24 * 180).mean()
-    D["M_shape"] = D.MMGD.values / m365.values
+    D["M_shape"] = D.MMGD.values / nivel_mmgd(D.set_index("t").MMGD).values
     return D
+
+
+def nivel_mmgd(s: pd.Series) -> pd.Series:
+    """Nível da MMGD: média móvel centrada de 365 dias; nas pontas, onde a janela não cabe inteira, o nível
+    segue a taxa de crescimento dos 365 dias vizinhos.
+
+    Truncar a janela nas pontas misturava crescimento e estação (média só de metade do ano) e distorcia a
+    forma em até 12% no início de 2022 e no fim de 2026 (decisão 56).
+    """
+    m = s.rolling("365D", center=True, min_periods=24 * 364).mean()
+    ano, t0, t1 = pd.Timedelta(days=365), m.first_valid_index(), m.last_valid_index()
+    g0, g1 = m[t0 + ano] / m[t0], m[t1] / m[t1 - ano]
+    antes, depois = m.index < t0, m.index > t1
+    m[antes] = m[t0] * g0 ** ((m.index[antes] - t0) / ano)
+    m[depois] = m[t1] * g1 ** ((m.index[depois] - t1) / ano)
+    return m
 
 
 def clima_2030(Cl: pd.DataFrame, ano: int) -> pd.DataFrame:
@@ -82,7 +103,14 @@ def fit(D: pd.DataFrame, nome: str, excluir_mes: pd.Period | None = None):
 
 
 def residuos_fora_amostra(D: pd.DataFrame) -> pd.DataFrame:
-    """Resíduos por validação cruzada mensal na janela comum (cada mês previsto sem ele no treino)."""
+    """Resíduos por validação cruzada mensal na janela comum (cada mês previsto sem ele no treino).
+
+    A forma da carga (A0) é carga ÷ média do ano; 2026 só vai até outubro, então a média de jan–out não é a
+    do ano. Nos anos incompletos o nível é ajustado para o resíduo ter média zero no período (a forma, não o
+    nível, é o que se reamostra).
+    """
+    horas_ano = D.groupby("ano").size()
+    incompletos = [a for a, n in horas_ano.items() if n < 8760]
     J = D[D.t.between(*JANELA_RES)].copy()
     R = pd.DataFrame({"t": J.t})
     for nome, s in MODELOS.items():
@@ -90,8 +118,13 @@ def residuos_fora_amostra(D: pd.DataFrame) -> pd.DataFrame:
         for per in J.t.dt.to_period("M").unique():
             mdl = fit(D, nome, excluir_mes=per)
             mm = (J.t.dt.to_period("M") == per) & J[s["ex"]].notna().all(axis=1)
-            r[mm] = J.loc[mm, s["alvo"]] - mdl.predict(J.loc[mm, s["ex"]])
-        R[nome] = r.values
+            r[mm] = mdl.predict(J.loc[mm, s["ex"]])
+        y = J[s["alvo"]].copy()
+        if nome == "A0":
+            for a in incompletos:
+                k = (J.ano == a) & y.notna() & r.notna()
+                y[k] *= r[k].mean() / y[k].mean()
+        R[nome] = (y - r).values
     return R.dropna().reset_index(drop=True)
 
 
@@ -134,7 +167,8 @@ def main(argv=None) -> None:
                                 "ano_hidro": ano, "hid": h.hid.values, "ter": h.ter.values}))
     pd.concat(Hp).to_parquet(PROCESSED / "hidrotermica_pool.parquet")
 
-    # ---- validação: extrapolação (fora da faixa de treino) e aderência em 2025–2026
+    # ---- validação: extrapolação (fora da faixa de treino) e aderência. As colunas sem "_fora" usam os modelos
+    # finais, que viram parte desses anos no treino; as "_fora" são a validação cruzada mensal dos resíduos
     ext = []
     for n, s in MODELOS.items():
         tr = D[D.t.between(*s["treino"])]
@@ -161,10 +195,16 @@ def main(argv=None) -> None:
             if ok.sum() < 1000:
                 continue
             rp = R[n].values
+            # mesma comparação FORA da amostra (validação cruzada mensal dos resíduos), nas horas do pool
+            j = R[R.t.dt.year == ano].set_index("t")[n]
+            yf = obs[col].reindex(j.index)
+            pf = yf - j
+            fora = ({"n_fora": len(j), "MAE_fora": j.abs().mean(), "corr_fora": np.corrcoef(pf, yf)[0, 1],
+                     "dp_fora_com_residuo": np.sqrt(pf.var() + j.var()), "dp_obs_fora": yf.std()} if len(j) > 1000 else {})
             val.append({"modelo": n, "ano": ano, "media_obs": y[ok].mean(), "media_sint": p[ok].mean(),
                         "MAE": np.abs(p[ok] - y[ok]).mean(), "corr": np.corrcoef(p[ok], y[ok])[0, 1],
                         "dp_obs": y[ok].std(), "dp_sint": p[ok].std(),
-                        "dp_sint_com_residuo_aprox": np.sqrt(p[ok].var() + rp.var())})
+                        "dp_sint_com_residuo_aprox": np.sqrt(p[ok].var() + rp.var()), **fora})
     V = pd.DataFrame(val).round(4)
     V.to_csv(REPORTS / "sim" / "validacao_sinteticos.csv", index=False)
 

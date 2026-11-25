@@ -23,9 +23,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import yaml
-from sklearn.ensemble import HistGradientBoostingRegressor
 
-from src.models.backtest import HGB, TARGETS
 from src.paths import CONFIG, FIGURES, PROCESSED, REPORTS, rel
 
 OUT = REPORTS / "sim"
@@ -41,17 +39,17 @@ def load_cfg():
 
 
 def fleet_factors(X: pd.DataFrame) -> pd.DataFrame:
-    """Fatores de frota por ano climático (modelos B0/C0 treinados na frota recente)."""
+    """Fatores de frota por ano climático: as mesmas funções de transferência B0/C0 do Monte Carlo
+    (features e clima de pesos fixos de src.sim.sinteticos), treinadas na frota recente."""
+    from src.sim import sinteticos as sint
     rows = {}
-    specs = {"eol": ("cf_eol_pot", TARGETS["B_cf_eolico_pot"]["exog"], "2024-07-01"),
-             "sol": ("cf_sol_pot", TARGETS["C_cf_solar"]["exog"], "2024-07-01")}
+    D = sint.dados_treino()
     preds = {}
-    for k, (ycol, ex, ini) in specs.items():
-        tr = (X.t >= ini) & (X.t < "2026-11-01") & X[ycol].notna() & X[ex].notna().all(axis=1)
-        mdl = HistGradientBoostingRegressor(**HGB).fit(X.loc[tr, ex], X.loc[tr, ycol])
-        ok = X[ex].notna().all(axis=1)
-        preds[k] = pd.Series(np.nan, index=X.index)
-        preds[k][ok] = mdl.predict(X.loc[ok, ex])
+    for k, nome in [("eol", "B0"), ("sol", "C0")]:
+        ex = sint.MODELOS[nome]["ex"]
+        ok = D[ex].notna().all(axis=1)
+        p = pd.Series(sint.fit(D, nome).predict(D.loc[ok, ex]), index=D.t[ok])
+        preds[k] = pd.Series(p.reindex(X.t).to_numpy(), index=X.index)
     for y, g in X.groupby("ano"):
         cfe = g.cf_eol_pot
         cfs = g.cf_sol_pot.fillna(g.cf_sol_obs)
