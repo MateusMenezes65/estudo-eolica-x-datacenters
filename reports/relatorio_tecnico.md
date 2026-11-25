@@ -1,7 +1,7 @@
 # Relatório técnico — Data centers e expansão eólica no balanço horário do Nordeste (2030)
 
 Documento de apresentação do projeto, passo a passo. Gerado por `python -m src.report.tecnico` em
-2026-11-25 15:30 UTC, a partir das tabelas produzidas pelo pipeline.
+2026-11-25 15:41 UTC, a partir das tabelas produzidas pelo pipeline.
 Os números citados vêm de arquivos em `reports/` e `config/`; os poucos valores de análises exploratórias
 trazem a decisão de `docs/decisoes.md` em que estão registrados.
 
@@ -27,7 +27,8 @@ compensaria esse consumo?
   centers projetada oficialmente (2.098 MWmed).
   - No mesmo clima, o acréscimo é de +2,4 TWh e
     +454 horas com importação por ano.
-  - O acréscimo aparece em 100% dos cenários climáticos simulados.
+  - O sinal é positivo por construção (carga constante a mais nunca reduz a importação); o que se estima é o
+    tamanho: IC95 da média, reamostrando os anos, de 2,0–2,8 TWh.
 - **Quando a importação acontece.** No fim da tarde (pico às 18h, quando a solar cai) e de madrugada.
   Ao meio-dia ela é praticamente nula.
 - **Compensação eólica.** Compensar em **energia anual** exigiria
@@ -38,7 +39,8 @@ compensaria esse consumo?
 - **Excedente.** O NE continua fortemente exportador (excedente de
   ~77 TWh/ano). 87%
   da energia dos data centers cairia em horas de excedente regional.
-- **Clima e hipóteses.** O clima do ano pesa tanto quanto a escolha de cenário. Os resultados também são
+- **Clima e hipóteses.** No mesmo cenário, a importação varia de 2,4 a
+  10,2 TWh (P5–P95) conforme o clima e a hidrologia. Os resultados também são
   sensíveis à carga de data centers, que a projeção oficial revisou de 716
   para 2.098 MWmed em oito meses, e à operação hidráulica.
 - **Quanto confiar.** Rodado com os níveis observados de 2022–2025, o simulador erra a importação anual
@@ -685,8 +687,8 @@ Daí o Monte Carlo.
 O Monte Carlo transforma "um resultado por cenário" em uma **distribuição condicional** de resultados.
 Ele responde perguntas como:
 - quão diferente pode ser 2030 conforme o clima do ano;
-- o efeito dos data centers aparece sempre ou só em anos ruins;
-- quão estável é a estimativa.
+- de que tamanho é o efeito dos data centers e quanto ele muda entre anos bons e ruins;
+- quão precisa é a estimativa.
 
 A incerteza amostrada é **climática e operacional**. As escolhas de cenário (quantos data centers, quanta
 eólica) ficam como eixos separados, porque não são aleatórias: são hipóteses de política e de mercado.
@@ -779,6 +781,19 @@ da importação anual mudou 0,30% e o P95,
 | 1.000 | 5,548 | 9,992 |
 | 1.500 | 5,538 | 10,028 |
 | 2.000 | 5,555 | 10,194 |
+
+**O que a convergência não mede.** Ela mostra que o número de sorteios basta, não que a estimativa seja precisa.
+Os sorteios repetem 31 anos meteorológicos e 4 hidrológicos, e essa é a amostra
+de fato.
+- **Erro de simulação** (dos 2.000 sorteios): erro-padrão da importação média de
+  0,05 TWh.
+- **Erro da amostra de anos** (reamostrando os anos com reposição, 4.000 reamostras):
+  0,59 TWh. O IC95 da importação central é 4,5–6,8 TWh
+  (só o clima: 4,9–6,3; só a
+  hidrologia: 4,6–6,4).
+  O do efeito dos data centers é 2,0–2,8 TWh.
+- Com só 4 anos hidrológicos o intervalo é aproximado. Ele não inclui o erro do simulador
+  (seções 7.4 e 7.5) nem as escolhas de cenário.
 
 ![Figura 26 — Convergência do Monte Carlo (média e P95 da importação anual).](figures/mc2_convergencia.png)
 
@@ -1013,7 +1028,9 @@ Importação média (TWh/ano) por cenário de data centers × eólica:
 
 As faixas P5–P95 são largas (Figura 30): o mesmo cenário central pode resultar em
 2,4 ou 10,2
-TWh conforme o clima e a hidrologia. As curvas de cenários diferentes, porém, ficam claramente separadas.
+TWh conforme o clima e a hidrologia. As distribuições dos cenários se deslocam, mas se sobrepõem: a mediana do
+central (5,3 TWh) fica abaixo do P95 sem data centers
+(6,4 TWh). O que isola o efeito é a diferença pareada, abaixo.
 
 ![Figura 30 — Distribuição acumulada da importação anual em 2030 por cenário de data centers e de eólica.](figures/mc1_distribuicao_importacao.png)
 
@@ -1033,15 +1050,19 @@ Comparando cada sorteio consigo mesmo (diferença pareada):
 | alto | base | 3,3 [1,8–5,2] | 623 |
 | alto | alta | 2,5 [1,2–4,2] | 460 |
 
-- **Sempre positivo.** O efeito é positivo em 100% dos sorteios (Figura 31, esquerda).
+- **Sinal e tamanho.** O efeito é positivo em todos os sorteios por construção: somar uma carga constante ao mesmo
+  sorteio nunca reduz a importação. O resultado é o tamanho (Figura 31, esquerda):
+  13% da energia dos data centers no cenário
+  central, porque o resto cai em horas de excedente.
 - **Depende da eólica.** É maior com eólica baixa: menos vento noturno significa mais horas sem
   cobertura.
 - **Peso do clima.** A importação anual por ano meteorológico (Figura 31, direita) varia muito: o ano de
   menos vento (2009) leva a importação central a ~10
   TWh, e o de mais vento (2012), a ~1,7 TWh.
 - **Decomposição da variância.** O ano meteorológico explica 80% da variância
-  da importação anual; o ano hidrológico, 19%; e os resíduos,
-  1%.
+  da importação anual entre sorteios; o ano hidrológico, 19%; e os resíduos,
+  1%. O "ano hidrológico" mistura hidrologia e regime de despacho: a energia hidráulica
+  caiu todo ano de 2022 a 2025, enquanto a eólica crescia.
 
 ![Figura 31 — Esquerda: efeito dos data centers por sorteio (diferença pareada). Direita: importação anual por ano meteorológico sorteado.](figures/r16_efeito_pareado_e_anos_meteorologicos.png)
 
@@ -1136,7 +1157,7 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 **Leitura** (Figura 34).
 - **Nível absoluto.** A importação depende bastante das hipóteses de hidráulica, de nível de carga e de
   atraso dos data centers.
-- **Efeito dos data centers.** O efeito pareado fica positivo e na mesma ordem em todas as hipóteses
+- **Efeito dos data centers.** O tamanho do efeito pareado fica na mesma ordem em todas as hipóteses
   (+1,8 a +2,9 TWh), exceto com 12 meses de atraso, em que a carga de 2030 seria a
   de 2029 (813 MWmed).
 
@@ -1146,8 +1167,9 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 
 1. **A carga de data centers aumenta a importação.** Com a projeção oficial vigente (2,1 GWmed), a
    necessidade de importação do NE em 2030 aumenta ~2,4 TWh/ano e
-   ~454 horas/ano com eólica base. O aumento aparece em
-   todos os climas simulados, mas não muda o caráter exportador da região.
+   ~454 horas/ano com eólica base (IC95 da amostra de anos:
+   2,0–2,8 TWh). Isso é 13% da energia que
+   consomem e não muda o caráter exportador da região.
 2. **O problema é temporal, não de energia.** A importação adicional concentra-se no fim da tarde e à
    noite. A eólica compensa a energia anual com ~4,6 GW,
    mas compensar a importação exige ~10,4 GW.
@@ -1156,8 +1178,9 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 3. **A carga de data centers aproveitaria excedente.** 87%
    da energia dos data centers cairia em horas de excedente regional. Isso reduz o excedente acima do
    limite de exportação. Transformar isso em "corte evitado" exige análise de rede, fora do escopo.
-4. **O clima pesa tanto quanto a decisão.** A variabilidade entre anos é da mesma ordem que a diferença
-   entre cenários. Por isso os resultados devem ser comunicados como distribuições e diferenças pareadas,
+4. **A importação varia muito de um ano para outro.** No cenário central, de
+   2,4 a 10,2 TWh (P5–P95), e as
+   distribuições dos cenários se sobrepõem. Por isso os resultados devem ser comunicados como distribuições e diferenças pareadas,
    não como um número único.
 5. **O efeito é mais confiável que o nível.** Na validação retrospectiva, o nível anual da importação
    erra de -11% a +1% em 2022–2025; fora da amostra, de
@@ -1223,7 +1246,7 @@ Algumas variáveis do estudo mudam rápido ou são pouco previsíveis:
   20261112 (Monte Carlo). A execução original usou Python 3.14.1; a partir de 2026-11-16 o
   pipeline roda com Python 3.13.7 e as mesmas versões fixadas. Com os mesmos insumos, o Monte Carlo
   de 2030 saiu idêntico nas duas versões.
-- **Testes.** 55 testes automatizados (`pytest`, contando os casos parametrizados):
+- **Testes.** 56 testes automatizados (`pytest`, contando os casos parametrizados):
   - unidades e fuso horário;
   - agregação 30 min → hora;
   - fechamento do balanço;

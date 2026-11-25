@@ -122,6 +122,25 @@ def test_nivel_mmgd_sem_distorcao_nas_pontas():
     assert np.abs(forma / forma.mean() - (1 + 0.2 * np.sin(2 * np.pi * anos))).max() < 0.02
 
 
+def test_ic_da_amostra_de_anos_nao_encolhe_com_mais_sorteios():
+    import pandas as pd
+    from src.sim.montecarlo import ic_amostra_de_anos
+    r = np.random.default_rng(0)
+    ew, eh = r.normal(0, 2, 31), r.normal(0, 1, 4)                  # efeito fixo de cada ano
+    def caso(n):
+        w, h = r.integers(0, 31, n), r.integers(0, 4, n)
+        sem = 3 + ew[w] + eh[h]
+        linhas = [pd.DataFrame({"sorteio": np.arange(n), "ano_clima": w, "ano_hidro": h, "cenario_eolico": "base",
+                                "cenario_dc": dc, "importacao_TWh": sem + d}) for dc, d in [("sem_dc", 0.0), ("central", 2.0)]]
+        return ic_amostra_de_anos(pd.concat(linhas), 500)
+    a, b = caso(2000), caso(20000)
+    larg = lambda x: np.diff(x["importacao_central"]["ic95_TWh"])[0]
+    assert larg(a) == pytest.approx(larg(b), rel=0.05)              # limitado pelos 31 × 4 anos
+    assert b["importacao_central"]["erro_padrao_simulacao_TWh"] < 0.4 * a["importacao_central"]["erro_padrao_simulacao_TWh"]
+    assert a["efeito_dc_central"]["ic95_TWh"] == pytest.approx([2.0, 2.0])     # efeito constante: sem incerteza
+    assert a["n_anos_clima"] == 31 and a["n_anos_hidro"] == 4
+
+
 def test_backcast_metricas_observadas():
     import pandas as pd
     from src.sim.backcast import niveis_observados

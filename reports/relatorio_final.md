@@ -1,6 +1,6 @@
 # Data centers e expansão eólica no subsistema Nordeste — balanço horário em 2030
 
-Relatório final gerado por `python -m src.report.final` em 2026-11-25 15:27 UTC.
+Relatório final gerado por `python -m src.report.final` em 2026-11-25 15:41 UTC.
 Os números vêm de tabelas versionadas em `reports/` e `config/`; os poucos valores de análises
 exploratórias trazem a decisão de `docs/decisoes.md` em que estão registrados. Os resultados de 2030 são
 **condicionais a cenários e hipóteses declarados**, não previsões. Margem negativa indica necessidade
@@ -17,7 +17,8 @@ de importação do restante do SIN, **não** déficit de suprimento.
 - **Efeito pareado.** No mesmo clima, o cenário central acrescenta
   +2,4 TWh/ano, com P5–P95 de 1,3
   a 3,7, e +454
-  horas com importação. O aumento ocorre em 100% dos sorteios.
+  horas com importação. O sinal é positivo por construção (carga constante a mais nunca reduz a importação);
+  o que a simulação estima é o tamanho.
 - **Compensação em energia não basta.** 4,6 GW eólicos
   adicionais compensariam a energia anual do cenário central. Para devolver a importação anual média ao
   nível sem data centers seriam necessários 10,4 GW,
@@ -26,11 +27,15 @@ de importação do restante do SIN, **não** déficit de suprimento.
 - **Absorção de excedente.** 87% da energia dos data
   centers cairia em horas de excedente regional. Isso é potencial de absorção, não corte evitado: o
   estudo não representa a rede interna nem as restrições locais.
-- **Variabilidade climática.** O clima pesa tanto quanto a escolha de cenário. A amplitude interquartil
-  da importação anual entre sorteios (cenário central, eólica base) é de
-  3,2 TWh, contra 3,2
-  TWh entre as medianas dos cenários de data centers. O ano meteorológico explica 80%
-  da variância e o ano hidrológico, 19%.
+- **Variabilidade entre anos.** No mesmo cenário central, a importação anual vai de
+  2,4 a 10,2 TWh (P5–P95) conforme
+  o clima e a hidrologia; entre os cenários de data centers, a média vai de
+  3,2 a 6,5 TWh. São coisas de natureza diferente:
+  a primeira ocorre em qualquer cenário, a segunda é escolha. Da variância entre sorteios, 80%
+  vem do ano meteorológico e 19% do ano hidrológico.
+- **Precisão das médias.** A amostra é de 31 anos meteorológicos e 4 hidrológicos.
+  Reamostrando os anos, o IC95 da importação média do cenário central é 4,5–6,8 TWh e o do efeito dos data
+  centers, 2,0–2,8 TWh. Mais sorteios não estreitam essa faixa.
 - **Hipóteses que mais pesam,** além do próprio cenário de data centers:
   - nível da carga ±5%: -1,1 / +1,3 TWh;
   - convenção do despacho hidráulico: hidráulica plana +1,9 TWh; despacho
@@ -217,7 +222,15 @@ o da solar a 24 h.
 - **Extrapolação.** No máximo 0,05% das horas de 1995–2021 ficam fora da faixa de treino de
   alguma variável.
 - **Convergência do Monte Carlo** (cenário central, eólica base): de 1.500 para 2.000 sorteios,
-  a média variou 0,30% e o P95, 1,66% (figura `mc2`).
+  a média variou 0,30% e o P95, 1,66% (figura `mc2`). Isso mede só o
+  erro de simulação (erro-padrão da média de 0,05 TWh).
+- **Incerteza da amostra de anos.** Os sorteios repetem 31 anos meteorológicos e 4
+  hidrológicos. Reamostrando os anos (4.000 reamostras), o erro-padrão da importação média é
+  0,59 TWh, 12 vezes
+  o de simulação. IC95: importação central 4,5–6,8 TWh, sem data centers
+  2,4–4,0 TWh, efeito dos data centers
+  2,0–2,8 TWh. Com só 4 anos hidrológicos, o intervalo é aproximado. Ele não inclui o erro do
+  simulador (seção 4.4) nem as escolhas de cenário.
 - **Blocos de resíduos.** Trocar os blocos de 7 dias por blocos de 3 ou 14 dias muda a média em até
   0,01 TWh.
 
@@ -320,20 +333,23 @@ A tabela 5.5 quantifica o efeito de cada uma. Figura: `reports/figures/mc1_distr
 
 ### 5.2 Efeito dos data centers (diferenças pareadas contra sem_dc, mesmo sorteio)
 
-| DC | eólica | Δ importação TWh: média [P5–P95] | Δ horas: média [P5–P95] | sorteios com Δ > 0 |
+| DC | eólica | Δ importação TWh: média [P5–P95] | Δ horas: média [P5–P95] | Δ importação ÷ energia dos DC |
 |---|---|---|---|---|
-| conservador | baixa | 2,4 [1,3–3,6] | 461 [339–582] | 100% |
-| conservador | base | 2,1 [1,1–3,3] | 402 [282–520] | 100% |
-| conservador | alta | 1,6 [0,7–2,7] | 297 [186–402] | 100% |
-| central | baixa | 2,7 [1,5–4,1] | 520 [386–656] | 100% |
-| central | base | 2,4 [1,3–3,7] | 454 [323–585] | 100% |
-| central | alta | 1,8 [0,8–3,0] | 335 [212–453] | 100% |
-| alto | baixa | 3,8 [2,1–5,6] | 713 [542–886] | 100% |
-| alto | base | 3,3 [1,8–5,2] | 623 [454–789] | 100% |
-| alto | alta | 2,5 [1,2–4,2] | 460 [298–615] | 100% |
+| conservador | baixa | 2,4 [1,3–3,6] | 461 [339–582] | 14% |
+| conservador | base | 2,1 [1,1–3,3] | 402 [282–520] | 13% |
+| conservador | alta | 1,6 [0,7–2,7] | 297 [186–402] | 10% |
+| central | baixa | 2,7 [1,5–4,1] | 520 [386–656] | 15% |
+| central | base | 2,4 [1,3–3,7] | 454 [323–585] | 13% |
+| central | alta | 1,8 [0,8–3,0] | 335 [212–453] | 10% |
+| alto | baixa | 3,8 [2,1–5,6] | 713 [542–886] | 16% |
+| alto | base | 3,3 [1,8–5,2] | 623 [454–789] | 14% |
+| alto | alta | 2,5 [1,2–4,2] | 460 [298–615] | 10% |
 
-O efeito incremental dos data centers é positivo em todas as hipóteses testadas e fica na mesma
-ordem de grandeza (tabela 5.5, 500 sorteios comuns, DC central):
+O sinal do efeito não é um resultado: somar uma carga constante ao mesmo sorteio nunca reduz a importação. O
+que se estima é o tamanho, e ele é bem menor que a energia consumida: no cenário central, a importação cresce
+13% da energia dos data centers, porque o resto
+cai em horas de excedente. O tamanho fica na mesma ordem de grandeza nas hipóteses testadas (tabela 5.5,
+500 sorteios comuns, DC central):
 - convenção hidráulica: +2,40 TWh/ano com a regra emulada, +2,51
   com o despacho histórico sorteado e +2,90 com a hidráulica plana;
 - demais sensibilidades (exceto o atraso dos data centers): de +1,80 a +2,90 TWh/ano.
@@ -453,8 +469,9 @@ por isso difere ligeiramente da tabela 5.1.
 
 1. **Data centers ampliam a importação.** Na projeção oficial vigente (2,1 GWmed no NE em 2030), eles
    aumentam a necessidade de importação do Nordeste em ~2,4 TWh/ano
-   e em ~454 horas por ano, com eólica base. O aumento ocorre
-   em todos os anos climáticos simulados e não muda o caráter exportador da região (excedente de
+   e em ~454 horas por ano, com eólica base (IC95 da amostra de anos:
+   2,0–2,8 TWh). É 13% da energia que
+   consomem, e não muda o caráter exportador da região (excedente de
    77 TWh/ano).
 2. **Compensar no tempo exige mais que compensar em energia.** Cerca de
    4,6 GW eólicos bastam em energia anual, mas são
@@ -466,9 +483,10 @@ por isso difere ligeiramente da tabela 5.1.
    (~87%) cairia em horas de excedente regional, o que
    reduz o excedente acima do limite de exportação. Transformar isso em redução de cortes exigiria
    análise de rede.
-4. **A incerteza climática e operacional é do mesmo tamanho que as escolhas de cenário.** Por isso os
-   resultados devem ser lidos como distribuições condicionais e diferenças pareadas, não como um número
-   pontual.
+4. **A importação varia muito de um ano para outro.** No cenário central, de
+   2,4 a 10,2 TWh (P5–P95), e as
+   distribuições dos cenários se sobrepõem. Por isso os resultados devem ser lidos como distribuições
+   condicionais e diferenças pareadas, não como um número pontual.
 5. **O efeito dos data centers é mais confiável que o nível.** Fora da amostra, o nível anual da importação
    erra de -27% a -2% em 2022–2026, com tendência de subestimação nos anos
    recentes; o nível de 2030 tende a estar subestimado. O efeito pareado fica entre

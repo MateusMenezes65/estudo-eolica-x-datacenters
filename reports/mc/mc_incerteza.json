@@ -8,6 +8,62 @@
  "amplitude_medianas_entre_cenarios_TWh": 4.912267062570928,
  "amplitude_medianas_dc_com_eolica_base_TWh": 3.2191842930719177,
  "amplitude_medianas_eolica_com_dc_central_TWh": 2.1458619910812065,
+ "ic_amostra_de_anos": {
+  "reamostras": 4000,
+  "n_anos_clima": 31,
+  "n_anos_hidro": 4,
+  "importacao_central": {
+   "media_celulas_TWh": 5.594613511204124,
+   "ic95_TWh": [
+    4.463004452232377,
+    6.754630115673344
+   ],
+   "ic95_so_clima_TWh": [
+    4.921614158624079,
+    6.3028705530697895
+   ],
+   "ic95_so_hidrologia_TWh": [
+    4.635118332251146,
+    6.388237384507532
+   ],
+   "erro_padrao_anos_TWh": 0.5897931374206297,
+   "erro_padrao_simulacao_TWh": 0.04963016421142825
+  },
+  "importacao_sem_dc": {
+   "media_celulas_TWh": 3.1993438296503034,
+   "ic95_TWh": [
+    2.4224632243943334,
+    3.99361310190291
+   ],
+   "ic95_so_clima_TWh": [
+    2.748522076690951,
+    3.6844229049710564
+   ],
+   "ic95_so_hidrologia_TWh": [
+    2.5414059529654995,
+    3.7421325227838262
+   ],
+   "erro_padrao_anos_TWh": 0.4014065859203806,
+   "erro_padrao_simulacao_TWh": 0.03375606294037788
+  },
+  "efeito_dc_central": {
+   "media_celulas_TWh": 2.39526968155382,
+   "ic95_TWh": [
+    2.0262065100530116,
+    2.7636883005941253
+   ],
+   "ic95_so_clima_TWh": [
+    2.1662122507373627,
+    2.6290476195769936
+   ],
+   "ic95_so_hidrologia_TWh": [
+    2.0937123792856474,
+    2.646104861723706
+   ],
+   "erro_padrao_anos_TWh": 0.18989679239037865,
+   "erro_padrao_simulacao_TWh": 0.016274897391526558
+  }
+ },
  "limitacao_cf_0_1_energia_%": {
   "cfe_energia_ajustada_%": 0.0051403035269094784,
   "cfs_energia_ajustada_%": 0.010456370674305517

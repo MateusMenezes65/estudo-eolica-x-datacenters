@@ -355,7 +355,7 @@ seguida o usuário decidiu aplicar as quatro correções de método ("Aplicar as
     o próprio beta. Sensibilidades: beta do próprio ano hidrológico (−0,19 TWh) e amplitude constante em MW
     (+0,54 TWh; contrariada por 2026, em que a resposta foi de ~1,3 GW contra 0,75–0,94 GW em 2022–2025).
     Ressalva: 6.418 horas válidas de jan–out/2026. Configuração em `config/cenarios.yaml`. — adotada pelo usuário.
-58. **Achados da auditoria só declarados como limitação.** (a) Clima e hidrologia são sorteados como
+58. **Achados da auditoria declarados nos relatórios, sem mudar o método.** (a) Clima e hidrologia são sorteados como
     independentes; nos quatro anos comuns a correlação entre CF eólico anual e hidráulica anual é −0,86 (n = 4,
     indicativo): os pares reais davam média 7% menor e dispersão 30% menor que os independentes. (b) A razão
     entre a geração de referência do ONS e a verificada, em horas sem restrição, vai de 0,75 (2022) a 1,05
@@ -364,5 +364,12 @@ seguida o usuário decidiu aplicar as quatro correções de método ("Aplicar as
     compensação eólica supõe o perfil da frota. (d) Os 2.000 sorteios têm erro de simulação pequeno, mas a
     amostra real é de 31 climas × 4 hidrologias: IC95 da média por reamostragem dos anos, antes das correções,
     3,9–6,5 TWh (efeito dos DC, 1,9–2,7). (e) O sinal do efeito dos DC é positivo por construção (carga constante
-    nunca reduz a importação): não é evidência. Textos dos relatórios sobre (d) e (e) ainda não ajustados. —
-    fato observado; pendente do usuário.
+    nunca reduz a importação): não é evidência. (f) Comparar o intervalo interquartil entre sorteios com a
+    amplitude entre cenários ("o clima pesa tanto quanto o cenário") mistura coisas de natureza diferente. —
+    fato observado.
+    **Textos ajustados em 2026-11-25, por decisão do usuário.** Saem "100% dos sorteios", "o clima pesa tanto
+    quanto o cenário" e "curvas claramente separadas" (a mediana do central, 5,3 TWh, fica abaixo do P95 sem DC,
+    6,4). Entra o tamanho do efeito em relação à energia dos DC (13% no central) e o IC95 da amostra de anos,
+    calculado no pipeline (`montecarlo.ic_amostra_de_anos`, `reports/mc/mc_incerteza.json`): importação central
+    4,5–6,8 TWh, sem DC 2,4–4,0, efeito dos DC 2,0–2,8. O erro-padrão da amostra de anos (0,59 TWh) é 12 vezes o
+    de simulação. Com 4 anos hidrológicos, o intervalo é aproximado.

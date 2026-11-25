@@ -1,6 +1,6 @@
 # STATUS — Estudo Eólica × Data Centers (NE, 2030)
 
-Última atualização: 2026-11-25 (auditoria conceitual e estatística; quatro correções de método aplicadas, decisões 54–57; resultados de 2030 e relatórios regenerados; commit local no branch `auditoria-pre-push`, sem push) · Etapas concluídas: **Dia 1**, **Dia 2**, **Dia 3**, o **simulador interativo** e a **auditoria pré-push**.
+Última atualização: 2026-11-25 (auditoria conceitual e estatística; quatro correções de método aplicadas, decisões 54–57; textos da decisão 58 ajustados; resultados de 2030 e relatórios regenerados; publicado no `master` do repositório remoto) · Etapas concluídas: **Dia 1**, **Dia 2**, **Dia 3**, o **simulador interativo** e a **auditoria pré-push**.
 
 **Entregas:**
 - [reports/relatorio_final.md](reports/relatorio_final.md): relatório final, gerado por `python -m src.report.final`.
@@ -15,7 +15,7 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
 - Ambiente: `.venv` com as versões de `requirements.lock.txt`. A execução original usou Python 3.14.1; na máquina usada desde 2026-11-16 só há Python 3.13.7, e o `.venv` foi criado com ele e as mesmas versões fixadas (testes aprovados; Monte Carlo de 2030 recalculado idêntico ao do estudo).
 - `python -m src.pipeline` refaz tudo a partir de `data/raw`, em cerca de 25 min (Monte Carlo de 2030: ~5 min). A coleta dos dados brutos está no README.
 - Sementes: 20261111 (modelos) e 20261112 (Monte Carlo).
-- Testes: `pytest -q` (55 casos coletados, contando os parametrizados; o relatório técnico cita a contagem do pytest).
+- Testes: `pytest -q` (56 casos coletados, contando os parametrizados; o relatório técnico cita a contagem do pytest).
 - Git local com identidade só neste repositório. Versionados: código, configuração, manifesto, tabelas de resultado, relatórios (Markdown e HTML) e, via Git LFS, a pasta `data/` (item abaixo).
 - Remoto (2026-11-16, a pedido do usuário): repositório **privado** `github.com/MateusMenezes65/estudo-eolica-x-datacenters`, branch `master`. Colegas entram como colaboradores; instruções de clone no README. `logs/` passou a ser ignorado. `reports/site/` (HTML dos relatórios final e técnico) passou a ser versionado. Os dados foram publicados como anexos da Release `dados-2026-11-16` (zips de `data/raw`, `data/interim` e `data/processed` + SHA256SUMS; `python -m src.tools.pacote_dados empacotar|extrair`) e, por decisão do usuário, também versionados com **Git LFS** (`.gitattributes`: `data/**`; 484 arquivos em 2026-11-16 e 487 em 2026-11-17, com as bases do simulador e do backtest de 2026; cerca de 1,2 GB; cota gratuita de 10 GiB de armazenamento e 10 GiB de download/mês). Isso altera a regra do AGENTS.md de não versionar bases grandes. Toda nova versão de um arquivo de `data/` consome armazenamento LFS adicional.
 
@@ -72,7 +72,8 @@ Os números dos dois relatórios vêm das tabelas do pipeline; valores de análi
     - **57** coeficiente da regra hidráulica de 2030 = o de 2026 (0,21), com o do próprio ano e a amplitude constante como sensibilidades.
   - Achados só declarados (decisão 58): dependência clima–hidrologia, GNRa não homogênea, perfil da eólica nova, incerteza da amostra de anos, sinal do efeito dos DC por construção.
   - Comandos: `python -m src.features.clima_historico`; `python -m src.models.backtest --so-transferencia`; `python -m src.pipeline --desde ablacao`; `pytest -q` (55 aprovados). Curto prazo (modelos A, B e C) e classificador D não mudaram.
-  - Não feito: push; atualização dos slides (`.pptx`) e da pasta `relatorio_ptc3567/`; textos sobre "100% dos sorteios", convergência e "clima pesa tanto quanto o cenário" (decisão 58).
+  - Textos da decisão 58 ajustados (2026-11-25): sinal do efeito dos DC como construção, convergência separada da incerteza da amostra de anos (IC95 no pipeline: `python -m src.sim.montecarlo --so-incerteza`), variabilidade entre anos no lugar de "clima pesa tanto quanto o cenário". Testes: 56.
+  - Não feito: atualização dos slides (`.pptx`) e da pasta `relatorio_ptc3567/` (ambos fora do Git).
 
 ## 3. Resultados principais (2030, eólica base)
 
@@ -88,8 +89,10 @@ Regenerados em 2026-11-25 com as correções das decisões 54–57. Entre colche
 - **Compensação eólica do cenário central:** 4,6 GW em energia anual, contra 10,4 GW para neutralizar a importação anual (2,3×).
 - **Absorção:** 87% da energia dos data centers cairia em horas de excedente regional (potencial de absorção, não corte evitado).
 - **Incerteza:**
-  - o ano meteorológico explica 80% da variância da importação anual e o hidrológico, 19%;
-  - a amplitude interquartil climática (3,2 TWh) é igual à amplitude entre os cenários de DC (3,2 TWh).
+  - IC95 da média pela amostra de anos (31 climas × 4 hidrologias): importação central 4,5–6,8 TWh; efeito dos DC 2,0–2,8 TWh; erro-padrão de 0,59 TWh, contra 0,05 de simulação;
+  - entre sorteios, o ano meteorológico explica 80% da variância da importação anual e o hidrológico, 19%;
+  - as distribuições dos cenários de DC se sobrepõem (P5–P95 do central: 2,4–10,2 TWh); o efeito é medido pela diferença pareada.
+- **Tamanho do efeito:** a importação cresce 13% da energia dos DC no cenário central. O sinal positivo é por construção.
 - **Sensibilidades (efeito na importação):**
   - carga ±5%: −1,1 / +1,3 TWh;
   - hidráulica plana: +1,9 TWh; despacho histórico sem resposta: +0,6 TWh;
@@ -135,8 +138,6 @@ Todas registradas em `docs/decisoes.md` (1–58). As do usuário são: L_base = 
 Em 2026-11-15 o usuário manteve o CDV_ACESSOS no cenário alto (decisão 44) e a regra hidráulica emulada como caso central (decisão 45). Em 2026-11-17 adotou o β sobre a carga líquida potencial (decisão 52) e adiou a cauda de pouco vento (decisão 53, agora revista). Em 2026-11-25 decidiu aplicar as quatro correções de método da auditoria (decisões 54–57).
 
 Pendências do usuário:
-- levar o branch `auditoria-pre-push` para `master` e fazer o push;
-- ajustar ou não os textos da decisão 58 (d) e (e) nos relatórios;
 - atualizar os slides (`Eólica × Data Centers no Nordeste até 2030 - v3.pptx`, fora do Git): números de 2030, slide 13 (features), slides 19–28, curtose sem origem no repositório. O `relatorio_ptc3567/` (LaTeX, fora do Git) não cita resultados de 2030 até agora.
 
 Outra pendência, não bloqueante: a regra de entrada da capacidade em construção nos anos 2026–2029 (decisão 47) pode ser trocada em `config/cenarios_anuais.yaml`.

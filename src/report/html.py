@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
 import shutil
 import unicodedata
@@ -164,12 +165,13 @@ def destaques() -> str:
     K = pd.read_csv(REPORTS / "mc" / "mc_compensacao_eolica.csv")
     r = lambda d, m: R[(R.cenario_dc == d) & (R.cenario_eolico == "base") & (R.metrica == m)].media.iat[0]
     p = P[(P.cenario_dc == "central") & (P.cenario_eolico == "base") & (P.metrica == "importacao_TWh")].iloc[0]
+    ic = json.loads((REPORTS / "mc" / "mc_incerteza.json").read_text(encoding="utf-8"))["ic_amostra_de_anos"]["efeito_dc_central"]["ic95_TWh"]
     k = K[(K.cenario_dc == "central") & (K.cenario_eolico == "base")].iloc[0]
     tiles = [
         ("Importação do NE em 2030", f"{f(r('sem_dc', 'importacao_TWh'))} → {f(r('central', 'importacao_TWh'))}", "TWh/ano",
          "média, sem novos data centers → cenário central (2,1 GWmed)"),
         ("Efeito dos data centers", f"+{f(p.delta_media)}", "TWh/ano",
-         f"mesmo clima; P5–P95 de {f(p.delta_p5)} a {f(p.delta_p95)}; positivo em {100 * p.frac_sorteios_delta_pos:.0f}% dos sorteios"),
+         f"mesmo clima; P5–P95 de {f(p.delta_p5)} a {f(p.delta_p95)}; IC95 da média (amostra de anos) de {f(ic[0])} a {f(ic[1])}"),
         ("Eólica para compensar", f"{f(k.dW_energia_anual_MW / 1000)} | {f(k.dW_importacao_anual_media_MW / 1000)}", "GW",
          "pela energia anual | para manter a importação anual"),
         ("Em horas de excedente", f"{f(k['absorcao_excedente_%'], 0)}%", "",

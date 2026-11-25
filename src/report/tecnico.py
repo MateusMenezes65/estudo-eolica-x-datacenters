@@ -166,6 +166,7 @@ def main() -> None:
     inv = d["inv"]
     dcinv = d["dcinv"]
     eta = inc["eta2"]
+    ica = inc["ic_amostra_de_anos"]
     chk = d["chk"]
     ihc = ih[ih.cenario_dc == "central"].set_index("hora").pct_horas_importacao
     ih0 = ih[ih.cenario_dc == "sem_dc"].set_index("hora").pct_horas_importacao
@@ -347,7 +348,8 @@ compensaria esse consumo?
   centers projetada oficialmente ({f(dc30['total'], 0)} MWmed).
   - No mesmo clima, o acréscimo é de +{f(p('central', 'base', 'importacao_TWh'))} TWh e
     +{f(p('central', 'base', 'horas_importacao'), 0)} horas com importação por ano.
-  - O acréscimo aparece em 100% dos cenários climáticos simulados.
+  - O sinal é positivo por construção (carga constante a mais nunca reduz a importação); o que se estima é o
+    tamanho: IC95 da média, reamostrando os anos, de {f(ica['efeito_dc_central']['ic95_TWh'][0])}–{f(ica['efeito_dc_central']['ic95_TWh'][1])} TWh.
 - **Quando a importação acontece.** No fim da tarde (pico às {hm}h, quando a solar cai) e de madrugada.
   Ao meio-dia ela é praticamente nula.
 - **Compensação eólica.** Compensar em **energia anual** exigiria
@@ -358,7 +360,8 @@ compensaria esse consumo?
 - **Excedente.** O NE continua fortemente exportador (excedente de
   ~{f(r('central', 'base', 'excedente_TWh'), 0)} TWh/ano). {f(k('central', 'base', 'absorcao_excedente_%'), 0)}%
   da energia dos data centers cairia em horas de excedente regional.
-- **Clima e hipóteses.** O clima do ano pesa tanto quanto a escolha de cenário. Os resultados também são
+- **Clima e hipóteses.** No mesmo cenário, a importação varia de {f(r('central', 'base', 'importacao_TWh', 'p5'))} a
+  {f(r('central', 'base', 'importacao_TWh', 'p95'))} TWh (P5–P95) conforme o clima e a hidrologia. Os resultados também são
   sensíveis à carga de data centers, que a projeção oficial revisou de {f(dcrev['PLAN 2026-2030'], 0)}
   para {f(dcrev['2a RQ PLAN 2026-2030'], 0)} MWmed em oito meses, e à operação hidráulica.
 - **Quanto confiar.** Rodado com os níveis observados de 2022–2025, o simulador erra a importação anual
@@ -864,8 +867,8 @@ Daí o Monte Carlo.
 O Monte Carlo transforma "um resultado por cenário" em uma **distribuição condicional** de resultados.
 Ele responde perguntas como:
 - quão diferente pode ser 2030 conforme o clima do ano;
-- o efeito dos data centers aparece sempre ou só em anos ruins;
-- quão estável é a estimativa.
+- de que tamanho é o efeito dos data centers e quanto ele muda entre anos bons e ruins;
+- quão precisa é a estimativa.
 
 A incerteza amostrada é **climática e operacional**. As escolhas de cenário (quantos data centers, quanta
 eólica) ficam como eixos separados, porque não são aleatórias: são hipóteses de política e de mercado.
@@ -929,6 +932,19 @@ da importação anual mudou {f(abs(C.loc[2000, 'var_media_%']), 2)}% e o P95,
 {f(abs(C.loc[2000, 'var_p95_%']), 2)}% ({F('mc2')}).
 
 {t_conv}
+
+**O que a convergência não mede.** Ela mostra que o número de sorteios basta, não que a estimativa seja precisa.
+Os sorteios repetem {ica['n_anos_clima']} anos meteorológicos e {ica['n_anos_hidro']} hidrológicos, e essa é a amostra
+de fato.
+- **Erro de simulação** (dos {f(mcc['n'], 0)} sorteios): erro-padrão da importação média de
+  {f(ica['importacao_central']['erro_padrao_simulacao_TWh'], 2)} TWh.
+- **Erro da amostra de anos** (reamostrando os anos com reposição, {f(ica['reamostras'], 0)} reamostras):
+  {f(ica['importacao_central']['erro_padrao_anos_TWh'], 2)} TWh. O IC95 da importação central é {f(ica['importacao_central']['ic95_TWh'][0])}–{f(ica['importacao_central']['ic95_TWh'][1])} TWh
+  (só o clima: {f(ica['importacao_central']['ic95_so_clima_TWh'][0])}–{f(ica['importacao_central']['ic95_so_clima_TWh'][1])}; só a
+  hidrologia: {f(ica['importacao_central']['ic95_so_hidrologia_TWh'][0])}–{f(ica['importacao_central']['ic95_so_hidrologia_TWh'][1])}).
+  O do efeito dos data centers é {f(ica['efeito_dc_central']['ic95_TWh'][0])}–{f(ica['efeito_dc_central']['ic95_TWh'][1])} TWh.
+- Com só {ica['n_anos_hidro']} anos hidrológicos o intervalo é aproximado. Ele não inclui o erro do simulador
+  (seções 7.4 e 7.5) nem as escolhas de cenário.
 {fig('mc2')}
 ### 7.4 Validação retrospectiva: o simulador reproduz o passado?
 
@@ -970,7 +986,9 @@ Importação média (TWh/ano) por cenário de data centers × eólica:
 
 As faixas P5–P95 são largas ({F('mc1')}): o mesmo cenário central pode resultar em
 {f(r('central', 'base', 'importacao_TWh', 'p5'))} ou {f(r('central', 'base', 'importacao_TWh', 'p95'))}
-TWh conforme o clima e a hidrologia. As curvas de cenários diferentes, porém, ficam claramente separadas.
+TWh conforme o clima e a hidrologia. As distribuições dos cenários se deslocam, mas se sobrepõem: a mediana do
+central ({f(r('central', 'base', 'importacao_TWh', 'p50'))} TWh) fica abaixo do P95 sem data centers
+({f(r('sem_dc', 'base', 'importacao_TWh', 'p95'))} TWh). O que isola o efeito é a diferença pareada, abaixo.
 {fig('mc1')}
 ### 8.2 O efeito dos data centers
 
@@ -978,15 +996,19 @@ Comparando cada sorteio consigo mesmo (diferença pareada):
 
 {t_par}
 
-- **Sempre positivo.** O efeito é positivo em 100% dos sorteios ({F('r16')}, esquerda).
+- **Sinal e tamanho.** O efeito é positivo em todos os sorteios por construção: somar uma carga constante ao mesmo
+  sorteio nunca reduz a importação. O resultado é o tamanho ({F('r16')}, esquerda):
+  {f(100 * p('central', 'base', 'importacao_TWh') / (ldc['central'] * 8760 / 1e6), 0)}% da energia dos data centers no cenário
+  central, porque o resto cai em horas de excedente.
 - **Depende da eólica.** É maior com eólica baixa: menos vento noturno significa mais horas sem
   cobertura.
 - **Peso do clima.** A importação anual por ano meteorológico ({F('r16')}, direita) varia muito: o ano de
   menos vento ({pv['min']}) leva a importação central a ~{f(AC.importacao_central_base_TWh.loc[pv['min']], 0)}
   TWh, e o de mais vento ({pv['max']}), a ~{f(AC.importacao_central_base_TWh.loc[pv['max']])} TWh.
 - **Decomposição da variância.** O ano meteorológico explica {100 * eta['ano_clima']:.0f}% da variância
-  da importação anual; o ano hidrológico, {100 * eta['ano_hidro']:.0f}%; e os resíduos,
-  {100 * eta['residuos_e_interacao']:.0f}%.
+  da importação anual entre sorteios; o ano hidrológico, {100 * eta['ano_hidro']:.0f}%; e os resíduos,
+  {100 * eta['residuos_e_interacao']:.0f}%. O "ano hidrológico" mistura hidrologia e regime de despacho: a energia hidráulica
+  caiu todo ano de 2022 a 2025, enquanto a eólica crescia.
 {fig('r16')}
 ### 8.3 Quando a importação acontece
 
@@ -1039,7 +1061,7 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 **Leitura** ({F('mc3')}).
 - **Nível absoluto.** A importação depende bastante das hipóteses de hidráulica, de nível de carga e de
   atraso dos data centers.
-- **Efeito dos data centers.** O efeito pareado fica positivo e na mesma ordem em todas as hipóteses
+- **Efeito dos data centers.** O tamanho do efeito pareado fica na mesma ordem em todas as hipóteses
   (+{f(efx.min())} a +{f(efx.max())} TWh), exceto com 12 meses de atraso, em que a carga de 2030 seria a
   de 2029 ({f(dc2029, 0)} MWmed).
 {fig('mc3')}
@@ -1047,8 +1069,9 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 
 1. **A carga de data centers aumenta a importação.** Com a projeção oficial vigente ({f(dc30['total'] / 1000)} GWmed), a
    necessidade de importação do NE em 2030 aumenta ~{f(p('central', 'base', 'importacao_TWh'))} TWh/ano e
-   ~{f(p('central', 'base', 'horas_importacao'), 0)} horas/ano com eólica base. O aumento aparece em
-   todos os climas simulados, mas não muda o caráter exportador da região.
+   ~{f(p('central', 'base', 'horas_importacao'), 0)} horas/ano com eólica base (IC95 da amostra de anos:
+   {f(ica['efeito_dc_central']['ic95_TWh'][0])}–{f(ica['efeito_dc_central']['ic95_TWh'][1])} TWh). Isso é {f(100 * p('central', 'base', 'importacao_TWh') / (ldc['central'] * 8760 / 1e6), 0)}% da energia que
+   consomem e não muda o caráter exportador da região.
 2. **O problema é temporal, não de energia.** A importação adicional concentra-se no fim da tarde e à
    noite. A eólica compensa a energia anual com ~{f(k('central', 'base', 'dW_energia_anual_MW') / 1000)} GW,
    mas compensar a importação exige ~{f(k('central', 'base', 'dW_importacao_anual_media_MW') / 1000)} GW.
@@ -1057,8 +1080,9 @@ Essa é a resposta quantitativa à regra de "separar compensação energética d
 3. **A carga de data centers aproveitaria excedente.** {f(k('central', 'base', 'absorcao_excedente_%'), 0)}%
    da energia dos data centers cairia em horas de excedente regional. Isso reduz o excedente acima do
    limite de exportação. Transformar isso em "corte evitado" exige análise de rede, fora do escopo.
-4. **O clima pesa tanto quanto a decisão.** A variabilidade entre anos é da mesma ordem que a diferença
-   entre cenários. Por isso os resultados devem ser comunicados como distribuições e diferenças pareadas,
+4. **A importação varia muito de um ano para outro.** No cenário central, de
+   {f(r('central', 'base', 'importacao_TWh', 'p5'))} a {f(r('central', 'base', 'importacao_TWh', 'p95'))} TWh (P5–P95), e as
+   distribuições dos cenários se sobrepõem. Por isso os resultados devem ser comunicados como distribuições e diferenças pareadas,
    não como um número único.
 5. **O efeito é mais confiável que o nível.** Na validação retrospectiva, o nível anual da importação
    erra de {sg(bk['regra']['erro_%'].min())}% a {sg(bk['regra']['erro_%'].max())}% em 2022–2025; fora da amostra, de

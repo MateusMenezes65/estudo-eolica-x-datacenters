@@ -361,6 +361,58 @@ def compensacao(ins, sd, c, d, cen_dc, cen_w, ref: pd.DataFrame, idx):
     return out
 
 
+def ic_amostra_de_anos(D: pd.DataFrame, reamostras: int = 4000, semente: int = SEMENTE) -> dict:
+    """IC95 das médias (central, eólica base) por reamostragem dos ANOS, não dos sorteios.
+
+    Os sorteios repetem 31 anos meteorológicos e 4 anos hidrotérmicos; aumentar o número deles reduz o erro
+    de simulação, mas não a incerteza de a amostra ter só esses anos. Cada reamostra sorteia, com reposição,
+    31 anos meteorológicos e 4 hidrotérmicos e tira a média das células clima × hidrologia (peso igual).
+    Com 4 anos hidrotérmicos o intervalo é aproximado.
+    """
+    q = D[D.cenario_eolico == "base"]
+    k = ["sorteio", "ano_clima", "ano_hidro"]
+    c = q[q.cenario_dc == "central"].set_index(k).importacao_TWh
+    s = q[q.cenario_dc == "sem_dc"].set_index(k).importacao_TWh.reindex(c.index)
+    rng = np.random.default_rng(semente)
+    out = {"reamostras": reamostras, "n_anos_clima": 0, "n_anos_hidro": 0}
+    iw = ih = None
+    for nome, x in [("importacao_central", c), ("importacao_sem_dc", s), ("efeito_dc_central", c - s)]:
+        A = x.groupby(["ano_clima", "ano_hidro"]).mean().unstack().to_numpy()
+        assert not np.isnan(A).any(), "célula clima × hidrologia sem sorteio"
+        nw, nh = A.shape
+        if iw is None:                                     # mesmas reamostras para as três médias
+            iw, ih = rng.integers(0, nw, (reamostras, nw)), rng.integers(0, nh, (reamostras, nh))
+        ic = lambda m: [float(v) for v in np.percentile(m, [2.5, 97.5])]
+        ambos = np.array([A[np.ix_(a, b)].mean() for a, b in zip(iw, ih)])
+        out[nome] = {"media_celulas_TWh": float(A.mean()), "ic95_TWh": ic(ambos),
+                     "ic95_so_clima_TWh": ic(A.mean(axis=1)[iw].mean(axis=1)),
+                     "ic95_so_hidrologia_TWh": ic(A.mean(axis=0)[ih].mean(axis=1)),
+                     "erro_padrao_anos_TWh": float(ambos.std()),
+                     "erro_padrao_simulacao_TWh": float(x.std() / np.sqrt(len(x)))}
+        out["n_anos_clima"], out["n_anos_hidro"] = nw, nh
+    return out
+
+
+def gravar_incerteza(D: pd.DataFrame, clip: dict) -> dict:
+    """Decomposição da variância, dispersões e IC da amostra de anos → reports/mc/mc_incerteza.json."""
+    g = D[(D.cenario_dc == "central") & (D.cenario_eolico == "base")]
+    # efeitos principais (central/base): ano meteorológico × ano hidrotérmico
+    y = g.importacao_TWh
+    sst = ((y - y.mean()) ** 2).sum()
+    eta = {f: float((g.groupby(f).importacao_TWh.transform("mean") - y.mean()).pow(2).sum() / sst)
+           for f in ["ano_clima", "ano_hidro"]}
+    eta["residuos_e_interacao"] = 1 - sum(eta.values())
+    med = D.groupby(["cenario_dc", "cenario_eolico"]).importacao_TWh.median()
+    inc = {"eta2": eta, "iqr_amostral_central_base_TWh": float(np.subtract(*np.percentile(y, [75, 25]))),
+           "amplitude_medianas_entre_cenarios_TWh": float(med.max() - med.min()),
+           "amplitude_medianas_dc_com_eolica_base_TWh": float(med.xs("base", level=1).max() - med.xs("base", level=1).min()),
+           "amplitude_medianas_eolica_com_dc_central_TWh": float(med.xs("central").max() - med.xs("central").min()),
+           "ic_amostra_de_anos": ic_amostra_de_anos(D), "limitacao_cf_0_1_energia_%": clip}
+    with open(OUT / "mc_incerteza.json", "w", encoding="utf-8") as f:
+        json.dump(inc, f, ensure_ascii=False, indent=1)
+    return inc
+
+
 def resumo(D: pd.DataFrame) -> pd.DataFrame:
     mets = ["importacao_TWh", "horas_importacao", "importacao_p95_MW", "importacao_pico_MW",
             "maior_sequencia_importacao_h", "excedente_TWh", "excedente_acima_limite_exp_TWh",
@@ -383,12 +435,18 @@ def main(argv=None) -> None:
     ap.add_argument("--semente", type=int, default=SEMENTE)
     ap.add_argument("--so-figuras", action="store_true")
     ap.add_argument("--so-sensibilidades", action="store_true")
+    ap.add_argument("--so-incerteza", action="store_true", help="refaz mc_incerteza.json a partir dos sorteios gravados")
     a = ap.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
     if a.so_sensibilidades:
         c, d = load_cfg()
         sensibilidades(Insumos(), c, d, a)
         print(pd.read_csv(OUT / "mc_sensibilidades.csv").round(2).to_string())
+        return
+    if a.so_incerteza:
+        antes = json.load(open(OUT / "mc_incerteza.json", encoding="utf-8"))
+        inc = gravar_incerteza(pd.read_parquet(PROCESSED / "mc_sorteios.parquet"), antes["limitacao_cf_0_1_energia_%"])
+        print(json.dumps(inc["ic_amostra_de_anos"], indent=1, ensure_ascii=False))
         return
     if a.so_figuras:
         figuras(pd.read_parquet(PROCESSED / "mc_sorteios.parquet"), pd.read_csv(OUT / "mc_convergencia.csv"))
@@ -433,21 +491,7 @@ def main(argv=None) -> None:
                       "delta_p95": np.percentile(delta, 95), "frac_sorteios_delta_pos": (delta > 0).mean()})
     pd.DataFrame(P).round(3).to_csv(OUT / "mc_diferencas_pareadas.csv", index=False)
 
-    # decomposição da variância (efeitos principais, central/base): ano meteorológico × ano hidrotérmico
-    y = g.importacao_TWh
-    sst = ((y - y.mean()) ** 2).sum()
-    eta = {f: float((g.groupby(f).importacao_TWh.transform("mean") - y.mean()).pow(2).sum() / sst)
-           for f in ["ano_clima", "ano_hidro"]}
-    eta["residuos_e_interacao"] = 1 - sum(eta.values())
-    # comparação com a dispersão entre escolhas de cenário (medianas por cenário)
-    med = D.groupby(["cenario_dc", "cenario_eolico"]).importacao_TWh.median()
-    inc = {"eta2": eta, "iqr_amostral_central_base_TWh": float(np.subtract(*np.percentile(y, [75, 25]))),
-           "amplitude_medianas_entre_cenarios_TWh": float(med.max() - med.min()),
-           "amplitude_medianas_dc_com_eolica_base_TWh": float(med.xs("base", level=1).max() - med.xs("base", level=1).min()),
-           "amplitude_medianas_eolica_com_dc_central_TWh": float(med.xs("central").max() - med.xs("central").min()),
-           "limitacao_cf_0_1_energia_%": clip.to_dict()}
-    with open(OUT / "mc_incerteza.json", "w", encoding="utf-8") as f:
-        json.dump(inc, f, ensure_ascii=False, indent=1)
+    inc = gravar_incerteza(D, clip.to_dict())
 
     # probabilidade condicional anual de ao menos 1 h com importação acima de L (não é risco de déficit)
     pr = []
