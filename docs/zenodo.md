@@ -35,7 +35,7 @@ docs/decisoes.md). Para restaurar os dados derivados na raiz do projeto:
 - **Language:** Portuguese
 - **Licenses:** MIT License; Creative Commons Attribution 4.0 International
 - **Keywords:** energia eólica; data centers; balanço energético; subsistema Nordeste; importação de energia; simulação de Monte Carlo; gradient boosting; ERA5
-- **Related works:** *Is supplemented by* → URL → https://github.com/MateusMenezes65/estudo-eolica-x-datacenters
+- **Related works:** *Is supplement to* → https://github.com/MateusMenezes65/estudo-eolica-x-datacenters/tree/v1.0.0 → URL → Software (a mesma relação que a integração do Zenodo com o GitHub usa)
 
 ### Description
 
